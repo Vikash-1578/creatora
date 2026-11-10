@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Creatora</string>
+
+    <!-- Theme setting -->
+    <string name="theme_mode_system">System</string>
+    <string name="theme_mode_light">Light</string>
+    <string name="theme_mode_dark">Dark</string>
+
+    <!-- Theme preview (demo) screen -->
+    <string name="theme_preview_title">Theme preview</string>
+    <string name="theme_preview_subtitle">Check colours, fonts and shapes in light and dark theme.</string>
+    <string name="theme_preview_appearance">Appearance</string>
+    <string name="theme_preview_card_title">Sample card</string>
+    <string name="theme_preview_card_body">Cards use the surface colour, a 1dp border and a 16dp corner radius.</string>
+    <string name="theme_preview_status_success">Success</string>
+    <string name="theme_preview_status_warning">Warning</string>
+    <string name="theme_preview_status_danger">Danger</string>
+    <string name="theme_preview_accent_text">Accent text on accent soft</string>
+    <string name="theme_preview_primary_button">Primary button</string>
+    <string name="theme_preview_muted_text">Muted text is used for secondary information. Your theme choice is saved and kept after restarting the app.</string>
 </resources>

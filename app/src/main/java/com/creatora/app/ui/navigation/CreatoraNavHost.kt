@@ -5,11 +5,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.creatora.app.ui.home.HomeScreen
+import com.creatora.app.ui.themepreview.ThemePreviewScreen
 
 /** All navigation destinations in the app. Add new screens here. */
 object Routes {
-    const val HOME = "home"
+    const val THEME_PREVIEW = "theme_preview"
 }
 
 @Composable
@@ -19,11 +19,11 @@ fun CreatoraNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.HOME,
+        startDestination = Routes.THEME_PREVIEW,
         modifier = modifier,
     ) {
-        composable(Routes.HOME) {
-            HomeScreen()
+        composable(Routes.THEME_PREVIEW) {
+            ThemePreviewScreen()
         }
     }
 }
