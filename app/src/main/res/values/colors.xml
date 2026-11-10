@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only used by XML-level resources (launcher icon, window theme). Compose colours live in ui/theme/Color.kt. -->
+<resources>
+    <color name="brand_primary">#FF6A3FD9</color>
+    <color name="icon_foreground">#FFFFFFFF</color>
+    <color name="window_background_light">#FFFEF7FF</color>
+    <color name="window_background_dark">#FF15121A</color>
+</resources>
