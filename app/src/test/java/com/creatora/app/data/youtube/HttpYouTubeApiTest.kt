@@ -123,6 +123,23 @@ class HttpYouTubeApiTest {
     }
 
     @Test
+    fun topVideos_searchesTheChannelByViewCountAndSortsByViews() = runTest {
+        val urls = mutableListOf<String>()
+        val transport = object : com.creatora.app.data.ai.HttpTransport {
+            override suspend fun post(url: String, headers: Map<String, String>, body: String) = error("unused")
+            override suspend fun get(url: String, headers: Map<String, String>): HttpResponse {
+                urls += url
+                return HttpResponse(200, if ("/search?" in url) SEARCH else VIDEOS)
+            }
+        }
+
+        val top = HttpYouTubeApi(transport, keys).topVideos("UCabc").value()
+
+        assertEquals(listOf("First", "Second"), top.map { it.title })
+        assertTrue("channelId=UCabc" in urls[0] && "order=viewCount" in urls[0])
+    }
+
+    @Test
     fun withoutAKey_nothingIsSent() = runTest {
         val transport = FakeTransport(HttpResponse(200, "{}"))
 

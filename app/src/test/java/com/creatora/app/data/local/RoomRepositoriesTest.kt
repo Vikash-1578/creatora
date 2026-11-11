@@ -101,6 +101,24 @@ class RoomRepositoriesTest {
     }
 
     @Test
+    fun commentDraftsAndAbTests_roundTrip() = runTest {
+        val drafts = RoomCommentDraftRepository(db)
+        val draft = com.creatora.app.domain.grow.CommentDraft(comment = "c", reply = "r", status = com.creatora.app.domain.grow.DraftStatus.APPROVED, createdAt = 4)
+        val draftId = drafts.save(draft)
+        assertEquals(draft.copy(id = draftId), drafts.observe(draftId).first())
+
+        val abTests = RoomAbTestRepository(db)
+        val test = com.creatora.app.domain.grow.AbTest(
+            name = "T", kind = com.creatora.app.domain.grow.TestKind.THUMBNAIL, variantA = "a", variantB = "b", notes = "n",
+            winner = com.creatora.app.domain.grow.TestVariant.B, startedAt = 1, endedAt = 2,
+        )
+        val testId = abTests.save(test)
+        assertEquals(test.copy(id = testId), abTests.observe(testId).first())
+        val running = abTests.save(test.copy(winner = null, endedAt = null))
+        assertNull(abTests.observe(running).first()!!.winner)
+    }
+
+    @Test
     fun ideas_keepIdeaWhenItsProjectIsDeleted() = runTest {
         val projectId = newProject()
         val repository = RoomIdeaRepository(db)

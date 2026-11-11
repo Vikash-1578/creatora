@@ -40,6 +40,8 @@ data class CreatoraDimens(
     val createButtonSize: Dp = 48.dp,
     /** How far the Create button sticks up above the tab bar. */
     val createButtonLift: Dp = 24.dp,
+    /** Height of the bars area in charts. */
+    val chartHeight: Dp = 120.dp,
     /** Widest a chat message bubble gets. */
     val chatBubbleMaxWidth: Dp = 300.dp,
     /** Height of one segment of the wizard progress bar. */

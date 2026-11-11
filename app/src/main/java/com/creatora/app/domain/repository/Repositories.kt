@@ -142,6 +142,9 @@ interface YouTubeApi {
     suspend fun findChannel(query: com.creatora.app.domain.research.ChannelQuery): com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.YtChannel?>
     suspend fun video(id: String): com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.YtVideo?>
     suspend fun trending(regionCode: String): com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtVideo>>
+
+    /** The channel's five most viewed videos. */
+    suspend fun topVideos(channelId: String): com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtVideo>>
 }
 
 /** The user's YouTube Data API key, encrypted on the phone. */
@@ -161,4 +164,15 @@ interface ReminderScheduler {
     /** Replaces any earlier reminder for [postId]. A time in the past schedules nothing. */
     fun schedule(postId: Long, projectId: Long, title: String, platformName: String, atMillis: Long)
     fun cancel(postId: Long)
+}
+
+interface CommentDraftRepository : Repository<com.creatora.app.domain.grow.CommentDraft>
+
+interface AbTestRepository : Repository<com.creatora.app.domain.grow.AbTest>
+
+/** Which YouTube channel the user is growing. */
+interface MyChannelRepository {
+    val channel: Flow<com.creatora.app.domain.grow.MyChannel?>
+    suspend fun set(channel: com.creatora.app.domain.grow.MyChannel)
+    suspend fun clear()
 }

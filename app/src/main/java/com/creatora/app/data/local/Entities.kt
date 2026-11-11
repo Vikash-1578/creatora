@@ -5,6 +5,11 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.creatora.app.domain.grow.AbTest
+import com.creatora.app.domain.grow.CommentDraft
+import com.creatora.app.domain.grow.DraftStatus
+import com.creatora.app.domain.grow.TestKind
+import com.creatora.app.domain.grow.TestVariant
 import com.creatora.app.domain.model.Asset
 import com.creatora.app.domain.model.AssetType
 import com.creatora.app.domain.model.ChannelSnapshot
@@ -149,6 +154,28 @@ data class SwipeItemEntity(
     val createdAt: Long,
 )
 
+@Entity(tableName = "comment_drafts")
+data class CommentDraftEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    val comment: String,
+    val reply: String,
+    val status: DraftStatus,
+    val createdAt: Long,
+)
+
+@Entity(tableName = "ab_tests")
+data class AbTestEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    val name: String,
+    val kind: TestKind,
+    val variantA: String,
+    val variantB: String,
+    val notes: String,
+    val winner: TestVariant?,
+    val startedAt: Long,
+    val endedAt: Long?,
+)
+
 @Entity(tableName = "channel_snapshots", indices = [Index("channelId", "capturedAt")])
 data class ChannelSnapshotEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
@@ -197,6 +224,12 @@ fun Competitor.toEntity() = CompetitorEntity(id, channelId, title, subscribers, 
 
 fun SwipeItemEntity.toModel() = SwipeItem(id, title, url, channelTitle, note, createdAt)
 fun SwipeItem.toEntity() = SwipeItemEntity(id, title, url, channelTitle, note, createdAt)
+
+fun CommentDraftEntity.toModel() = CommentDraft(id, comment, reply, status, createdAt)
+fun CommentDraft.toEntity() = CommentDraftEntity(id, comment, reply, status, createdAt)
+
+fun AbTestEntity.toModel() = AbTest(id, name, kind, variantA, variantB, notes, winner, startedAt, endedAt)
+fun AbTest.toEntity() = AbTestEntity(id, name, kind, variantA, variantB, notes, winner, startedAt, endedAt)
 
 fun ChannelSnapshotEntity.toModel() =
     ChannelSnapshot(id, channelId, subscriberCount, viewCount, videoCount, capturedAt)

@@ -95,6 +95,26 @@ class AiTasksTest {
     }
 
     @Test
+    fun replyDraft_asksForTheToneAndStripsQuotes() = runTest {
+        val service = FakeAiService(okReply("  \"Thank you!\"  "))
+
+        val outcome = AiTasks(service).replyDraft("Loved it", "friendly")
+
+        assertEquals("Thank you!", (outcome as AiOutcome.Ok).value)
+        assertTrue("friendly" in service.requests.single().system)
+        assertTrue("Loved it" in service.requests.single().messages.single().text)
+    }
+
+    @Test
+    fun nextTopic_readsTopicAndReason_orKeepsTheWholeReply() = runTest {
+        val parsed = AiTasks(FakeAiService(okReply("TOPIC: A new idea\nWHY: Because."))).nextTopic("Chan", "stats", listOf("Top (10 views)"), listOf("A comment"))
+        assertEquals(NextTopic("A new idea", "Because."), (parsed as AiOutcome.Ok).value)
+
+        val plain = AiTasks(FakeAiService(okReply("Just make a vlog"))).nextTopic("Chan", "", emptyList(), emptyList())
+        assertEquals(NextTopic("Just make a vlog", ""), (plain as AiOutcome.Ok).value)
+    }
+
+    @Test
     fun errors_passThroughUnchanged() = runTest {
         val failed = AiOutcome.Failed(listOf(AiError.NoKey))
 

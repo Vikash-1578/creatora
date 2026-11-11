@@ -474,6 +474,67 @@
     <string name="calendar_open">Open</string>
     <string name="calendar_deleted_project">Deleted project</string>
 
+    <!-- Grow -->
+    <string name="grow_tab_overview">Overview</string>
+    <string name="grow_tab_comments">Comments</string>
+    <string name="grow_tab_tests">Tests</string>
+    <string name="grow_no_key_title">Add a YouTube key</string>
+    <string name="grow_no_key_body">Grow tracks your channel\'s public numbers over time with your own free API key.</string>
+    <string name="grow_connect_title">Connect your channel</string>
+    <string name="grow_connect_body">Creatora saves your channel\'s subscriber, view and video counts every day you open the app, so you can see growth over time. It cannot see watch time or click-through rate: YouTube only shares those with a Google sign-in.</string>
+    <string name="grow_connect">Connect channel</string>
+    <string name="grow_disconnect">Use a different channel</string>
+    <string name="grow_refresh">Refresh</string>
+    <string name="grow_updated">Updated %1$s</string>
+    <string name="grow_last_days">Last %1$d days</string>
+    <string name="grow_subscribers">Subscribers</string>
+    <string name="grow_views">Total views</string>
+    <string name="grow_videos">Videos</string>
+    <string name="grow_average_views">Average views per video</string>
+    <string name="grow_up">Up %1$s in %2$d days</string>
+    <string name="grow_down">Down %1$s in %2$d days</string>
+    <string name="grow_no_change">No change in %1$d days</string>
+    <string name="grow_no_history">Not enough history yet</string>
+    <string name="grow_views_gained">Views gained per day</string>
+    <string name="grow_chart_needs_history">Creatora needs numbers from at least two days. Open the app on another day and the chart fills in.</string>
+    <string name="grow_make_next">Make this next</string>
+    <string name="grow_make_next_body">Get a topic suggestion based on your best videos and the comments you saved.</string>
+    <string name="grow_suggest">Suggest a topic</string>
+    <string name="grow_another">Another idea</string>
+    <string name="grow_start">Start</string>
+    <string name="grow_reply_drafts">Reply drafts to approve</string>
+    <string name="grow_tests_running">Tests running</string>
+    <string name="grow_comments_intro">Paste a comment from your video. The AI drafts a reply, and nothing is posted: you approve it, copy it and paste it yourself.</string>
+    <string name="grow_comment_label">Comment</string>
+    <string name="grow_tone_friendly">Friendly</string>
+    <string name="grow_tone_short">Short</string>
+    <string name="grow_tone_funny">Funny</string>
+    <string name="grow_draft_reply">Draft a reply</string>
+    <string name="grow_drafts_empty_title">No comments yet</string>
+    <string name="grow_drafts_empty_body">Paste a comment above to get a reply draft.</string>
+    <plurals name="grow_drafts_waiting">
+        <item quantity="one">%1$d reply waiting for you</item>
+        <item quantity="other">%1$d replies waiting for you</item>
+    </plurals>
+    <string name="grow_approve_copy">Approve and copy</string>
+    <string name="grow_dismiss">Dismiss</string>
+    <string name="grow_drafts_done">Earlier replies</string>
+    <string name="grow_approved">Approved and copied</string>
+    <string name="grow_dismissed">Dismissed</string>
+    <string name="grow_tests_intro">Keep track of title and thumbnail tests. Run the test on YouTube, then note which version won.</string>
+    <string name="grow_tests_empty_title">No tests yet</string>
+    <string name="grow_tests_empty_body">Add a test to remember what you tried and what worked.</string>
+    <string name="grow_test_new">New test</string>
+    <string name="grow_test_name">Test name</string>
+    <string name="grow_kind_title">Title</string>
+    <string name="grow_kind_thumbnail">Thumbnail</string>
+    <string name="grow_variant_a">Version A</string>
+    <string name="grow_variant_b">Version B</string>
+    <string name="grow_a_wins">A won</string>
+    <string name="grow_b_wins">B won</string>
+    <string name="grow_reopen">Reopen</string>
+    <string name="grow_winner">Winner</string>
+
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>

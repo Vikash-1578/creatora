@@ -46,6 +46,11 @@ class HttpYouTubeApi @Inject constructor(
         parseVideos(request("videos", "part" to "snippet,statistics", "chart" to "mostPopular", "regionCode" to regionCode, "maxResults" to "25"))
     }
 
+    override suspend fun topVideos(channelId: String): YtOutcome<List<YtVideo>> = attempt {
+        val (_, ids) = parseSearchVideoIds(request("search", "part" to "snippet", "type" to "video", "channelId" to channelId, "order" to "viewCount", "maxResults" to "5"))
+        if (ids.isEmpty()) emptyList() else videosById(ids).sortedByDescending { it.views }
+    }
+
     private suspend fun videosById(ids: List<String>): List<YtVideo> =
         parseVideos(request("videos", "part" to "snippet,statistics", "id" to ids.joinToString(",")))
 

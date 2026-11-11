@@ -52,6 +52,32 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         ).map { parsePublishText(it) }
 
+    /** One reply to a comment the user pasted, in the given tone ("friendly", "short", "funny"). */
+    suspend fun replyDraft(comment: String, tone: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You write replies to comments on a creator\'s videos. Reply with only the reply text: warm, specific to the comment, " +
+                    "at most two sentences, no hashtags, no quotation marks. Tone: $tone.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Comment: ${comment.take(COMMENT_LIMIT)}")),
+            ),
+        ).map { it.trim().trim('"') }
+
+    /** The next video to make, from the channel\'s numbers, its best videos and what viewers said. */
+    suspend fun nextTopic(channel: String, stats: String, topVideos: List<String>, comments: List<String>): AiOutcome<NextTopic> =
+        ai.complete(
+            AiRequest(
+                system = "You advise a creator on the next video to make. Reply in exactly this format and nothing else:\n" +
+                    "TOPIC: one specific video idea written as a title\nWHY: one sentence on why it should work, based on the data given",
+                messages = listOf(
+                    ChatMessage(
+                        ChatRole.USER,
+                        "Channel: $channel\n$stats\nBest videos:\n${topVideos.joinToString("\n") { "- $it" }.ifEmpty { "(none yet)" }}\n" +
+                            "Recent comments:\n${comments.joinToString("\n") { "- ${it.take(COMMENT_LIMIT)}" }.ifEmpty { "(none yet)" }}",
+                    ),
+                ),
+            ),
+        ).map { text -> parseSections(text, listOf("TOPIC", "WHY")).let { NextTopic(it["TOPIC"] ?: text.trim(), it["WHY"].orEmpty()) } }
+
     /** Plain-language notes on why a video works and what to borrow from its style. */
     suspend fun styleNotes(title: String, channel: String, description: String): AiOutcome<String> =
         ai.complete(
@@ -66,6 +92,7 @@ class AiTasks @Inject constructor(private val ai: AiService) {
     companion object {
         const val IDEA_COUNT = 5
         const val DESCRIPTION_LIMIT = 1_500
+        const val COMMENT_LIMIT = 500
         const val COACH_SYSTEM =
             "You are Creatora's AI Coach, a friendly and practical coach for people who make videos and posts. " +
                 "Give short, concrete advice: hooks, structure, titles, posting and growth. Ask one question if you need more detail."
@@ -117,3 +144,6 @@ fun parsePublishText(text: String): PublishText {
         chapters = sections["CHAPTERS"].orEmpty().lines().map { it.replace(BULLET, "").trim() }.filter { it.isNotEmpty() },
     )
 }
+
+/** A suggested next video and the reason for it. */
+data class NextTopic(val topic: String, val reason: String)

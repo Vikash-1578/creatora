@@ -8,7 +8,11 @@ import com.creatora.app.domain.model.LicenceEntry
 import com.creatora.app.domain.model.Project
 import com.creatora.app.domain.model.ScheduledPost
 import com.creatora.app.domain.model.VoicePreset
+import com.creatora.app.domain.grow.AbTest
+import com.creatora.app.domain.grow.CommentDraft
+import com.creatora.app.domain.repository.AbTestRepository
 import com.creatora.app.domain.repository.AssetRepository
+import com.creatora.app.domain.repository.CommentDraftRepository
 import com.creatora.app.domain.repository.CompetitorRepository
 import com.creatora.app.domain.repository.SwipeRepository
 import com.creatora.app.domain.research.Competitor
@@ -82,6 +86,14 @@ class RoomCompetitorRepository @Inject constructor(db: CreatoraDatabase) :
 class RoomSwipeRepository @Inject constructor(db: CreatoraDatabase) :
     RoomRepository<SwipeItem, SwipeItemEntity>(db.swipeItemDao(), { it.toModel() }, { it.toEntity() }, { it.id }),
     SwipeRepository
+
+class RoomCommentDraftRepository @Inject constructor(db: CreatoraDatabase) :
+    RoomRepository<CommentDraft, CommentDraftEntity>(db.commentDraftDao(), { it.toModel() }, { it.toEntity() }, { it.id }),
+    CommentDraftRepository
+
+class RoomAbTestRepository @Inject constructor(db: CreatoraDatabase) :
+    RoomRepository<AbTest, AbTestEntity>(db.abTestDao(), { it.toModel() }, { it.toEntity() }, { it.id }),
+    AbTestRepository
 
 class RoomChannelSnapshotRepository @Inject constructor(db: CreatoraDatabase) :
     RoomRepository<ChannelSnapshot, ChannelSnapshotEntity>(

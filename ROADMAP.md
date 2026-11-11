@@ -17,7 +17,7 @@ reviewer merges PRs.
 | M8 | Video render | PR #9 (stacked on #8) |
 | M9 | Research tab | PR #10 (stacked on #9) |
 | M10 | Publish and schedule | PR #11 (stacked on #10) |
-| M11 | Grow tab | Planned |
+| M11 | Grow tab | PR #12 (stacked on #11) |
 | M12 | Home tab | Planned |
 | M13 | Profile and Earn | Planned |
 | M14 | Release quality (1.0.0) | Planned |

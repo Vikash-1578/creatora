@@ -14,9 +14,12 @@ import com.creatora.app.data.ai.FailoverAiService
 import com.creatora.app.data.ai.HttpTransport
 import com.creatora.app.data.ai.SecretCipher
 import com.creatora.app.data.ai.UrlConnectionTransport
+import com.creatora.app.data.grow.DataStoreMyChannelRepository
 import com.creatora.app.data.local.CreatoraDatabase
 import com.creatora.app.data.local.RoomAssetRepository
+import com.creatora.app.data.local.RoomAbTestRepository
 import com.creatora.app.data.local.RoomChannelSnapshotRepository
+import com.creatora.app.data.local.RoomCommentDraftRepository
 import com.creatora.app.data.local.RoomCompetitorRepository
 import com.creatora.app.data.local.RoomSwipeRepository
 import com.creatora.app.data.youtube.HttpYouTubeApi
@@ -38,7 +41,10 @@ import com.creatora.app.data.settings.DataStoreBrandKitRepository
 import com.creatora.app.data.settings.DataStoreSettingsRepository
 import com.creatora.app.domain.repository.AiProviderStore
 import com.creatora.app.domain.repository.AiService
+import com.creatora.app.domain.repository.AbTestRepository
 import com.creatora.app.domain.repository.AssetRepository
+import com.creatora.app.domain.repository.CommentDraftRepository
+import com.creatora.app.domain.repository.MyChannelRepository
 import com.creatora.app.domain.repository.CompetitorRepository
 import com.creatora.app.domain.repository.SwipeRepository
 import com.creatora.app.domain.repository.YouTubeApi
@@ -100,6 +106,9 @@ abstract class RepositoryModule {
     @Binds abstract fun youTubeApi(impl: HttpYouTubeApi): YouTubeApi
     @Binds abstract fun competitors(impl: RoomCompetitorRepository): CompetitorRepository
     @Binds abstract fun swipeItems(impl: RoomSwipeRepository): SwipeRepository
+    @Binds abstract fun commentDrafts(impl: RoomCommentDraftRepository): CommentDraftRepository
+    @Binds abstract fun abTests(impl: RoomAbTestRepository): AbTestRepository
+    @Binds abstract fun myChannel(impl: DataStoreMyChannelRepository): MyChannelRepository
     @Binds abstract fun settings(impl: DataStoreSettingsRepository): SettingsRepository
     @Binds abstract fun brandKit(impl: DataStoreBrandKitRepository): BrandKitRepository
     @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles

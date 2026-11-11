@@ -19,6 +19,7 @@ import com.creatora.app.ui.create.WizardScreen
 import com.creatora.app.ui.create.WizardViewModel
 import com.creatora.app.ui.earn.EarnScreen
 import com.creatora.app.ui.grow.GrowScreen
+import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.home.HomeScreen
 import com.creatora.app.ui.library.LibraryScreen
 import com.creatora.app.ui.licences.LicencesScreen
@@ -115,7 +116,12 @@ fun CreatoraNavHost(
             }
         }
         navigation(route = TopLevelTab.GROW.graphRoute, startDestination = Routes.GROW) {
-            composable(Routes.GROW) { GrowScreen() }
+            composable(Routes.GROW) {
+                GrowScreen(
+                    onOpenKeys = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                    onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) },
+                )
+            }
         }
         navigation(route = TopLevelTab.LIBRARY.graphRoute, startDestination = Routes.LIBRARY) {
             composable(Routes.LIBRARY) {

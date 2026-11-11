@@ -214,6 +214,9 @@ class FakeYouTubeApi : com.creatora.app.domain.repository.YouTubeApi {
     override suspend fun findChannel(query: com.creatora.app.domain.research.ChannelQuery) = channel.also { calls += "find:$query" }
     override suspend fun video(id: String) = videoResult.also { calls += "video:$id" }
     override suspend fun trending(regionCode: String) = trendingList.also { calls += "trending" }
+
+    var top: com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtVideo>> = ok(emptyList())
+    override suspend fun topVideos(channelId: String) = top.also { calls += "top:$channelId" }
 }
 
 class FakeReminderScheduler : com.creatora.app.domain.repository.ReminderScheduler {
@@ -226,5 +229,22 @@ class FakeReminderScheduler : com.creatora.app.domain.repository.ReminderSchedul
     }
     override fun cancel(postId: Long) {
         cancelled += postId
+    }
+}
+
+class FakeCommentDraftRepository : FakeRepository<com.creatora.app.domain.grow.CommentDraft>({ it.id }, { d, id -> d.copy(id = id) }), com.creatora.app.domain.repository.CommentDraftRepository
+class FakeAbTestRepository : FakeRepository<com.creatora.app.domain.grow.AbTest>({ it.id }, { t, id -> t.copy(id = id) }), com.creatora.app.domain.repository.AbTestRepository
+
+class FakeSnapshotRepository : FakeRepository<com.creatora.app.domain.model.ChannelSnapshot>({ it.id }, { s, id -> s.copy(id = id) }), com.creatora.app.domain.repository.ChannelSnapshotRepository {
+    override fun observeForChannel(channelId: String) = items.map { list -> list.filter { it.channelId == channelId }.sortedBy { it.capturedAt } }
+}
+
+class FakeMyChannelRepository(initial: com.creatora.app.domain.grow.MyChannel? = null) : com.creatora.app.domain.repository.MyChannelRepository {
+    override val channel = MutableStateFlow(initial)
+    override suspend fun set(channel: com.creatora.app.domain.grow.MyChannel) {
+        this.channel.value = channel
+    }
+    override suspend fun clear() {
+        channel.value = null
     }
 }

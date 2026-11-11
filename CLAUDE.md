@@ -38,6 +38,7 @@ com.creatora.app
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
 │   ├── render/ thumbnail/                       # Generate-step render panel, thumbnail maker
+│   ├── grow/            # Grow tab: channel numbers over time, comment reply drafts, A/B test log
 │   ├── publish/ calendar/                       # Publish screen (checklist, share), schedule dialog, content calendar
 │   ├── research/ study/ saved/                  # Research tab, "study a video" and idea bank / swipe file screens
 │   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
@@ -123,6 +124,9 @@ Android, Compose, or `data`.
 - **Reminders** use WorkManager one-time work with the post's details in the input data, so the worker needs no
   injection. A tapped reminder opens the project's Publish screen through `MainActivity.EXTRA_PUBLISH_PROJECT_ID`.
   Date and time pickers are the platform dialogs.
+- **Grow numbers** come only from public YouTube data stored as `ChannelSnapshot`s (taken when the Grow tab opens,
+  at most every 12 hours). Retention, click-through rate and watch time need Google sign-in (YouTube Analytics)
+  and are not available: never show invented values for them. The pure maths lives in `domain/grow/`.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state

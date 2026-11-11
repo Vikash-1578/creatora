@@ -128,6 +128,30 @@ interface SwipeItemDao : CrudDao<SwipeItemEntity> {
 }
 
 @Dao
+interface CommentDraftDao : CrudDao<CommentDraftEntity> {
+    @Query("SELECT * FROM comment_drafts ORDER BY createdAt DESC")
+    override fun observeAll(): Flow<List<CommentDraftEntity>>
+
+    @Query("SELECT * FROM comment_drafts WHERE id = :id")
+    override fun observe(id: Long): Flow<CommentDraftEntity?>
+
+    @Query("DELETE FROM comment_drafts WHERE id = :id")
+    override suspend fun deleteById(id: Long)
+}
+
+@Dao
+interface AbTestDao : CrudDao<AbTestEntity> {
+    @Query("SELECT * FROM ab_tests ORDER BY startedAt DESC")
+    override fun observeAll(): Flow<List<AbTestEntity>>
+
+    @Query("SELECT * FROM ab_tests WHERE id = :id")
+    override fun observe(id: Long): Flow<AbTestEntity?>
+
+    @Query("DELETE FROM ab_tests WHERE id = :id")
+    override suspend fun deleteById(id: Long)
+}
+
+@Dao
 interface ChannelSnapshotDao : CrudDao<ChannelSnapshotEntity> {
     @Query("SELECT * FROM channel_snapshots ORDER BY capturedAt")
     override fun observeAll(): Flow<List<ChannelSnapshotEntity>>
