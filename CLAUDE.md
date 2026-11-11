@@ -120,8 +120,8 @@ Android, Compose, or `data`.
   the `X-Goog-Api-Key` header). It gives no search volume or competition score, so never show or invent
   either: "competition" is derived from the number of matching videos and labelled that way. search.list costs
   100 quota units a call (10,000 a day by default); prefer videos.list and channels.list (1 unit).
-- **Reminders** use WorkManager one-time work with the post\'s details in the input data, so the worker needs no
-  injection. A tapped reminder opens the project\'s Publish screen through `MainActivity.EXTRA_PUBLISH_PROJECT_ID`.
+- **Reminders** use WorkManager one-time work with the post's details in the input data, so the worker needs no
+  injection. A tapped reminder opens the project's Publish screen through `MainActivity.EXTRA_PUBLISH_PROJECT_ID`.
   Date and time pickers are the platform dialogs.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
