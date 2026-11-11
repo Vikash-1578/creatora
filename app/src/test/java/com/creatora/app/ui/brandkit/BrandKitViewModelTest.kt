@@ -17,7 +17,8 @@ class BrandKitViewModelTest {
 
     private val repository = FakeBrandKitRepository()
     private val files = FakeUserFiles()
-    private val viewModel = BrandKitViewModel(repository, files)
+    // Lazy: the ViewModel must be created after MainDispatcherRule has set the test dispatcher.
+    private val viewModel by lazy { BrandKitViewModel(repository, files) }
 
     @Test
     fun addColor_normalizesAndIgnoresDuplicates() {

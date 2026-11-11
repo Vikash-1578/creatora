@@ -39,7 +39,8 @@ class LibraryViewModelTest {
     private val voices = FakeVoicePresetRepository()
     private val licences = FakeLicenceRepository()
     private val files = FakeUserFiles()
-    private val viewModel = LibraryViewModel(projects, posts, assets, characters, voices, licences, files)
+    // Lazy: the ViewModel must be created after MainDispatcherRule has set the test dispatcher.
+    private val viewModel by lazy { LibraryViewModel(projects, posts, assets, characters, voices, licences, files) }
 
     private fun TestScope.state(): LibraryUiState {
         keepActive(viewModel.uiState)
