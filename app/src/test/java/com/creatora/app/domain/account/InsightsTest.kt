@@ -14,9 +14,10 @@ class InsightsTest {
         val result = findUnderperformers(videos)
 
         assertEquals(listOf("d", "e"), result.map { it.video.id })
-        assertEquals(1_000L, result[0].medianViews)
+        // Six videos: the median is the average of the two middle values, (900 + 1000) / 2.
+        assertEquals(950L, result[0].medianViews)
         assertEquals(10, result[0].percentOfMedian)
-        assertEquals(30, result[1].percentOfMedian)
+        assertEquals(31, result[1].percentOfMedian)
     }
 
     @Test
