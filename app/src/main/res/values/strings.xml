@@ -251,6 +251,63 @@
     <string name="home_continue_step">Step %1$d of %2$d · %3$s</string>
     <string name="home_continue_action">Continue</string>
 
+    <!-- AI -->
+    <string name="action_done">Done</string>
+    <string name="action_copy">Copy</string>
+    <string name="cd_open_coach">Ask the AI Coach</string>
+    <string name="ai_providers_title">AI providers</string>
+    <string name="ai_providers_row_value">Your own API keys</string>
+    <string name="ai_providers_intro">Creatora uses AI services with your own API keys. Keys are encrypted on this phone, are never backed up, and are only sent to the service they belong to. Add more than one and Creatora tries the next one when a service fails.</string>
+    <string name="ai_provider_gemini">Google Gemini</string>
+    <string name="ai_provider_gemini_hint">Get a free key at aistudio.google.com</string>
+    <string name="ai_provider_groq">Groq</string>
+    <string name="ai_provider_groq_hint">Get a free key at console.groq.com</string>
+    <string name="ai_provider_openrouter">OpenRouter</string>
+    <string name="ai_provider_openrouter_hint">Get a key at openrouter.ai. Models ending in :free cost nothing.</string>
+    <string name="ai_key_saved">Key saved</string>
+    <string name="ai_key_missing">No key</string>
+    <string name="ai_key_label">API key</string>
+    <string name="ai_key_replace_label">New API key (leave empty to keep the saved one)</string>
+    <string name="ai_key_remove">Remove key</string>
+    <string name="ai_model_label">Model</string>
+    <string name="ai_open_providers">Open AI providers</string>
+    <string name="ai_error_no_key">Add an API key first. Open Settings, then AI providers.</string>
+    <string name="ai_error_invalid_key">%1$s rejected your key. Check it in AI providers.</string>
+    <string name="ai_error_rate_limited">%1$s says you have made too many requests. Try again in a minute.</string>
+    <string name="ai_error_network">Couldn\'t reach %1$s. Check your internet connection.</string>
+    <string name="ai_error_server">%1$s had a problem (error %2$d).</string>
+    <string name="ai_error_bad_request">%1$s couldn\'t handle the request. Check the model name in AI providers.</string>
+    <string name="ai_error_bad_response">%1$s sent a reply Creatora couldn\'t read.</string>
+
+    <!-- AI Coach -->
+    <string name="coach_title">AI Coach</string>
+    <string name="coach_empty_title">Ask your coach</string>
+    <string name="coach_empty_body">Get help with ideas, hooks, titles and growing your channel.</string>
+    <string name="coach_prompt_ideas">Give me 5 video ideas</string>
+    <string name="coach_prompt_hook">How do I write a strong hook?</string>
+    <string name="coach_prompt_grow">How do I grow faster?</string>
+    <string name="coach_input_label">Message</string>
+    <string name="coach_send">Send</string>
+    <string name="coach_retry">Try again</string>
+
+    <!-- AI in the wizard and Create tab -->
+    <string name="wizard_ai_draft">Draft script with AI</string>
+    <string name="wizard_ai_draft_needs_brief">Write a brief first and the AI can draft a script from it.</string>
+    <string name="wizard_ai_working">Working…</string>
+    <string name="wizard_ai_draft_title">AI script draft</string>
+    <string name="wizard_ai_draft_replace">Replace my script</string>
+    <string name="wizard_ai_publish_text">Write titles, description and hashtags</string>
+    <string name="wizard_ai_publish_title">Titles and description</string>
+    <string name="wizard_ai_titles">Titles</string>
+    <string name="wizard_ai_description">Description</string>
+    <string name="wizard_ai_hashtags">Hashtags</string>
+    <string name="wizard_ai_chapters">Chapters</string>
+    <string name="create_ideas_button">Get video ideas</string>
+    <string name="create_ideas_title">Video ideas</string>
+    <string name="create_ideas_topic_label">Topic or niche (optional)</string>
+    <string name="create_ideas_suggest">Suggest ideas</string>
+    <string name="create_ideas_use">Use</string>
+
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>

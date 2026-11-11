@@ -4,16 +4,22 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -36,12 +42,13 @@ import com.creatora.app.ui.theme.CreatoraTheme
 fun HomeScreen(
     onProfileClick: () -> Unit,
     onContinue: (projectId: Long) -> Unit,
+    onOpenCoach: () -> Unit,
     modifier: Modifier = Modifier,
     onNotificationsClick: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val project by viewModel.continueProject.collectAsStateWithLifecycle()
-    HomeContent(project, onProfileClick, onNotificationsClick, onContinue, modifier)
+    HomeContent(project, onProfileClick, onNotificationsClick, onContinue, onOpenCoach, modifier)
 }
 
 @Composable
@@ -50,9 +57,11 @@ fun HomeContent(
     onProfileClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onContinue: (Long) -> Unit,
+    onOpenCoach: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    TabScreen(modifier = modifier) {
+    Box(modifier) {
+    TabScreen {
         ScreenHeader(
             title = stringResource(R.string.tab_home),
             subtitle = stringResource(R.string.home_subtitle),
@@ -71,6 +80,18 @@ fun HomeContent(
             }
         }
         if (continueProject != null) ContinueCard(continueProject, onContinue)
+    }
+    FloatingActionButton(
+        onClick = onOpenCoach,
+        modifier = Modifier
+            .align(Alignment.BottomEnd)
+            .padding(CreatoraTheme.spacing.lg),
+        containerColor = CreatoraTheme.colors.accent,
+        contentColor = CreatoraTheme.colors.onAccent,
+        elevation = FloatingActionButtonDefaults.elevation(),
+    ) {
+        Icon(Icons.Outlined.AutoAwesome, contentDescription = stringResource(R.string.cd_open_coach))
+    }
     }
 }
 
@@ -107,11 +128,11 @@ private val PreviewProject = Project(id = 1, title = "Preview project", format =
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun HomeLightPreview() {
-    CreatoraTheme(darkTheme = false) { HomeContent(PreviewProject, {}, {}, {}) }
+    CreatoraTheme(darkTheme = false) { HomeContent(PreviewProject, {}, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun HomeDarkPreview() {
-    CreatoraTheme(darkTheme = true) { HomeContent(null, {}, {}, {}) }
+    CreatoraTheme(darkTheme = true) { HomeContent(null, {}, {}, {}, {}) }
 }

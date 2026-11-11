@@ -100,9 +100,11 @@ fun SecondaryButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     androidx.compose.material3.OutlinedButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.heightIn(min = CreatoraTheme.dimens.minTouchTarget),
         shape = CreatoraTheme.shapes.radius12,
         colors = ButtonDefaults.outlinedButtonColors(contentColor = CreatoraTheme.colors.text),

@@ -10,7 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.creatora.app.ui.ai.AiProvidersScreen
 import com.creatora.app.ui.brandkit.BrandKitScreen
+import com.creatora.app.ui.coach.CoachScreen
 import com.creatora.app.ui.create.CreateScreen
 import com.creatora.app.ui.create.WizardScreen
 import com.creatora.app.ui.create.WizardViewModel
@@ -38,6 +40,8 @@ object Routes {
     const val SETTINGS = "settings"
     const val BRAND_KIT = "brand_kit"
     const val WIZARD = "wizard/{projectId}"
+    const val AI_PROVIDERS = "ai_providers"
+    const val COACH = "coach"
     const val LICENCES = "licences?assetId={assetId}"
 
     fun wizard(projectId: Long) = "wizard/$projectId"
@@ -73,6 +77,7 @@ fun CreatoraNavHost(
                 HomeScreen(
                     onProfileClick = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
                     onContinue = { id -> navController.navigate(Routes.wizard(id)) },
+                    onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
                 )
             }
         }
@@ -81,7 +86,10 @@ fun CreatoraNavHost(
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {
             composable(Routes.CREATE) {
-                CreateScreen(onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) })
+                CreateScreen(
+                    onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) },
+                    onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                )
             }
         }
         navigation(route = TopLevelTab.GROW.graphRoute, startDestination = Routes.GROW) {
@@ -104,6 +112,7 @@ fun CreatoraNavHost(
             WizardScreen(
                 onClose = { navController.popBackStack() },
                 onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
+                onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
             )
         }
         composable(Routes.BRAND_KIT) {
@@ -127,7 +136,19 @@ fun CreatoraNavHost(
             EarnScreen(onBack = dropUnlessResumed { navController.popBackStack() })
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() })
+            SettingsScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+            )
+        }
+        composable(Routes.AI_PROVIDERS) {
+            AiProvidersScreen(onBack = dropUnlessResumed { navController.popBackStack() })
+        }
+        composable(Routes.COACH) {
+            CoachScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+            )
         }
     }
 }

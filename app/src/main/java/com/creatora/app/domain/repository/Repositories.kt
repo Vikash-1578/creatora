@@ -1,5 +1,9 @@
 package com.creatora.app.domain.repository
 
+import com.creatora.app.domain.model.AiOutcome
+import com.creatora.app.domain.model.AiProvider
+import com.creatora.app.domain.model.AiProviderConfig
+import com.creatora.app.domain.model.AiRequest
 import com.creatora.app.domain.model.Asset
 import com.creatora.app.domain.model.BrandKit
 import com.creatora.app.domain.model.PickedFile
@@ -74,4 +78,26 @@ interface SpeechPlayer {
 
     /** Frees the engine. It starts again on the next [speak]. */
     fun release()
+}
+
+/** One AI service. Throws [com.creatora.app.domain.model.AiException] when the call fails. */
+interface AiClient {
+    val provider: AiProvider
+    suspend fun complete(request: AiRequest, apiKey: String, model: String): String
+}
+
+/** Runs a request on the user's providers, moving to the next one when a provider fails. */
+interface AiService {
+    suspend fun complete(request: AiRequest): AiOutcome<String>
+}
+
+/** The user's API keys (encrypted on the phone) and optional model names, per provider. */
+interface AiProviderStore {
+    val configs: Flow<List<AiProviderConfig>>
+    suspend fun key(provider: AiProvider): String?
+    suspend fun setKey(provider: AiProvider, key: String)
+    suspend fun removeKey(provider: AiProvider)
+
+    /** A blank [model] goes back to the provider's default. */
+    suspend fun setModel(provider: AiProvider, model: String)
 }

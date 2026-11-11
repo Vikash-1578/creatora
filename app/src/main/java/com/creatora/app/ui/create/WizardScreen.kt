@@ -58,12 +58,19 @@ class WizardActions(
     val onStopPreview: () -> Unit,
     val onLicensedOnly: (Boolean) -> Unit,
     val onOpenLibrary: () -> Unit,
+    val onDraftScript: () -> Unit = {},
+    val onApplyDraft: () -> Unit = {},
+    val onDismissDraft: () -> Unit = {},
+    val onPublishText: () -> Unit = {},
+    val onDismissPublishText: () -> Unit = {},
+    val onOpenAiProviders: () -> Unit = {},
 )
 
 @Composable
 fun WizardScreen(
     onClose: () -> Unit,
     onOpenLibrary: () -> Unit,
+    onOpenAiProviders: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WizardViewModel = hiltViewModel(),
 ) {
@@ -86,6 +93,12 @@ fun WizardScreen(
         onStopPreview = viewModel::stopPreview,
         onLicensedOnly = viewModel::setLicensedFootageOnly,
         onOpenLibrary = onOpenLibrary,
+        onDraftScript = viewModel::draftScript,
+        onApplyDraft = viewModel::applyDraft,
+        onDismissDraft = viewModel::dismissDraft,
+        onPublishText = viewModel::generatePublishText,
+        onDismissPublishText = viewModel::dismissPublishText,
+        onOpenAiProviders = onOpenAiProviders,
     )
     WizardContent(
         state = state,
@@ -172,7 +185,7 @@ fun WizardContent(
                         WizardStep.CAST -> CastStep(project, state, actions)
                         WizardStep.VOICE -> VoiceStep(project, state, actions)
                         WizardStep.FOOTAGE -> FootageStep(project, state, actions)
-                        WizardStep.REVIEW -> ReviewStep(project, state)
+                        WizardStep.REVIEW -> ReviewStep(project, state, actions)
                         WizardStep.GENERATE -> GenerateStep(state)
                     }
                 }
@@ -200,6 +213,9 @@ fun WizardContent(
             }
         }
     }
+
+    state.ai.draft?.let { DraftDialog(it, actions.onApplyDraft, actions.onDismissDraft) }
+    state.ai.publishText?.let { PublishTextDialog(it, actions.onDismissPublishText) }
 }
 
 /** One segment per step, filled up to the current one. */
