@@ -26,6 +26,7 @@ built from an approved spec in `docs/spec/`.
 - [x] Language picker, welcome slides, Google sign-in
 - [x] YouTube authorization and channel fetch, connected accounts and platform adapters
 - [x] Creator profile from AI, first insights on Home
+- [x] "Your goal" onboarding step, goal stored in Firestore and used to steer AI
 - [x] Notification categories and YouTube poll (views milestones and new comments; earnings alerts not wired yet)
 - [x] Settings restructure (7 top-level pages; Connected accounts lives inside Account)
 - [x] AI usage meter, dialog, banner and limit
