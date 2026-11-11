@@ -445,7 +445,7 @@
     <string name="connect_add_other">Add another account</string>
     <string name="connect_input_label">Paste a link, ID or @handle</string>
     <string name="connect_button">Find and connect</string>
-    <string name="connect_hint_full">We read the public details of this channel and your own analytics after you allow access.</string>
+    <string name="connect_hint_full">Google finds the YouTube channels on your account. You can also paste a link or ID.</string>
     <string name="connect_hint_instagram">Instagram needs a professional (Business or Creator) account. To switch: Instagram, Settings, Account type and tools, Switch to professional account. Connecting is coming soon.</string>
     <string name="connect_hint_coming_soon">This platform is coming soon. Nothing is fetched yet.</string>
     <string name="connect_hint_link_only">Only the link is saved. Nothing is fetched from this platform.</string>
@@ -594,4 +594,10 @@
         <item quantity="one">%1$d new comment on your recent videos</item>
         <item quantity="other">%1$d new comments on your recent videos</item>
     </plurals>
+    <string name="connect_login_google">Login with Google</string>
+    <string name="connect_login_with">Login with %1$s</string>
+    <string name="connect_save_link">Save link</string>
+    <string name="connect_hide">Hide</string>
+    <string name="account_profile">Profile</string>
+    <string name="account_connect_accounts">Connect your accounts</string>
 </resources>

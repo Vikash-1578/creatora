@@ -114,10 +114,15 @@ fun ChannelCard(preview: ChannelPreview, confirmLabel: String, onConfirm: () -> 
     }
 }
 
-/** Pick a platform, paste a link, id or @handle, and connect. Shared by onboarding and Settings. */
+/**
+ * Connect a platform. YouTube: "Login with Google" finds the channels on the Google account (a pasted link also
+ * works). Platforms with a login but no connection yet: their own "Login with …" button, which says it is coming
+ * soon. Platforms without an API: paste the link and only the link is saved. Shared by onboarding and Settings.
+ */
 @Composable
 fun AddAccountPanel(
     lookup: LookupUi,
+    onLogin: (ConnectPlatform) -> Unit,
     onLookUp: (input: String, platform: ConnectPlatform) -> Unit,
     onConfirm: (ChannelPreview) -> Unit,
     onDismiss: () -> Unit,
@@ -139,19 +144,33 @@ fun AddAccountPanel(
             PlatformSupport.LINK_ONLY -> R.string.connect_hint_link_only
         }
         Text(stringResource(hint), style = CreatoraTheme.typography.caption, color = colors.textMuted)
-        OutlinedTextField(
-            value = input,
-            onValueChange = { input = it },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text(stringResource(R.string.connect_input_label)) },
-            singleLine = true,
-        )
-        SecondaryButton(
-            text = stringResource(R.string.connect_button),
-            onClick = { onLookUp(input, platform) },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = input.isNotBlank() && !lookup.busy && platform.support != PlatformSupport.COMING_SOON,
-        )
+        if (platform.support != PlatformSupport.LINK_ONLY) {
+            PrimaryButton(
+                text = if (platform == ConnectPlatform.YOUTUBE) {
+                    stringResource(R.string.connect_login_google)
+                } else {
+                    stringResource(R.string.connect_login_with, stringResource(platform.labelRes()))
+                },
+                onClick = { onLogin(platform) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !lookup.busy,
+            )
+        }
+        if (platform.support != PlatformSupport.COMING_SOON) {
+            OutlinedTextField(
+                value = input,
+                onValueChange = { input = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.connect_input_label)) },
+                singleLine = true,
+            )
+            SecondaryButton(
+                text = stringResource(if (platform.support == PlatformSupport.LINK_ONLY) R.string.connect_save_link else R.string.connect_button),
+                onClick = { onLookUp(input, platform) },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = input.isNotBlank() && !lookup.busy,
+            )
+        }
         if (lookup.busy) CircularProgressIndicator(Modifier.size(CreatoraTheme.dimens.icon))
         lookup.problem?.let { Text(it.message(), style = CreatoraTheme.typography.body, color = colors.danger) }
         lookup.comingSoon?.let {

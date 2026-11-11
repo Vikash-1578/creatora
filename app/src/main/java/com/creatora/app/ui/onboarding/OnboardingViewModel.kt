@@ -167,6 +167,11 @@ class OnboardingViewModel @Inject constructor(
 
     fun dismissPasted() = _state.update { it.copy(lookup = LookupUi()) }
 
+    /** "Login with …": Google finds the YouTube channels again; other platforms are not connectable yet. */
+    fun login(platform: ConnectPlatform) {
+        if (platform == ConnectPlatform.YOUTUBE) loadChannels() else _state.update { it.copy(lookup = LookupUi(comingSoon = platform)) }
+    }
+
     /** Leaves the connect step. The one question is only asked when nothing is connected. */
     fun finishConnect() {
         goTo(if (_state.value.connectedTitles.isEmpty()) OnboardingStep.ASK else OnboardingStep.NOTIFICATIONS)

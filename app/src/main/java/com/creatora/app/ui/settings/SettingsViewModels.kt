@@ -167,6 +167,11 @@ class ConnectedAccountsViewModel @Inject constructor(
 
     fun dismissPasted() = local.update { it.copy(lookup = LookupUi()) }
 
+    /** "Login with …": Google finds the YouTube channels again; other platforms are not connectable yet. */
+    fun login(platform: ConnectPlatform) {
+        if (platform == ConnectPlatform.YOUTUBE) loadOwn() else local.update { it.copy(lookup = LookupUi(comingSoon = platform)) }
+    }
+
     fun remove(account: ConnectedAccount) {
         viewModelScope.launch {
             val uid = auth.user.first()?.uid ?: return@launch

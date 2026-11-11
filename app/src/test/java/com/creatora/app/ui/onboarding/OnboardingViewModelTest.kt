@@ -206,6 +206,20 @@ class OnboardingViewModelTest {
     }
 
     @Test
+    fun loginButtons_googleRefetchesChannels_othersSayComingSoon() = runTest {
+        val vm = viewModel()
+        vm.signIn()
+        youtube.own = AdapterOutcome.Ok(listOf(preview("UC7")))
+
+        vm.login(ConnectPlatform.YOUTUBE)
+        assertEquals(listOf("UC7"), vm.state.value.channels.map { it.id })
+
+        vm.login(ConnectPlatform.TIKTOK)
+        assertEquals(ConnectPlatform.TIKTOK, vm.state.value.lookup.comingSoon)
+        assertTrue(accounts.byUser.value.isEmpty())
+    }
+
+    @Test
     fun aPastedChannelShowsAPreview_thatMustBeConfirmed() = runTest {
         youtube.lookupResult = AdapterOutcome.Ok(preview("UC9", "Pasted"))
         val vm = viewModel()

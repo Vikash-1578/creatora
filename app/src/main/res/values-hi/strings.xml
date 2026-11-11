@@ -27,7 +27,7 @@
     <string name="connect_add_other">दूसरा खाता जोड़ें</string>
     <string name="connect_input_label">लिंक, ID या @हैंडल पेस्ट करें</string>
     <string name="connect_button">खोजें और जोड़ें</string>
-    <string name="connect_hint_full">अनुमति देने के बाद हम इस चैनल की सार्वजनिक जानकारी और आपके एनालिटिक्स पढ़ते हैं।</string>
+    <string name="connect_hint_full">Google आपके खाते के YouTube चैनल खुद खोज लेता है। आप लिंक या ID भी पेस्ट कर सकते हैं।</string>
     <string name="connect_hint_instagram">Instagram के लिए प्रोफेशनल (बिज़नेस या क्रिएटर) खाता चाहिए। बदलने के लिए: Instagram, सेटिंग्स, अकाउंट टाइप, प्रोफेशनल अकाउंट पर स्विच करें। जोड़ना जल्द आ रहा है।</string>
     <string name="connect_hint_coming_soon">यह प्लेटफ़ॉर्म जल्द आ रहा है। अभी कुछ भी नहीं लिया जाता।</string>
     <string name="connect_hint_link_only">सिर्फ़ लिंक सेव होता है। इस प्लेटफ़ॉर्म से कुछ नहीं लिया जाता।</string>
@@ -176,4 +176,10 @@
         <item quantity="one">आपके हाल के वीडियो पर %1$d नया कमेंट</item>
         <item quantity="other">आपके हाल के वीडियो पर %1$d नए कमेंट</item>
     </plurals>
+    <string name="connect_login_google">Google से लॉगिन करें</string>
+    <string name="connect_login_with">%1$s से लॉगिन करें</string>
+    <string name="connect_save_link">लिंक सेव करें</string>
+    <string name="connect_hide">छिपाएं</string>
+    <string name="account_profile">प्रोफ़ाइल</string>
+    <string name="account_connect_accounts">अपने खाते जोड़ें</string>
 </resources>

@@ -147,6 +147,20 @@ class SettingsViewModelsTest {
         assertEquals(ConnectPlatform.SNAPCHAT, vm.state.value.accounts.single().platform)
     }
 
+    @Test
+    fun connectedAccounts_loginWithGoogleFindsChannels_otherPlatformsSayComingSoon() = runTest {
+        youtube.own = AdapterOutcome.Ok(listOf(preview("UC1")))
+        val vm = connected()
+        keepActive(vm.state)
+
+        vm.login(ConnectPlatform.YOUTUBE)
+        assertEquals(listOf("UC1"), vm.state.value.ownChannels.map { it.id })
+
+        vm.login(ConnectPlatform.INSTAGRAM)
+        assertEquals(ConnectPlatform.INSTAGRAM, vm.state.value.lookup.comingSoon)
+        assertTrue(vm.state.value.accounts.isEmpty()) // nothing is connected or saved by a platform that is not built
+    }
+
     // ---- notifications
     @Test
     fun notificationSettings_saveTogglesAndTheMilestone() = runTest {

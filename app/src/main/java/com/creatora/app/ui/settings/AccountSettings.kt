@@ -24,18 +24,42 @@ import com.creatora.app.ui.components.InfoListRow
 import com.creatora.app.ui.components.ListGroup
 import com.creatora.app.ui.components.ListRowDivider
 import com.creatora.app.ui.components.SecondaryButton
+import com.creatora.app.ui.components.SectionTitle
 import com.creatora.app.ui.components.SubScreenScaffold
 import com.creatora.app.ui.theme.CreatoraTheme
 
 @Composable
-fun AccountSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: AccountViewModel = hiltViewModel()) {
+fun AccountSettingsScreen(
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: AccountViewModel = hiltViewModel(),
+    accountsViewModel: ConnectedAccountsViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    AccountContent(state, viewModel::signOut, viewModel::askDelete, viewModel::deleteAccount, onBack, modifier)
+    val accounts by accountsViewModel.state.collectAsStateWithLifecycle()
+    AccountContent(
+        state = state,
+        accounts = accounts,
+        accountActions = ConnectedAccountsActions(
+            login = accountsViewModel::login,
+            lookUp = accountsViewModel::lookUp,
+            confirm = accountsViewModel::confirm,
+            dismissPasted = accountsViewModel::dismissPasted,
+            remove = accountsViewModel::remove,
+        ),
+        onSignOut = viewModel::signOut,
+        onAskDelete = viewModel::askDelete,
+        onDelete = viewModel::deleteAccount,
+        onBack = onBack,
+        modifier = modifier,
+    )
 }
 
 @Composable
 fun AccountContent(
     state: AccountUiState,
+    accounts: ConnectedAccountsUiState,
+    accountActions: ConnectedAccountsActions,
     onSignOut: () -> Unit,
     onAskDelete: (Boolean) -> Unit,
     onDelete: () -> Unit,
@@ -44,22 +68,31 @@ fun AccountContent(
 ) {
     val colors = CreatoraTheme.colors
     SubScreenScaffold(title = stringResource(R.string.settings_account), onBack = onBack, modifier = modifier) {
-        state.user?.let { user ->
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.lg)) {
-                Avatar(user.photoUrl, user.name.ifBlank { user.email })
-                Column {
-                    Text(user.name.ifBlank { stringResource(R.string.account_no_name) }, style = CreatoraTheme.typography.sectionTitle, color = colors.text)
-                    Text(user.email, style = CreatoraTheme.typography.caption, color = colors.textMuted)
+        // 1. Profile
+        Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.md)) {
+            SectionTitle(stringResource(R.string.account_profile))
+            state.user?.let { user ->
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.lg)) {
+                    Avatar(user.photoUrl, user.name.ifBlank { user.email })
+                    Column {
+                        Text(user.name.ifBlank { stringResource(R.string.account_no_name) }, style = CreatoraTheme.typography.sectionTitle, color = colors.text)
+                        Text(user.email, style = CreatoraTheme.typography.caption, color = colors.textMuted)
+                    }
                 }
-            }
-            ListGroup {
-                InfoListRow(stringResource(R.string.account_plan), stringResource(if (state.plan == Plan.PRO) R.string.plan_pro_name else R.string.plan_free_name))
-                ListRowDivider()
-                InfoListRow(stringResource(R.string.account_signed_in_with), stringResource(R.string.account_google))
-            }
-        } ?: Text(stringResource(R.string.account_signed_out), style = CreatoraTheme.typography.body, color = colors.textMuted)
+                ListGroup {
+                    InfoListRow(stringResource(R.string.account_plan), stringResource(if (state.plan == Plan.PRO) R.string.plan_pro_name else R.string.plan_free_name))
+                    ListRowDivider()
+                    InfoListRow(stringResource(R.string.account_signed_in_with), stringResource(R.string.account_google))
+                }
+            } ?: Text(stringResource(R.string.account_signed_out), style = CreatoraTheme.typography.body, color = colors.textMuted)
+        }
+        // 2. Connected accounts
+        ConnectedAccountsSection(accounts, accountActions)
+        // 3. Sign out
         SecondaryButton(stringResource(R.string.account_sign_out), onSignOut, Modifier.fillMaxWidth(), enabled = state.user != null && !state.working)
+        // 4. Delete account
         Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
+            SectionTitle(stringResource(R.string.account_delete))
             Text(stringResource(R.string.account_delete_body), style = CreatoraTheme.typography.caption, color = colors.textMuted)
             SecondaryButton(stringResource(R.string.account_delete), { onAskDelete(true) }, Modifier.fillMaxWidth(), enabled = state.user != null && !state.working)
             if (state.needsRecentSignIn) Text(stringResource(R.string.account_delete_recent), style = CreatoraTheme.typography.body, color = colors.warning)
@@ -78,16 +111,18 @@ fun AccountContent(
     }
 }
 
+private val PreviewActions = ConnectedAccountsActions({}, { _, _ -> }, {}, {}, {})
+
 private val PreviewState = AccountUiState(user = AuthUser("1", "Asha Rao", "asha@example.com", null), plan = Plan.FREE)
 
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun AccountLightPreview() {
-    CreatoraTheme(darkTheme = false) { AccountContent(PreviewState, {}, {}, {}, {}) }
+    CreatoraTheme(darkTheme = false) { AccountContent(PreviewState, ConnectedAccountsUiState(), PreviewActions, {}, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun AccountDarkPreview() {
-    CreatoraTheme(darkTheme = true) { AccountContent(AccountUiState(), {}, {}, {}, {}) }
+    CreatoraTheme(darkTheme = true) { AccountContent(AccountUiState(), ConnectedAccountsUiState(), PreviewActions, {}, {}, {}, {}) }
 }

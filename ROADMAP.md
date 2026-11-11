@@ -27,7 +27,7 @@ built from an approved spec in `docs/spec/`.
 - [x] YouTube authorization and channel fetch, connected accounts and platform adapters
 - [x] Creator profile from AI, first insights on Home
 - [x] Notification categories and YouTube poll (views milestones and new comments; earnings alerts not wired yet)
-- [x] Settings restructure (8 pages)
+- [x] Settings restructure (7 top-level pages; Connected accounts lives inside Account)
 - [x] AI usage meter, dialog, banner and limit
 - [x] Billing (Play Billing) with honest not-available state
 - [x] English, Hindi and Hinglish strings

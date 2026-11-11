@@ -81,6 +81,7 @@ fun OnboardingScreen(modifier: Modifier = Modifier, viewModel: OnboardingViewMod
             signIn = viewModel::signIn,
             retryChannels = viewModel::loadChannels,
             confirmChannel = viewModel::confirmChannel,
+            login = viewModel::login,
             lookUp = { input, platform -> viewModel.lookUp(input, platform) },
             dismissPasted = viewModel::dismissPasted,
             finishConnect = viewModel::finishConnect,
@@ -103,6 +104,7 @@ class OnboardingActions(
     val signIn: () -> Unit,
     val retryChannels: () -> Unit,
     val confirmChannel: (com.creatora.app.domain.account.ChannelPreview) -> Unit,
+    val login: (com.creatora.app.domain.account.ConnectPlatform) -> Unit,
     val lookUp: (String, com.creatora.app.domain.account.ConnectPlatform) -> Unit,
     val dismissPasted: () -> Unit,
     val finishConnect: () -> Unit,
@@ -274,7 +276,7 @@ private fun ConnectStep(state: OnboardingUiState, actions: OnboardingActions) {
             Text(stringResource(R.string.connect_plan_limit, it), style = CreatoraTheme.typography.body, color = colors.warning)
         }
         Text(stringResource(R.string.connect_add_other), style = CreatoraTheme.typography.cardTitle, color = colors.text)
-        AddAccountPanel(state.lookup, actions.lookUp, actions.confirmChannel, actions.dismissPasted)
+        AddAccountPanel(state.lookup, actions.login, actions.lookUp, actions.confirmChannel, actions.dismissPasted)
         if (state.connectedTitles.isEmpty()) {
             SecondaryButton(stringResource(R.string.action_skip_for_now), actions.finishConnect, Modifier.fillMaxWidth())
         } else {
@@ -328,7 +330,7 @@ private fun PlanStep(proUnavailable: Boolean, onFree: () -> Unit, onPro: () -> U
     }
 }
 
-private val PreviewActions = OnboardingActions({}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, {}, {})
+private val PreviewActions = OnboardingActions({}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, {}, {})
 
 @Preview(name = "Light language", showBackground = true)
 @Composable

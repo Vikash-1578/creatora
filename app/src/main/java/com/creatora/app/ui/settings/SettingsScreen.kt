@@ -16,7 +16,6 @@ import com.creatora.app.ui.theme.CreatoraTheme
 /** Where each Settings row leads. */
 class SettingsDestinations(
     val account: () -> Unit,
-    val connectedAccounts: () -> Unit,
     val notifications: () -> Unit,
     val ai: () -> Unit,
     val billing: () -> Unit,
@@ -33,8 +32,6 @@ fun SettingsScreen(onBack: () -> Unit, destinations: SettingsDestinations, modif
     SubScreenScaffold(title = stringResource(R.string.settings_title), onBack = onBack, modifier = modifier) {
         ListGroup {
             NavigationListRow(stringResource(R.string.settings_account), destinations.account)
-            ListRowDivider()
-            NavigationListRow(stringResource(R.string.settings_connected), destinations.connectedAccounts)
             ListRowDivider()
             NavigationListRow(stringResource(R.string.settings_notifications), destinations.notifications)
             ListRowDivider()
@@ -55,7 +52,7 @@ fun SettingsScreen(onBack: () -> Unit, destinations: SettingsDestinations, modif
     }
 }
 
-private val PreviewDestinations = SettingsDestinations({}, {}, {}, {}, {}, {}, {}, {}, {})
+private val PreviewDestinations = SettingsDestinations({}, {}, {}, {}, {}, {}, {}, {})
 
 @Preview(name = "Light", showBackground = true)
 @Composable

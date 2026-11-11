@@ -30,7 +30,6 @@ import com.creatora.app.ui.settings.AccountSettingsScreen
 import com.creatora.app.ui.settings.AiSettingsScreen
 import com.creatora.app.ui.settings.AppearanceSettingsScreen
 import com.creatora.app.ui.settings.BillingSettingsScreen
-import com.creatora.app.ui.settings.ConnectedAccountsScreen
 import com.creatora.app.ui.settings.HelpAboutScreen
 import com.creatora.app.ui.settings.NotificationSettingsScreen
 import com.creatora.app.ui.settings.PrivacyScreen
@@ -52,7 +51,6 @@ object Routes {
     const val EARN = "earn"
     const val SETTINGS = "settings"
     const val SETTINGS_ACCOUNT = "settings/account"
-    const val SETTINGS_ACCOUNTS = "settings/accounts"
     const val SETTINGS_NOTIFICATIONS = "settings/notifications"
     const val SETTINGS_AI = "settings/ai"
     const val SETTINGS_BILLING = "settings/billing"
@@ -105,13 +103,13 @@ fun CreatoraNavHost(
                     onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
                     onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
                     onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
-                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNTS) },
+                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                 )
             }
         }
         navigation(route = TopLevelTab.RESEARCH.graphRoute, startDestination = Routes.RESEARCH) {
             composable(Routes.RESEARCH) {
-                ResearchScreen(onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNTS) })
+                ResearchScreen(onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) })
             }
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {
@@ -125,7 +123,7 @@ fun CreatoraNavHost(
         navigation(route = TopLevelTab.GROW.graphRoute, startDestination = Routes.GROW) {
             composable(Routes.GROW) {
                 GrowScreen(
-                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNTS) },
+                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                     onOpenCreate = { navController.navigateToTab(TopLevelTab.CREATE) },
                 )
             }
@@ -186,7 +184,6 @@ fun CreatoraNavHost(
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 destinations = SettingsDestinations(
                     account = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
-                    connectedAccounts = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNTS) },
                     notifications = dropUnlessResumed { navController.navigate(Routes.SETTINGS_NOTIFICATIONS) },
                     ai = dropUnlessResumed { navController.navigate(Routes.SETTINGS_AI) },
                     billing = dropUnlessResumed { navController.navigate(Routes.SETTINGS_BILLING) },
@@ -198,7 +195,6 @@ fun CreatoraNavHost(
             )
         }
         composable(Routes.SETTINGS_ACCOUNT) { AccountSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
-        composable(Routes.SETTINGS_ACCOUNTS) { ConnectedAccountsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(Routes.SETTINGS_NOTIFICATIONS) { NotificationSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(Routes.SETTINGS_AI) { AiSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(Routes.SETTINGS_BILLING) { BillingSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }

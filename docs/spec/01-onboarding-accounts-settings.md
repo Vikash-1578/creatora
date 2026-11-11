@@ -50,17 +50,21 @@ Niche, formats and language are derived by AI from the titles and descriptions o
 stored as the creator profile. Only if nothing is connected, one short question is asked: "What do you make?".
 
 ### 1E Connected accounts
-- Platform picker plus "paste ID or profile link". The platform is detected from the link. A Connect button
-  opens the platform's own login.
+Confirmed approach:
+- **YouTube:** Google sign-in finds the YouTube channels of the account automatically. No separate login.
+- **Every other platform:** its own "Login with …" button, using that platform's official login. For each platform
+  Creatora collects whatever the platform's official API allows and nothing more.
+- **Platforms without an API:** link only. The user pastes the profile link; it is saved and nothing is fetched.
+- Pasting a link or ID also works for any supported platform; the platform is detected from the link.
 - Platform adapter architecture: one interface, one implementation per platform.
 
-| Platform | State in Phase A |
-|----------|------------------|
-| YouTube | Full: profile, about, videos, titles, views, likes, comments, analytics (CTR, retention, traffic) and estimated revenue when monetized |
-| Instagram | Adapter with a real "Coming soon" state. Instagram API with Instagram Login, professional accounts only; personal accounts get a how-to-convert help text |
-| Facebook Pages | Adapter, "Coming soon" |
-| TikTok | Adapter, "Coming soon" |
-| Moj, Josh, ShareChat, Snapchat | Link only: the link is saved, nothing is fetched |
+| Platform | Connect with | State in Phase A |
+|----------|--------------|------------------|
+| YouTube | Google sign-in (automatic) | Full: profile, about, videos, titles, views, likes, comments, analytics (CTR, retention, traffic) and estimated revenue when monetized |
+| Instagram | "Login with Instagram" (Instagram API with Instagram Login, professional accounts only) | Adapter with a real "coming soon" state. Personal accounts get a how-to-convert help text |
+| Facebook Pages | "Login with Facebook" | Adapter, "coming soon" |
+| TikTok | "Login with TikTok" | Adapter, "coming soon" |
+| Moj, Josh, ShareChat, Snapchat | Paste a link (no suitable API) | Link only: the link is saved, nothing is fetched |
 
 - After connecting: a preview card (photo, name, subscribers, video count) with "Is this you?". Several channels:
   the user picks from a list. Free plan: 1 account. Pro: more. "Skip for now" is always available.
@@ -78,15 +82,21 @@ stored as the creator profile. Only if nothing is connected, one short question 
 A soft card at the end. "Free mein continue karo" is the primary action; Pro is the secondary one.
 
 ## Settings
-A top-level list like phone settings. Each row opens its own page:
-1. **Account**: profile, sign out, delete account.
-2. **Connected accounts**: list, add, remove.
-3. **Notifications**: the categories above.
-4. **Creatora AI**: language, tone, personalization (the creator profile), history.
-5. **Billing and usage**: plan, AI usage meter, upgrade (Play Billing), payment history.
-6. **Appearance and language**: theme, app language.
-7. **Privacy and security**.
-8. **Help and about**.
+A top-level list like phone settings. Each row opens its own page. Connected accounts is **not** a top-level row:
+it lives inside Account.
+1. **Account**, with these sections in order:
+   1. **Profile**: photo, name, email, plan.
+   2. **Connected accounts**: the list of connected accounts (remove one with its delete button) and a
+      **Connect your accounts** button that opens the connect panel (Google finds YouTube channels; "Login with …"
+      for other platforms; paste a link for link-only platforms). Shows how many accounts the plan allows.
+   3. **Sign out**.
+   4. **Delete account**.
+2. **Notifications**: the categories above.
+3. **Creatora AI**: language, tone, personalization (the creator profile), history.
+4. **Billing and usage**: plan, AI usage meter, upgrade (Play Billing), payment history.
+5. **Appearance and language**: theme, app language.
+6. **Privacy and security**.
+7. **Help and about**.
 
 ## AI usage limit
 - A meter per plan, tracked per month in Firestore (`users/{uid}/usage/{yyyyMM}`).

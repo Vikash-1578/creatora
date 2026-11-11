@@ -27,7 +27,7 @@
     <string name="connect_add_other">Doosra account jodo</string>
     <string name="connect_input_label">Link, ID ya @handle paste karo</string>
     <string name="connect_button">Dhoondho aur jodo</string>
-    <string name="connect_hint_full">Permission dene ke baad hum is channel ki public details aur tumhare analytics padhte hain.</string>
+    <string name="connect_hint_full">Google tumhare account ke YouTube channels khud dhoondh leta hai. Link ya ID bhi paste kar sakte ho.</string>
     <string name="connect_hint_instagram">Instagram ke liye professional (Business ya Creator) account chahiye. Badalne ke liye: Instagram, Settings, Account type and tools, Switch to professional account. Connect karna jaldi aa raha hai.</string>
     <string name="connect_hint_coming_soon">Ye platform jaldi aa raha hai. Abhi kuch fetch nahi hota.</string>
     <string name="connect_hint_link_only">Sirf link save hota hai. Is platform se kuch fetch nahi hota.</string>
@@ -176,4 +176,10 @@
         <item quantity="one">Tumhare recent videos par %1$d naya comment</item>
         <item quantity="other">Tumhare recent videos par %1$d naye comments</item>
     </plurals>
+    <string name="connect_login_google">Google se login karo</string>
+    <string name="connect_login_with">%1$s se login karo</string>
+    <string name="connect_save_link">Link save karo</string>
+    <string name="connect_hide">Chhupao</string>
+    <string name="account_profile">Profile</string>
+    <string name="account_connect_accounts">Apne accounts jodo</string>
 </resources>
