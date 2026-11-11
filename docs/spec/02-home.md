@@ -87,7 +87,12 @@ PR. Reuse useful code from the branch `m12-home` (closed PR #13) and, where note
   when the goal starts), views in the period, uploads counted from the account's upload dates. If the data is not
   available the goal says so and does not show a bar.
 - Edit and delete. A celebration (a short animation and message) when a goal is reached, shown once.
-- Stored in Firestore (`users/{uid}/goals`).
+- Stored in Firestore (`users/{uid}/goals`). The goal set in onboarding (Phase A, "Your goal") is the first goal
+  (`primary`); this card reads, edits and adds to it.
+- **30-day plan:** for the primary goal the AI builds a week-by-week plan (uploads, topics, what to test) and
+  re-plans every week from real results: how far along the goal is (for example 40% of the target), what worked,
+  what to change. Stored in `users/{uid}/goals/{id}/plans/{week}`. The copy says "aim", "plan" and "progress" and
+  never promises virality or a guaranteed result; if there is no data yet the plan says so.
 
 ### 10 Upload streak
 - Consecutive **weeks** (default) or **days** (the user picks) with at least one upload, the best streak ever, and a

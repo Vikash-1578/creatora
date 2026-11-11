@@ -65,6 +65,22 @@ language picker.
 Niche, formats and language are derived by AI from the titles and descriptions of the connected accounts and
 stored as the creator profile. Only if nothing is connected, one short question is asked: "What do you make?".
 
+### 1D2 Your goal
+A short step after the accounts are connected (and after the one question, if it was asked):
+- **Target for the next 30 days:** pick one of subscribers, views, uploads or earnings, and a number.
+- **Main desire in their own words:** free text, optional (for example "I want to quit my job and make videos").
+- **Preferred upload frequency:** uploads per week (1, 2, 3, 5 or 7).
+- Skip for now is always available; nothing is stored then.
+- Stored in Firestore at `users/{uid}/goals/{id}` as the user's primary goal: metric, target, started at, deadline
+  (30 days later), the starting value when the platform gave one (subscribers), the desire text and uploads per
+  week. The Home "Goals" card (Phase B) reads and edits it.
+- **All AI is steered by this goal** (Home focus, ideas, research suggestions): every AI request carries the goal
+  and the desire when personalization is on. `MeteredAiService` adds it, next to the language, tone and profile.
+- **30-day plan** (Phase B, Home): the AI builds a week-by-week plan toward the goal and re-plans each week from
+  real results ("you are 40% of the way to the target; here is what to change").
+- **Copy rule, everywhere:** never promise virality or guaranteed results. UI text and AI replies say "aim",
+  "plan" and "progress". `MeteredAiService` tells the AI the same.
+
 ### 1E Connected accounts
 Confirmed approach:
 - **YouTube:** Google sign-in finds the YouTube channels of the account automatically. No separate login.
