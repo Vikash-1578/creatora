@@ -13,8 +13,10 @@ reviewer merges PRs.
 | M4–M8 | Data foundation, Library, Create flow, AI layer (user keys), Video render | Merged (#5 to #9) |
 | UI polish | Home, Research, Grow, Profile, Settings, Library, Create | Merged (#14) |
 | M9–M13 | Old local-first plan (Research, Publish, Grow, Home, Profile and Earn) | Superseded. PRs #10 to #13 stay open, untouched; to be mined later |
-| **Phase A** | Onboarding, accounts, settings, Firebase, Creatora AI, plans and usage | In progress: spec in `docs/spec/01-onboarding-accounts-settings.md` |
-| Phase B+ | Next screens, from the manager's approved specs | Not started |
+| Phase A | Onboarding, accounts, settings, Firebase, Creatora AI, plans and usage | Merged (#15) |
+| **Phase B** | Home: account switcher, snapshot, focus, daily ideas, uploads, goals, streak, trending | In progress: spec in `docs/spec/02-home.md` |
+| Phase C | Research (spec in `docs/spec/03-research.md`) | Not started |
+| Phase D+ | Next screens, from the manager's approved specs | Not started |
 | Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
 
 Direction since Phase A: **cloud-first** (Firebase Auth, Firestore, Storage, Cloud Functions, Crashlytics;
@@ -32,6 +34,16 @@ built from an approved spec in `docs/spec/`.
 - [x] AI usage meter, dialog, banner and limit
 - [x] Billing (Play Billing) with honest not-available state
 - [x] English, Hindi and Hinglish strings
+
+### Phase B checklist
+- [x] Header (greeting, date, bell with in-app inbox), account switcher (All accounts or one)
+- [x] Snapshot card with change vs previous period and hide-amounts eye
+- [x] Today's focus (AI tip, Fix it / Later) and Daily ideas (Free 3 / Pro 10, AI-estimate score)
+- [x] Recent uploads with real metrics and green / yellow / red status, tap for AI "why"
+- [x] Goals (add, edit, delete, real progress, celebration once, weekly plan) and upload streak
+- [x] Trending in your niche (cached daily, quota-aware), quick actions, upcoming (empty until Publish phase)
+- [ ] Keyword search and Thumbnail quick actions open real screens (later phases)
+- [ ] Region choice in Settings (Home uses the saved region, default from the device)
 
 ## Deferred: rework M9–M12
 

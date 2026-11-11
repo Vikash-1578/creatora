@@ -124,4 +124,80 @@ class YouTubeAdapterTest {
         transport.offline = true
         assertEquals(AdapterOutcome.Failed(AdapterError.Network), adapter.ownChannels())
     }
+
+    @Test
+    fun channelMetrics_readsTheTotals_andLeavesRevenueUnknownWhenRefused() = runTest {
+        transport.getResponses["estimatedRevenue"] = HttpResponse(403, """{"error":{"message":"Forbidden"}}""")
+        transport.getResponses["metrics=views,estimatedMinutesWatched"] = HttpResponse(
+            200,
+            """{"columnHeaders":[{"name":"views"},{"name":"estimatedMinutesWatched"},{"name":"subscribersGained"},{"name":"subscribersLost"}],"rows":[[1200,3600,40,5]]}""",
+        )
+        val start = java.time.LocalDate.of(2026, 1, 1)
+        val end = java.time.LocalDate.of(2026, 1, 28)
+
+        val metrics = (adapter.channelMetrics("UC1", start, end) as AdapterOutcome.Ok).value
+
+        assertEquals(listOf(1_200L, 3_600L, 40L, 5L), listOf(metrics.views, metrics.watchMinutes, metrics.subscribersGained, metrics.subscribersLost))
+        assertEquals(35L, metrics.netSubscribers)
+        assertNull(metrics.revenueUsd)
+        assertTrue("ids=channel==UC1" in transport.getUrls[0] && "startDate=2026-01-01&endDate=2026-01-28" in transport.getUrls[0])
+    }
+
+    @Test
+    fun channelMetrics_addsRevenueWhenReturned_andIsNotAvailableWithoutRows() = runTest {
+        transport.getResponses["metrics=estimatedRevenue"] = HttpResponse(200, """{"columnHeaders":[{"name":"estimatedRevenue"}],"rows":[[12.5]]}""")
+        transport.getResponses["metrics=views,estimatedMinutesWatched"] = HttpResponse(
+            200, """{"columnHeaders":[{"name":"views"},{"name":"estimatedMinutesWatched"},{"name":"subscribersGained"},{"name":"subscribersLost"}],"rows":[[1,2,3,4]]}""",
+        )
+        val day = java.time.LocalDate.of(2026, 1, 1)
+        assertEquals(12.5, (adapter.channelMetrics("UC1", day, day) as AdapterOutcome.Ok).value.revenueUsd!!, 0.001)
+
+        transport.getResponses["metrics=views,estimatedMinutesWatched"] = HttpResponse(200, """{"columnHeaders":[],"rows":[]}""")
+        assertTrue((adapter.channelMetrics("UC1", day, day) as AdapterOutcome.Failed).error is AdapterError.NotAvailable)
+    }
+
+    @Test
+    fun trending_asksForTheRegionAndCategory_andKeepsTheChannelAndPicture() = runTest {
+        transport.getResponses["chart=mostPopular"] = HttpResponse(
+            200,
+            """{"items":[{"id":"t1","snippet":{"title":"Hot","publishedAt":"2026-01-01T00:00:00Z","channelTitle":"Big channel","thumbnails":{"medium":{"url":"https://img/t.jpg"}}},"statistics":{"viewCount":"900"}}]}""",
+        )
+
+        val items = (adapter.trending("IN", "20", 5) as AdapterOutcome.Ok).value
+
+        assertTrue("regionCode=IN" in transport.getUrls[0] && "videoCategoryId=20" in transport.getUrls[0] && "maxResults=5" in transport.getUrls[0])
+        assertEquals("Big channel", items.single().channelTitle)
+        assertEquals("https://img/t.jpg", items.single().thumbnailUrl)
+        adapter.trending("US", null, 5)
+        assertTrue("videoCategoryId" !in transport.getUrls[1])
+    }
+
+    @Test
+    fun searchVideos_findsIdsThenLoadsTheirNumbers() = runTest {
+        transport.getResponses["/search?"] = HttpResponse(200, """{"items":[{"id":{"videoId":"s1"}},{"id":{"videoId":"s2"}}]}""")
+        transport.getResponses["/videos?"] = HttpResponse(200, videos)
+
+        val result = (adapter.searchVideos("street food", 10) as AdapterOutcome.Ok).value
+
+        assertTrue("q=street+food" in transport.getUrls[0] && "order=viewCount" in transport.getUrls[0] && "publishedAfter=" in transport.getUrls[0])
+        assertTrue("id=s1,s2" in transport.getUrls[1])
+        assertEquals(2, result.size)
+
+        transport.getResponses["/search?"] = HttpResponse(200, """{"items":[]}""")
+        assertEquals(emptyList<com.creatora.app.domain.account.VideoStats>(), (adapter.searchVideos("nothing", 10) as AdapterOutcome.Ok).value)
+    }
+
+    @Test
+    fun videoMetrics_returnsOnlyTheCoreNumbers() = runTest {
+        transport.getResponses["metrics=views,averageViewDuration"] = HttpResponse(
+            200,
+            """{"columnHeaders":[{"name":"video"},{"name":"views"},{"name":"averageViewDuration"},{"name":"averageViewPercentage"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],"rows":[["v1",10,30.0,40.0,100,3.1]]}""",
+        )
+
+        val result = (adapter.videoMetrics("UC1", listOf("v1")) as AdapterOutcome.Ok).value.single()
+
+        assertEquals(3.1, result.ctrPercent!!, 0.001)
+        assertEquals(1, transport.getUrls.size) // no revenue or traffic calls
+        assertTrue(result.trafficSources.isEmpty())
+    }
 }

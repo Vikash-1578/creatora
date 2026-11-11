@@ -21,6 +21,7 @@ import com.creatora.app.ui.earn.EarnScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.help.HelpScreen
 import com.creatora.app.ui.home.HomeScreen
+import com.creatora.app.ui.home.NotificationInboxScreen
 import com.creatora.app.ui.library.LibraryScreen
 import com.creatora.app.ui.licences.LicencesScreen
 import com.creatora.app.ui.licences.LicencesViewModel
@@ -63,6 +64,7 @@ object Routes {
     const val AI_PROVIDERS = "ai_providers"
     const val THUMBNAIL = "thumbnail/{projectId}"
     const val COACH = "coach"
+    const val NOTIFICATIONS = "notifications"
     const val LICENCES = "licences?assetId={assetId}"
 
     fun wizard(projectId: Long) = "wizard/$projectId"
@@ -99,10 +101,11 @@ fun CreatoraNavHost(
             composable(Routes.HOME) {
                 HomeScreen(
                     onProfileClick = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
-                    onContinue = { id -> navController.navigate(Routes.wizard(id)) },
+                    onNotifications = dropUnlessResumed { navController.navigate(Routes.NOTIFICATIONS) },
                     onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
+                    onProjectOpened = { id -> navController.navigate(Routes.wizard(id)) },
                     onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
-                    onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
+                    onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
                     onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                 )
             }
@@ -214,6 +217,7 @@ fun CreatoraNavHost(
                 BillingSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() })
             }
         }
+        composable(Routes.NOTIFICATIONS) { NotificationInboxScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(Routes.COACH) {
             CoachScreen(
                 onBack = dropUnlessResumed { navController.popBackStack() },
