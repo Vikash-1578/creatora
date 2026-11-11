@@ -32,6 +32,21 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
+      # Firebase config comes from a repository secret. Without it the app still builds (cloud features off).
+      - name: Write google-services.json (if the secret exists)
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+            echo "google-services.json written from the secret"
+          else
+            echo "No GOOGLE_SERVICES_JSON secret: building without Firebase"
+          fi
+
+      - name: Show the debug signing SHA-1 (register it in Firebase)
+        run: keytool -list -v -keystore app/debug.keystore -storepass android | grep -E "SHA1|SHA256"
+
       - name: Build debug APK, run unit tests and lint
         run: ./gradlew assembleDebug testDebugUnitTest lintDebug --continue --stacktrace
 

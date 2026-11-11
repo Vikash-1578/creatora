@@ -95,6 +95,44 @@ class AiTasksTest {
     }
 
     @Test
+    fun creatorProfile_sendsOnlyTheGivenText_andNeverAGuess() = runTest {
+        val service = FakeAiService(okReply("NICHE: street food\nFORMATS: shorts\nLANGUAGE: Hindi\nSUMMARY: Food films."))
+
+        val outcome = AiTasks(service).creatorProfile(listOf("My channel: Food films", "Best chaat in Delhi"))
+
+        assertEquals("street food", ((outcome as AiOutcome.Ok).value)?.niche)
+        val request = service.requests.single()
+        assertTrue("Use only the text given" in request.system)
+        assertTrue("Best chaat in Delhi" in request.messages.single().text)
+
+        val unknown = AiTasks(FakeAiService(okReply("NICHE: unknown"))).creatorProfile(listOf("x"))
+        assertEquals(null, (unknown as AiOutcome.Ok).value)
+    }
+
+    @Test
+    fun videoInsights_tellsTheAiToUseOnlyTheNumbersGiven() = runTest {
+        val service = FakeAiService(okReply("VIDEO: a\nWHY: w\nFIX: f"))
+
+        AiTasks(service).videoInsights("My channel", "VIDEO: a\nViews: 10")
+
+        val request = service.requests.single()
+        assertTrue("never invent or estimate any figure" in request.system.replace('\n', ' '))
+        assertTrue("not available" in request.system)
+        assertTrue("Views: 10" in request.messages.single().text)
+    }
+
+    @Test
+    fun personaInstructions_coverLanguageToneProfileAndHonesty() {
+        val text = com.creatora.app.domain.ai.personaInstructions(
+            com.creatora.app.domain.account.AppLanguage.HINDI,
+            com.creatora.app.domain.repository.AiTone.PROFESSIONAL,
+            com.creatora.app.domain.account.CreatorProfile("gaming", listOf("shorts"), summary = "Let's plays."),
+        )
+        assertTrue("Devanagari" in text && "professional" in text && "gaming" in text && "shorts" in text && "Never invent numbers" in text)
+        assertTrue("About this creator" !in com.creatora.app.domain.ai.personaInstructions(com.creatora.app.domain.account.AppLanguage.ENGLISH, com.creatora.app.domain.repository.AiTone.FRIENDLY, null))
+    }
+
+    @Test
     fun errors_passThroughUnchanged() = runTest {
         val failed = AiOutcome.Failed(listOf(AiError.NoKey))
 

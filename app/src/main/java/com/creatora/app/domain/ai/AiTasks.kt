@@ -1,5 +1,7 @@
 package com.creatora.app.domain.ai
 
+import com.creatora.app.domain.account.CreatorProfile
+import com.creatora.app.domain.account.ProfileSource
 import com.creatora.app.domain.model.AiOutcome
 import com.creatora.app.domain.model.AiRequest
 import com.creatora.app.domain.model.ChatMessage
@@ -18,6 +20,40 @@ class AiTasks @Inject constructor(private val ai: AiService) {
 
     suspend fun coach(history: List<ChatMessage>): AiOutcome<String> =
         ai.complete(AiRequest(COACH_SYSTEM, history))
+
+    /** Works out what the creator makes from their channel text. Only the given text is used. */
+    suspend fun creatorProfile(samples: List<String>): AiOutcome<CreatorProfile?> =
+        ai.complete(
+            AiRequest(
+                system = "You profile a creator from their channel titles and descriptions. Use only the text given. " +
+                    "Reply in exactly this format and nothing else:\n" +
+                    "NICHE: a short phrase for the topic they cover\n" +
+                    "FORMATS: comma separated video formats they use (for example long videos, shorts)\n" +
+                    "LANGUAGE: the language they publish in\n" +
+                    "SUMMARY: one sentence about their channel\n" +
+                    "If the text is too thin to tell, write NICHE: unknown.",
+                messages = listOf(ChatMessage(ChatRole.USER, samples.joinToString("\n---\n").take(SAMPLE_LIMIT))),
+            ),
+        ).map { parseCreatorProfile(it) }
+
+    /**
+     * Explains why each video did worse than the channel's usual. [facts] holds, per video, the real numbers (see
+     * [insightFacts]); the AI may only use those and must quote them.
+     */
+    suspend fun videoInsights(channel: String, facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You review YouTube videos that got fewer views than the channel's usual. You are given real " +
+                    "numbers for each video. Use ONLY those numbers; never invent or estimate any figure. Quote the " +
+                    "numbers that support each point. If a metric is marked not available, say it is not available " +
+                    "instead of guessing. For each video reply in exactly this format:\n" +
+                    "VIDEO: <the video id>\n" +
+                    "WHY: two sentences on the likely reasons, citing the numbers\n" +
+                    "FIX: two or three concrete changes to try next time\n" +
+                    "No other text.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Channel: $channel\n\n$facts")),
+            ),
+        )
 
     suspend fun ideas(topic: String, count: Int = IDEA_COUNT): AiOutcome<List<String>> =
         ai.complete(
@@ -103,5 +139,22 @@ fun parsePublishText(text: String): PublishText {
         description = sections["DESCRIPTION"].orEmpty(),
         hashtags = sections["HASHTAGS"].orEmpty().split(Regex("[\\s,]+")).filter { it.startsWith("#") && it.length > 1 }.distinct(),
         chapters = sections["CHAPTERS"].orEmpty().lines().map { it.replace(BULLET, "").trim() }.filter { it.isNotEmpty() },
+    )
+}
+
+private const val SAMPLE_LIMIT = 6_000
+
+/** Reads the creator profile reply; null when the niche is missing or "unknown", so nothing made up is stored. */
+fun parseCreatorProfile(text: String, now: Long = System.currentTimeMillis()): CreatorProfile? {
+    val sections = parseSections(text, listOf("NICHE", "FORMATS", "LANGUAGE", "SUMMARY"))
+    val niche = sections["NICHE"].orEmpty().trim()
+    if (niche.isEmpty() || niche.equals("unknown", ignoreCase = true)) return null
+    return CreatorProfile(
+        niche = niche,
+        formats = sections["FORMATS"].orEmpty().split(',').map { it.trim() }.filter { it.isNotEmpty() },
+        language = sections["LANGUAGE"].orEmpty().trim(),
+        summary = sections["SUMMARY"].orEmpty().trim(),
+        source = ProfileSource.DERIVED,
+        updatedAt = now,
     )
 }

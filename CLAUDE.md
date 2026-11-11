@@ -11,6 +11,10 @@ Guidance for Claude (and humans) working on **Creatora**, an all-in-one AI conte
 - **Build:** Gradle Kotlin DSL (`*.gradle.kts`) with a version catalog at `gradle/libs.versions.toml`
 - **Design system:** custom `CreatoraTheme` (colours, typography, shapes, spacing); fonts are Plus Jakarta
   Sans and Inter bundled in `res/font` (OFL licences in `licenses/`)
+- **Cloud (from Phase A):** Firebase (Auth with Google through Credential Manager, Firestore, Crashlytics; Cloud
+  Functions and Storage later). AI goes through Firebase AI Logic (Gemini) with App Check, plus a monthly usage
+  limit per plan (Free / Pro, Google Play Billing). The old user-key AI providers are only a developer fallback
+  behind `-PdevAiKeys=true` (`BuildConfig.DEV_AI_KEYS`). Specs live in `docs/spec/`; ROADMAP.md lists the phases.
 - **Persistence:** Room (`data/local/`) for content, Jetpack DataStore (Preferences) for settings
 - **Dependency injection:** Hilt (`@HiltAndroidApp`, `@AndroidEntryPoint`, `@HiltViewModel`, modules in
   `data/di/`); annotation processing with KSP
@@ -118,6 +122,20 @@ Android, Compose, or `data`.
   FileProvider declared in the manifest.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
+- **Firebase config is optional at build time:** `app/google-services.json` is never committed (CI writes it from
+  the `GOOGLE_SERVICES_JSON` secret); without it the app builds and cloud features say they are not set up.
+- **Honest AI:** AI never invents numbers. Real metrics are passed in and quoted; missing metrics are shown as
+  "not available"; the user approves any post or delete. Every AI call goes through `MeteredAiService`.
+- **One language everywhere (app-wide rule):** all UI text and all AI replies use the app language the user chose in
+  onboarding or Settings; until they choose, the device language (English, Hindi or Hinglish) is used. Never
+  hard-code a language for AI output: it goes through `MeteredAiService`, which adds the language instruction.
+- **Many accounts (app-wide rule):** a user can connect several accounts per platform (for example 2 or 3 YouTube
+  channels and several Instagram accounts). Accounts are a list keyed by platform plus account id
+  (`ConnectedAccount.key`); screens that show account data take the selected account (or "All accounts") and
+  never assume one channel. The plan limit counts the total number of accounts.
+- **Languages:** every new user-visible string goes in `values/` (English), `values-hi/` (Hindi) and
+  `values-b+hi+Latn/` (Hinglish). The in-app language replaces the device language (`core/Localization.kt`).
+  Strings from before Phase A are English only until the full translation pass (lint MissingTranslation is off).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state
   with a clear action.
 
@@ -141,7 +159,8 @@ Android, Compose, or `data`.
 - **Never push to `main` directly.**
 - **Never commit API keys or secrets.** Keep them in `local.properties` or environment variables / GitHub
   Actions secrets (all git-ignored or outside the repo). Do not commit keystores, `.env` files or
-  `google-services.json`.
+  `google-services.json`. The one exception is `app/debug.keystore`: debug signing only, public password, not a
+  secret, committed so the signing SHA-1 stays stable for Firebase and Google sign-in.
 
 ## Tooling
 

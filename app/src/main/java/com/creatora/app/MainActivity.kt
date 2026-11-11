@@ -5,32 +5,56 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.creatora.app.core.localized
+import com.creatora.app.data.cloud.ActivityBridge
 import com.creatora.app.domain.model.ThemeMode
 import com.creatora.app.ui.AppViewModel
 import com.creatora.app.ui.CreatoraApp
+import com.creatora.app.ui.SplashScreen
+import com.creatora.app.ui.StartState
+import com.creatora.app.ui.onboarding.OnboardingScreen
 import com.creatora.app.ui.theme.CreatoraTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /** The single activity of the app. All screens are Compose destinations inside [CreatoraApp]. */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var bridge: ActivityBridge
+
+    // Shows Google's permission screen on request of the data layer and hands the result back.
+    private val consent = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        bridge.onConsentResult(result.data)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        bridge.attach(this) { consent.launch(it) }
         setContent {
             val appViewModel: AppViewModel = hiltViewModel()
-            val themeMode by appViewModel.themeMode.collectAsStateWithLifecycle()
-            // Wait for the saved setting so the wrong theme is never shown; the window
-            // background (system light/dark) is visible for this brief moment.
-            val mode = themeMode ?: return@setContent
+            val session by appViewModel.session.collectAsStateWithLifecycle()
 
-            val darkTheme = when (mode) {
+            // Splash: shown while the saved settings and sign-in are read.
+            val current = session
+            if (current == null) {
+                CreatoraTheme(darkTheme = isSystemInDarkTheme()) { SplashScreen() }
+                return@setContent
+            }
+
+            val darkTheme = when (current.themeMode) {
                 ThemeMode.SYSTEM -> isSystemInDarkTheme()
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
@@ -43,9 +67,25 @@ class MainActivity : ComponentActivity() {
                 onDispose {}
             }
 
-            CreatoraTheme(darkTheme = darkTheme) {
-                CreatoraApp()
+            // The in-app language replaces the device's: every stringResource below reads these resources.
+            val base = LocalContext.current
+            val localized = remember(base, current.language) { base.localized(current.language) }
+            CompositionLocalProvider(
+                LocalContext provides localized,
+                LocalConfiguration provides localized.resources.configuration,
+            ) {
+                CreatoraTheme(darkTheme = darkTheme) {
+                    when (current.start) {
+                        StartState.ONBOARDING -> OnboardingScreen()
+                        StartState.HOME -> CreatoraApp()
+                    }
+                }
             }
         }
+    }
+
+    override fun onDestroy() {
+        bridge.detach(this)
+        super.onDestroy()
     }
 }

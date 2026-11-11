@@ -26,7 +26,13 @@ private val Topics = listOf(
 
 @Composable
 fun HelpScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    SubScreenScaffold(title = stringResource(R.string.help_title), onBack = onBack, modifier = modifier) {
+    SubScreenScaffold(title = stringResource(R.string.help_title), onBack = onBack, modifier = modifier) { HelpTopics() }
+}
+
+/** The help cards, also shown inside Settings > Help and about. */
+@Composable
+fun HelpTopics() {
+    run {
         Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.md)) {
             Topics.forEach { (title, body) ->
                 val shape = CreatoraTheme.shapes.radius16

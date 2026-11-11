@@ -6,6 +6,13 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// Firebase is configured by google-services.json (a GitHub secret in CI, never committed). Without the
+// file the app still builds; cloud features then say they are not set up.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
+}
+
 android {
     namespace = "com.creatora.app"
     compileSdk = 36
@@ -18,6 +25,20 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Dev fallback: use the user-entered AI keys (M7 providers) instead of Firebase AI Logic.
+        // Off by default. Turn on with -PdevAiKeys=true.
+        buildConfigField("boolean", "DEV_AI_KEYS", providers.gradleProperty("devAiKeys").orElse("false").get())
+    }
+
+    // A fixed debug keystore (debug only, not a secret) keeps the signing SHA-1 stable for Firebase and Google sign-in.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     buildTypes {
@@ -37,6 +58,13 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    lint {
+        // Only the Phase A strings have Hindi and Hinglish so far; the rest falls back to English until the
+        // full translation pass.
+        disable += "MissingTranslation"
     }
 
     testOptions {
@@ -88,6 +116,20 @@ dependencies {
     implementation(libs.androidx.media3.effect)
     implementation(libs.androidx.media3.common)
     implementation(libs.coil.video)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.ai)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.crashlytics)
+    debugImplementation(libs.firebase.appcheck.debug)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services)
+    implementation(libs.google.id)
+    implementation(libs.play.services.auth)
+    implementation(libs.play.billing)
+    implementation(libs.androidx.work.runtime)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

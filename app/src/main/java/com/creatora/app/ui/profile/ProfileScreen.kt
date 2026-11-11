@@ -52,7 +52,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val name by viewModel.displayName.collectAsStateWithLifecycle()
-    ProfileContent(name, viewModel::setDisplayName, appVersion(), onBack, onEarnClick, onSettingsClick, onHelpClick, modifier)
+    val channel by viewModel.channelTitle.collectAsStateWithLifecycle()
+    ProfileContent(name, channel, viewModel::setDisplayName, appVersion(), onBack, onEarnClick, onSettingsClick, onHelpClick, modifier)
 }
 
 @Composable
@@ -66,6 +67,7 @@ private fun appVersion(): String {
 @Composable
 fun ProfileContent(
     displayName: String,
+    channelTitle: String?,
     onNameChange: (String) -> Unit,
     version: String,
     onBack: () -> Unit,
@@ -78,7 +80,7 @@ fun ProfileContent(
     SubScreenScaffold(title = stringResource(R.string.profile_title), onBack = onBack, modifier = modifier) {
         ProfileHeader(displayName, onEdit = { editing = true })
         ListGroup {
-            InfoListRow(stringResource(R.string.profile_channel), stringResource(R.string.profile_channel_not_connected))
+            InfoListRow(stringResource(R.string.profile_channel), channelTitle ?: stringResource(R.string.profile_channel_not_connected))
             ListRowDivider()
             NavigationListRow(title = stringResource(R.string.earn_title), onClick = onEarnClick)
             ListRowDivider()
@@ -146,11 +148,11 @@ private fun ProfileHeader(displayName: String, onEdit: () -> Unit) {
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun ProfileScreenLightPreview() {
-    CreatoraTheme(darkTheme = false) { ProfileContent("Asha", {}, "0.1.0", {}, {}, {}, {}) }
+    CreatoraTheme(darkTheme = false) { ProfileContent("Asha", "My channel", {}, "0.1.0", {}, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun ProfileScreenDarkPreview() {
-    CreatoraTheme(darkTheme = true) { ProfileContent("", {}, "0.1.0", {}, {}, {}, {}) }
+    CreatoraTheme(darkTheme = true) { ProfileContent("", null, {}, "0.1.0", {}, {}, {}, {}) }
 }

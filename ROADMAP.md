@@ -10,17 +10,49 @@ reviewer merges PRs.
 | # | Milestone | Status |
 |---|-----------|--------|
 | M1–M3 | Project setup, theme system, navigation shell | Done |
-| M4 | Data foundation | PR #5, CI green |
-| M5 | Library tab | PR #6 (stacked on #5) |
-| M6 | Create flow | PR #7 (stacked on #6) |
-| M7 | AI layer | PR #8 (stacked on #7) |
-| M8 | Video render | PR #9 (stacked on #8) |
-| M9 | Research tab | Planned |
-| M10 | Publish and schedule | Planned |
-| M11 | Grow tab | Planned |
-| M12 | Home tab | Planned |
-| M13 | Profile and Earn | Planned |
-| M14 | Release quality (1.0.0) | Planned |
+| M4–M8 | Data foundation, Library, Create flow, AI layer (user keys), Video render | Merged (#5 to #9) |
+| UI polish | Home, Research, Grow, Profile, Settings, Library, Create | Merged (#14) |
+| M9–M13 | Old local-first plan (Research, Publish, Grow, Home, Profile and Earn) | Superseded. PRs #10 to #13 stay open, untouched; to be mined later |
+| **Phase A** | Onboarding, accounts, settings, Firebase, Creatora AI, plans and usage | In progress: spec in `docs/spec/01-onboarding-accounts-settings.md` |
+| Phase B+ | Next screens, from the manager's approved specs | Not started |
+| Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
+
+Direction since Phase A: **cloud-first** (Firebase Auth, Firestore, Storage, Cloud Functions, Crashlytics;
+Firebase AI Logic for AI; Free and Pro plans through Google Play Billing). Each phase is one branch and one PR,
+built from an approved spec in `docs/spec/`.
+
+### Phase A checklist
+- [x] Spec written
+- [x] Language picker, welcome slides, Google sign-in
+- [x] YouTube authorization and channel fetch, connected accounts and platform adapters
+- [x] Creator profile from AI, first insights on Home
+- [x] Notification categories and YouTube poll (views milestones and new comments; earnings alerts not wired yet)
+- [x] Settings restructure (7 top-level pages; Connected accounts lives inside Account)
+- [x] AI usage meter, dialog, banner and limit
+- [x] Billing (Play Billing) with honest not-available state
+- [x] English, Hindi and Hinglish strings
+
+## Deferred: rework M9–M12
+
+PRs #10 to #13 were closed without merging because they were built for the old local-first plan. The branches are
+**kept** (do not delete or change them) and their code is reused when each screen is specced for the cloud-first
+app (Firebase, Google sign-in, Firebase AI Logic):
+
+| Branch | Was | Useful code to reuse |
+|--------|-----|----------------------|
+| `m9-research` | M9 Research | Keyword search, outliers, rivals (competitors), trends, idea bank, swipe file |
+| `m10-publish` | M10 Publish | Publish checklist, content calendar, post reminders |
+| `m11-grow` | M11 Grow | Channel snapshots, reply drafts, A/B test log |
+| `m12-home` | M12 Home | Home cards (continue, next post, ideas, channel snapshot) and notices |
+
+Before any of it is brought back:
+- Their Room schema check fails in CI (schema JSON for the new versions was never committed). Fix it first, and
+  re-check the migration numbers against whatever the cloud-first screens change in the local database.
+- Rebuild each screen on the cloud-first foundations: Google sign-in, the platform adapters, Firebase AI Logic
+  through `MeteredAiService` (no user-entered API keys), plans and usage limits, English / Hindi / Hinglish strings.
+- Use the approved spec for that screen as the source of truth; the old code is a starting point, not the design.
+
+The parked `m13-earn-profile` work (income tracker, rate card, media kit) was never pushed and is not part of this plan.
 
 ## Milestones
 

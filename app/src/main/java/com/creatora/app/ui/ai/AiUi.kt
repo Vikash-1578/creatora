@@ -24,8 +24,8 @@ fun AiProvider.hintRes(): Int = when (this) {
     AiProvider.OPENROUTER -> R.string.ai_provider_openrouter_hint
 }
 
-/** True when the fix is in Settings > AI providers: no key yet, or a key that was rejected. */
-fun List<AiError>.needsKey(): Boolean = any { it is AiError.NoKey || it is AiError.InvalidKey }
+/** True when the fix is on another screen: the plan limit is used up, or (developer builds) a key is missing or rejected. */
+fun List<AiError>.needsKey(): Boolean = any { it is AiError.LimitReached || it is AiError.NoKey || it is AiError.InvalidKey }
 
 /** One plain sentence per error, naming the provider. */
 @Composable
@@ -37,6 +37,9 @@ fun AiError.message(): String = when (this) {
     is AiError.Server -> stringResource(R.string.ai_error_server, stringResource(provider.nameRes()), code)
     is AiError.BadRequest -> stringResource(R.string.ai_error_bad_request, stringResource(provider.nameRes()))
     is AiError.BadResponse -> stringResource(R.string.ai_error_bad_response, stringResource(provider.nameRes()))
+    AiError.LimitReached -> stringResource(R.string.ai_error_limit)
+    AiError.SignInRequired -> stringResource(R.string.ai_error_sign_in)
+    AiError.CloudUnavailable -> stringResource(R.string.ai_error_cloud)
 }
 
 /** The errors of a failed AI call, with a button to Settings when a key is the problem. */
@@ -51,7 +54,7 @@ fun AiErrors(
             Text(it.message(), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.danger)
         }
         if (errors.needsKey()) {
-            SecondaryButton(stringResource(R.string.ai_open_providers), onOpenProviders)
+            SecondaryButton(stringResource(if (errors.any { it is AiError.LimitReached }) R.string.ai_open_plan else R.string.ai_open_providers), onOpenProviders)
         }
     }
 }

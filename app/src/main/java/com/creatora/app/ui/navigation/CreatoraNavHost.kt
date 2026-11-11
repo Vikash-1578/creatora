@@ -1,6 +1,7 @@
 package com.creatora.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import com.creatora.app.BuildConfig
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -25,6 +26,14 @@ import com.creatora.app.ui.licences.LicencesScreen
 import com.creatora.app.ui.licences.LicencesViewModel
 import com.creatora.app.ui.profile.ProfileScreen
 import com.creatora.app.ui.research.ResearchScreen
+import com.creatora.app.ui.settings.AccountSettingsScreen
+import com.creatora.app.ui.settings.AiSettingsScreen
+import com.creatora.app.ui.settings.AppearanceSettingsScreen
+import com.creatora.app.ui.settings.BillingSettingsScreen
+import com.creatora.app.ui.settings.HelpAboutScreen
+import com.creatora.app.ui.settings.NotificationSettingsScreen
+import com.creatora.app.ui.settings.PrivacyScreen
+import com.creatora.app.ui.settings.SettingsDestinations
 import com.creatora.app.ui.settings.SettingsScreen
 import com.creatora.app.ui.thumbnail.ThumbnailScreen
 import com.creatora.app.ui.thumbnail.ThumbnailViewModel
@@ -41,6 +50,13 @@ object Routes {
     const val PROFILE = "profile"
     const val EARN = "earn"
     const val SETTINGS = "settings"
+    const val SETTINGS_ACCOUNT = "settings/account"
+    const val SETTINGS_NOTIFICATIONS = "settings/notifications"
+    const val SETTINGS_AI = "settings/ai"
+    const val SETTINGS_BILLING = "settings/billing"
+    const val SETTINGS_APPEARANCE = "settings/appearance"
+    const val SETTINGS_PRIVACY = "settings/privacy"
+    const val SETTINGS_HELP = "settings/help"
     const val HELP = "help"
     const val BRAND_KIT = "brand_kit"
     const val WIZARD = "wizard/{projectId}"
@@ -87,13 +103,13 @@ fun CreatoraNavHost(
                     onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
                     onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
                     onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
-                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
+                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                 )
             }
         }
         navigation(route = TopLevelTab.RESEARCH.graphRoute, startDestination = Routes.RESEARCH) {
             composable(Routes.RESEARCH) {
-                ResearchScreen(onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS) })
+                ResearchScreen(onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) })
             }
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {
@@ -107,7 +123,7 @@ fun CreatoraNavHost(
         navigation(route = TopLevelTab.GROW.graphRoute, startDestination = Routes.GROW) {
             composable(Routes.GROW) {
                 GrowScreen(
-                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
+                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                     onOpenCreate = { navController.navigateToTab(TopLevelTab.CREATE) },
                 )
             }
@@ -166,11 +182,37 @@ fun CreatoraNavHost(
         composable(Routes.SETTINGS) {
             SettingsScreen(
                 onBack = dropUnlessResumed { navController.popBackStack() },
-                onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                destinations = SettingsDestinations(
+                    account = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
+                    notifications = dropUnlessResumed { navController.navigate(Routes.SETTINGS_NOTIFICATIONS) },
+                    ai = dropUnlessResumed { navController.navigate(Routes.SETTINGS_AI) },
+                    billing = dropUnlessResumed { navController.navigate(Routes.SETTINGS_BILLING) },
+                    appearance = dropUnlessResumed { navController.navigate(Routes.SETTINGS_APPEARANCE) },
+                    privacy = dropUnlessResumed { navController.navigate(Routes.SETTINGS_PRIVACY) },
+                    help = dropUnlessResumed { navController.navigate(Routes.SETTINGS_HELP) },
+                    devAiKeys = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                ),
             )
         }
+        composable(Routes.SETTINGS_ACCOUNT) { AccountSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+        composable(Routes.SETTINGS_NOTIFICATIONS) { NotificationSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+        composable(Routes.SETTINGS_AI) { AiSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+        composable(Routes.SETTINGS_BILLING) { BillingSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+        composable(Routes.SETTINGS_APPEARANCE) { AppearanceSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+        composable(Routes.SETTINGS_PRIVACY) {
+            PrivacyScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenAccount = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
+            )
+        }
+        composable(Routes.SETTINGS_HELP) { HelpAboutScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(Routes.AI_PROVIDERS) {
-            AiProvidersScreen(onBack = dropUnlessResumed { navController.popBackStack() })
+            // User-entered keys exist only for developer builds; everyone else is sent to their plan and usage.
+            if (BuildConfig.DEV_AI_KEYS) {
+                AiProvidersScreen(onBack = dropUnlessResumed { navController.popBackStack() })
+            } else {
+                BillingSettingsScreen(onBack = dropUnlessResumed { navController.popBackStack() })
+            }
         }
         composable(Routes.COACH) {
             CoachScreen(

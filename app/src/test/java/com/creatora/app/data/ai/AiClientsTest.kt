@@ -31,6 +31,18 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
         this.body = body
         return response
     }
+
+    /** GET replies by URL fragment (first match wins); every requested URL is kept in [getUrls]. */
+    val getResponses = linkedMapOf<String, HttpResponse>()
+    val getUrls = mutableListOf<String>()
+    var getHeaders = emptyMap<String, String>()
+
+    override suspend fun get(url: String, headers: Map<String, String>): HttpResponse {
+        if (offline) throw IOException("offline")
+        getUrls += url
+        getHeaders = headers
+        return getResponses.entries.firstOrNull { url.contains(it.key) }?.value ?: response
+    }
 }
 
 @RunWith(RobolectricTestRunner::class)
