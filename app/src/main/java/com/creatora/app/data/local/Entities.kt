@@ -1,5 +1,6 @@
 package com.creatora.app.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -21,6 +22,7 @@ import com.creatora.app.domain.model.VoicePreset
 data class ProjectEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val title: String,
+    @ColumnInfo(defaultValue = "0") val isTemplate: Boolean,
     val createdAt: Long,
     val updatedAt: Long,
 )
@@ -113,8 +115,8 @@ data class ChannelSnapshotEntity(
     val capturedAt: Long,
 )
 
-fun ProjectEntity.toModel() = Project(id, title, createdAt, updatedAt)
-fun Project.toEntity() = ProjectEntity(id, title, createdAt, updatedAt)
+fun ProjectEntity.toModel() = Project(id, title, isTemplate, createdAt, updatedAt)
+fun Project.toEntity() = ProjectEntity(id, title, isTemplate, createdAt, updatedAt)
 
 fun IdeaEntity.toModel() = Idea(id, title, notes, projectId, createdAt)
 fun Idea.toEntity() = IdeaEntity(id, title, notes, projectId, createdAt)

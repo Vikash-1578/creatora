@@ -1,5 +1,6 @@
 package com.creatora.app.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
@@ -14,7 +15,8 @@ import androidx.room.RoomDatabase
         ScheduledPostEntity::class,
         ChannelSnapshotEntity::class,
     ],
-    version = 1,
+    version = 2,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
 )
 abstract class CreatoraDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao

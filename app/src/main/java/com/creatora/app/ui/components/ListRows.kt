@@ -47,6 +47,7 @@ fun NavigationListRow(
     title: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    value: String? = null,
 ) {
     val spacing = CreatoraTheme.spacing
     Row(
@@ -64,6 +65,13 @@ fun NavigationListRow(
             color = CreatoraTheme.colors.text,
             modifier = Modifier.weight(1f),
         )
+        if (value != null) {
+            Text(
+                text = value,
+                style = CreatoraTheme.typography.caption,
+                color = CreatoraTheme.colors.textMuted,
+            )
+        }
         Icon(
             imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
             contentDescription = null,

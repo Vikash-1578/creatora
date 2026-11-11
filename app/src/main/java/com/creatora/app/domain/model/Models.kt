@@ -5,6 +5,8 @@ package com.creatora.app.domain.model
 data class Project(
     val id: Long = 0,
     val title: String,
+    /** Templates are kept apart from projects and copied to start a new one. */
+    val isTemplate: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = createdAt,
 )
@@ -18,7 +20,19 @@ data class Idea(
     val createdAt: Long = System.currentTimeMillis(),
 )
 
-enum class AssetType { IMAGE, VIDEO, AUDIO }
+enum class AssetType {
+    IMAGE, VIDEO, AUDIO;
+
+    companion object {
+        /** The asset type for a MIME type, or null if Creatora can't use the file. */
+        fun fromMimeType(mimeType: String): AssetType? = when (mimeType.substringBefore('/')) {
+            "image" -> IMAGE
+            "video" -> VIDEO
+            "audio" -> AUDIO
+            else -> null
+        }
+    }
+}
 
 data class Asset(
     val id: Long = 0,
@@ -78,3 +92,15 @@ data class ChannelSnapshot(
     val videoCount: Long,
     val capturedAt: Long = System.currentTimeMillis(),
 )
+
+/** The creator's brand: logo, colours (as #RRGGBB) and font files. */
+data class BrandKit(
+    val logoUri: String? = null,
+    val colors: List<String> = emptyList(),
+    val fonts: List<FontFile> = emptyList(),
+)
+
+data class FontFile(val name: String, val uri: String)
+
+/** A file the user picked, readable by the app. */
+data class PickedFile(val uri: String, val name: String, val mimeType: String)

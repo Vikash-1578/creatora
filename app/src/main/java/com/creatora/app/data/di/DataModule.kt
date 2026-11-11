@@ -15,8 +15,11 @@ import com.creatora.app.data.local.RoomLicenceRepository
 import com.creatora.app.data.local.RoomProjectRepository
 import com.creatora.app.data.local.RoomScheduledPostRepository
 import com.creatora.app.data.local.RoomVoicePresetRepository
+import com.creatora.app.data.media.ContentResolverUserFiles
+import com.creatora.app.data.settings.DataStoreBrandKitRepository
 import com.creatora.app.data.settings.DataStoreSettingsRepository
 import com.creatora.app.domain.repository.AssetRepository
+import com.creatora.app.domain.repository.BrandKitRepository
 import com.creatora.app.domain.repository.ChannelSnapshotRepository
 import com.creatora.app.domain.repository.CharacterRepository
 import com.creatora.app.domain.repository.IdeaRepository
@@ -24,6 +27,7 @@ import com.creatora.app.domain.repository.LicenceRepository
 import com.creatora.app.domain.repository.ProjectRepository
 import com.creatora.app.domain.repository.ScheduledPostRepository
 import com.creatora.app.domain.repository.SettingsRepository
+import com.creatora.app.domain.repository.UserFiles
 import com.creatora.app.domain.repository.VoicePresetRepository
 import dagger.Binds
 import dagger.Module
@@ -52,6 +56,8 @@ object StorageModule {
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
     @Binds abstract fun settings(impl: DataStoreSettingsRepository): SettingsRepository
+    @Binds abstract fun brandKit(impl: DataStoreBrandKitRepository): BrandKitRepository
+    @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles
     @Binds abstract fun projects(impl: RoomProjectRepository): ProjectRepository
     @Binds abstract fun ideas(impl: RoomIdeaRepository): IdeaRepository
     @Binds abstract fun assets(impl: RoomAssetRepository): AssetRepository

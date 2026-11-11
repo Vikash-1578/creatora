@@ -1,6 +1,8 @@
 package com.creatora.app.domain.repository
 
 import com.creatora.app.domain.model.Asset
+import com.creatora.app.domain.model.BrandKit
+import com.creatora.app.domain.model.PickedFile
 import com.creatora.app.domain.model.ChannelSnapshot
 import com.creatora.app.domain.model.Character
 import com.creatora.app.domain.model.Idea
@@ -45,4 +47,18 @@ interface ScheduledPostRepository : Repository<ScheduledPost>
 interface ChannelSnapshotRepository : Repository<ChannelSnapshot> {
     /** Oldest first, for charts. */
     fun observeForChannel(channelId: String): Flow<List<ChannelSnapshot>>
+}
+
+interface BrandKitRepository {
+    val brandKit: Flow<BrandKit>
+    suspend fun update(transform: (BrandKit) -> BrandKit)
+}
+
+/** Files the user picks with the system pickers. */
+interface UserFiles {
+    /** Copies the picked file into app storage so it stays readable. Returns null if it can't be read. */
+    suspend fun import(uri: String): PickedFile?
+
+    /** Deletes a copy made by [import]. Other URIs are ignored. */
+    suspend fun discard(uri: String)
 }

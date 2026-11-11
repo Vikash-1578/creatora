@@ -35,6 +35,126 @@
     <string name="settings_appearance">Appearance</string>
     <string name="settings_appearance_description">Choose how Creatora looks. Your choice is saved.</string>
 
+    <!-- Common actions -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_save">Save</string>
+    <string name="action_add">Add</string>
+    <string name="action_create">Create</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_duplicate">Duplicate</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_more">More actions</string>
+    <string name="action_search">Search</string>
+    <string name="action_close_search">Close search</string>
+
+    <!-- Library -->
+    <string name="library_filter_projects">Projects</string>
+    <string name="library_filter_assets">Assets</string>
+    <string name="library_filter_cast">Cast</string>
+    <string name="library_filter_voices">Voices</string>
+    <string name="library_filter_templates">Templates</string>
+    <string name="library_search_label">Search the library</string>
+    <string name="library_no_results">Nothing matches your search.</string>
+
+    <string name="library_new_project">New project</string>
+    <string name="library_new_project_dialog_title">New project</string>
+    <string name="library_project_title_label">Project name</string>
+    <string name="library_rename_project_title">Rename project</string>
+    <string name="library_duplicate_project_title">Duplicate project</string>
+    <string name="library_save_template">Save as template</string>
+    <string name="library_save_template_title">Save as template</string>
+    <string name="library_template_name_label">Template name</string>
+    <string name="library_use_template">Start a project</string>
+    <string name="library_use_template_title">Start a project from this template</string>
+    <string name="library_copy_suffix">%1$s (copy)</string>
+    <string name="library_status_draft">Draft</string>
+    <string name="library_status_scheduled">Scheduled</string>
+    <string name="library_project_edited">Edited %1$s</string>
+    <string name="library_project_goes_live">Goes live %1$s</string>
+    <string name="library_projects_empty_title">No projects yet</string>
+    <string name="library_projects_empty_body">Projects you start show up here, saved as you work.</string>
+
+    <string name="library_templates_empty_title">No templates yet</string>
+    <string name="library_templates_empty_body">Open a project\'s menu and choose Save as template to reuse it later.</string>
+
+    <string name="library_assets_empty_title">No assets yet</string>
+    <string name="library_assets_empty_body">Add photos, videos and audio from your phone. Each file gets a licence log entry so you know what you may use.</string>
+    <string name="library_add_media">Add photos or videos</string>
+    <string name="library_add_audio">Add audio</string>
+    <string name="library_asset_no_licence">No licence logged</string>
+    <string name="library_asset_licence">Licence log</string>
+    <string name="library_asset_licence_logged">Licence logged</string>
+    <plurals name="library_import_done">
+        <item quantity="one">Added %1$d file</item>
+        <item quantity="other">Added %1$d files</item>
+    </plurals>
+    <plurals name="library_import_skipped">
+        <item quantity="one">%1$d file couldn\'t be added</item>
+        <item quantity="other">%1$d files couldn\'t be added</item>
+    </plurals>
+
+    <string name="library_cast_empty_title">No characters yet</string>
+    <string name="library_cast_empty_body">Characters give your videos a recurring voice. Add one and pick the voice it speaks with.</string>
+    <string name="library_add_character">Add character</string>
+    <string name="library_edit_character">Edit character</string>
+    <string name="library_character_name_label">Name</string>
+    <string name="library_character_description_label">Description</string>
+    <string name="library_character_no_voice">No voice</string>
+    <string name="library_character_voice_label">Voice</string>
+
+    <string name="library_voices_empty_title">No voice presets yet</string>
+    <string name="library_voices_empty_body">A preset stores a pitch and speaking speed for the narration voice.</string>
+    <string name="library_add_voice">Add voice preset</string>
+    <string name="library_edit_voice">Edit voice preset</string>
+    <string name="library_voice_name_label">Name</string>
+    <string name="library_voice_pitch">Pitch %1$s</string>
+    <string name="library_voice_speed">Speed %1$s</string>
+    <string name="library_voice_summary">Pitch %1$s · Speed %2$s</string>
+
+    <string name="library_deleted">Deleted \"%1$s\"</string>
+
+    <string name="library_row_brand_kit">Brand kit</string>
+    <string name="library_row_brand_kit_value">Logo, colours, fonts</string>
+    <string name="library_row_licences">Licences and credits</string>
+    <string name="library_row_licences_value">Every clip and track</string>
+
+    <!-- Brand kit -->
+    <string name="brand_kit_title">Brand kit</string>
+    <string name="brand_kit_logo">Logo</string>
+    <string name="brand_kit_logo_empty">No logo yet. Pick an image from your phone.</string>
+    <string name="brand_kit_logo_pick">Choose logo</string>
+    <string name="brand_kit_logo_description">Your logo</string>
+    <string name="brand_kit_colors">Colours</string>
+    <string name="brand_kit_colors_empty">No brand colours yet. Add them as hex codes, like #5B47F0.</string>
+    <string name="brand_kit_color_label">Hex code</string>
+    <string name="brand_kit_color_error">Use six hex digits, like #5B47F0.</string>
+    <string name="brand_kit_color_swatch">Brand colour %1$s</string>
+    <string name="brand_kit_remove_color">Remove colour %1$s</string>
+    <string name="brand_kit_fonts">Fonts</string>
+    <string name="brand_kit_fonts_empty">No fonts yet. Add .ttf or .otf files.</string>
+    <string name="brand_kit_font_pick">Add font</string>
+    <string name="brand_kit_remove_font">Remove font %1$s</string>
+    <string name="brand_kit_invalid_logo">Pick an image file for the logo.</string>
+    <string name="brand_kit_invalid_font">That file isn\'t a .ttf or .otf font.</string>
+    <string name="brand_kit_import_failed">Couldn\'t read that file.</string>
+
+    <!-- Licences -->
+    <string name="licences_title">Licences and credits</string>
+    <string name="licences_title_asset">Licence log</string>
+    <string name="licences_empty_all">No licence entries yet. Open an asset in the Library to log where it came from.</string>
+    <string name="licences_empty_asset">Nothing logged for this file yet. Note where it came from and what licence covers it.</string>
+    <string name="licences_add">Add entry</string>
+    <string name="licences_add_title">Add licence entry</string>
+    <string name="licences_source_label">Source</string>
+    <string name="licences_licence_label">Licence</string>
+    <string name="licences_author_label">Author (optional)</string>
+    <string name="licences_url_label">Link (optional)</string>
+    <string name="licences_entry_by">by %1$s</string>
+    <string name="licences_delete_entry">Delete entry</string>
+    <string name="licences_unknown_asset">Deleted file</string>
+
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>
