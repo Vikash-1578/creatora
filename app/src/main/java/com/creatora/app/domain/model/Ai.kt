@@ -23,6 +23,11 @@ sealed interface AiError {
     data class Server(val provider: AiProvider, val code: Int) : AiError
     data class BadRequest(val provider: AiProvider, val message: String) : AiError
     data class BadResponse(val provider: AiProvider) : AiError
+    /** The plan's monthly AI limit is used up. */
+    data object LimitReached : AiError
+    data object SignInRequired : AiError
+    /** The cloud AI service could not be reached or is not set up in this build. */
+    data object CloudUnavailable : AiError
 }
 
 class AiException(val error: AiError) : Exception()

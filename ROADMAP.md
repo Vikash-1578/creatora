@@ -23,14 +23,14 @@ built from an approved spec in `docs/spec/`.
 
 ### Phase A checklist
 - [x] Spec written
-- [ ] Language picker, welcome slides, Google sign-in
-- [ ] YouTube authorization and channel fetch, connected accounts and platform adapters
-- [ ] Creator profile from AI, first insights on Home
-- [ ] Notification categories and YouTube poll
-- [ ] Settings restructure (8 pages)
-- [ ] AI usage meter, dialog, banner and limit
-- [ ] Billing (Play Billing) with honest not-available state
-- [ ] English, Hindi and Hinglish strings
+- [x] Language picker, welcome slides, Google sign-in
+- [x] YouTube authorization and channel fetch, connected accounts and platform adapters
+- [x] Creator profile from AI, first insights on Home
+- [x] Notification categories and YouTube poll (views milestones and new comments; earnings alerts not wired yet)
+- [x] Settings restructure (8 pages)
+- [x] AI usage meter, dialog, banner and limit
+- [x] Billing (Play Billing) with honest not-available state
+- [x] English, Hindi and Hinglish strings
 
 ## Milestones
 

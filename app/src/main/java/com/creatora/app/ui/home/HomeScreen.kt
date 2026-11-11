@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,9 @@ import com.creatora.app.ui.components.SecondaryButton
 import com.creatora.app.ui.components.SectionTitle
 import com.creatora.app.ui.components.TabScreen
 import com.creatora.app.ui.create.titleRes
+import com.creatora.app.ui.insights.InsightsSection
+import com.creatora.app.ui.insights.InsightsUiState
+import com.creatora.app.ui.insights.InsightsViewModel
 import com.creatora.app.ui.theme.CreatoraTheme
 
 /** Home tab: where you left off, quick ways to start, recent projects, the Coach and your channel. */
@@ -57,22 +61,27 @@ fun HomeScreen(
     onConnectChannel: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
+    insightsViewModel: InsightsViewModel = hiltViewModel(),
 ) {
     val project by viewModel.continueProject.collectAsStateWithLifecycle()
     val recent by viewModel.recentProjects.collectAsStateWithLifecycle()
-    HomeContent(project, recent, onProfileClick, onContinue, onOpenCoach, onNewVideo, onOpenLibrary, onConnectChannel, modifier)
+    val insights by insightsViewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(Unit) { insightsViewModel.start() }
+    HomeContent(project, recent, insights, onProfileClick, onContinue, onOpenCoach, onNewVideo, onOpenLibrary, onConnectChannel, insightsViewModel::refresh, modifier)
 }
 
 @Composable
 fun HomeContent(
     continueProject: Project?,
     recent: List<Project>,
+    insights: InsightsUiState,
     onProfileClick: () -> Unit,
     onContinue: (Long) -> Unit,
     onOpenCoach: () -> Unit,
     onNewVideo: () -> Unit,
     onOpenLibrary: () -> Unit,
     onConnectChannel: () -> Unit,
+    onRefreshInsights: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val spacing = CreatoraTheme.spacing
@@ -111,7 +120,7 @@ fun HomeContent(
                 InfoCard(R.string.home_coach_body, R.string.home_coach_action, onOpenCoach)
             }
             Section(R.string.home_channel_title) {
-                InfoCard(R.string.home_channel_body, R.string.home_channel_action, onConnectChannel)
+                InsightsSection(insights, onConnectChannel, onRefreshInsights)
             }
         }
     }
@@ -210,11 +219,11 @@ private val PreviewProject = Project(id = 1, title = "Preview project", format =
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun HomeLightPreview() {
-    CreatoraTheme(darkTheme = false) { HomeContent(PreviewProject, listOf(PreviewProject), {}, {}, {}, {}, {}, {}) }
+    CreatoraTheme(darkTheme = false) { HomeContent(PreviewProject, listOf(PreviewProject), InsightsUiState.NoAccount, {}, {}, {}, {}, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun HomeDarkPreview() {
-    CreatoraTheme(darkTheme = true) { HomeContent(null, emptyList(), {}, {}, {}, {}, {}, {}) }
+    CreatoraTheme(darkTheme = true) { HomeContent(null, emptyList(), InsightsUiState.Analysing("My channel"), {}, {}, {}, {}, {}, {}, {}) }
 }

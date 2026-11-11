@@ -28,6 +28,8 @@ output-metadata.json
 # Secrets — never commit keys, keystores or env files
 *.jks
 *.keystore
+# The one exception: the fixed debug keystore (debug only, public password, not a secret).
+!app/debug.keystore
 keystore.properties
 secrets.properties
 .env

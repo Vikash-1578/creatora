@@ -51,6 +51,27 @@ import com.creatora.app.domain.repository.SpeechPlayer
 import com.creatora.app.domain.repository.UserFiles
 import com.creatora.app.domain.repository.VoicePresetRepository
 import dagger.Binds
+import com.creatora.app.BuildConfig
+import com.creatora.app.data.cloud.FirebaseAiService
+import com.creatora.app.data.cloud.FirebaseAuthService
+import com.creatora.app.data.cloud.FirestoreAiHistoryRepository
+import com.creatora.app.data.cloud.FirestoreConnectedAccountRepository
+import com.creatora.app.data.cloud.FirestoreUsageRepository
+import com.creatora.app.data.cloud.FirestoreUserRepository
+import com.creatora.app.data.cloud.GoogleYouTubeAuthorizer
+import com.creatora.app.data.cloud.PlayBillingRepository
+import com.creatora.app.data.notify.DataStoreNotificationPrefs
+import com.creatora.app.data.youtube.YouTubeAdapter
+import com.creatora.app.domain.account.PlatformRegistry
+import com.creatora.app.domain.ai.MeteredAiService
+import com.creatora.app.domain.repository.AiHistoryRepository
+import com.creatora.app.domain.repository.AuthService
+import com.creatora.app.domain.repository.BillingRepository
+import com.creatora.app.domain.repository.ConnectedAccountRepository
+import com.creatora.app.domain.repository.NotificationPrefsRepository
+import com.creatora.app.domain.repository.UsageRepository
+import com.creatora.app.domain.repository.UserRepository
+import com.creatora.app.domain.repository.YouTubeAuthorizer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -79,13 +100,49 @@ object StorageModule {
         PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("settings") }
 }
 
+/** The cloud services and the AI service chosen for this build. */
+@Module
+@InstallIn(SingletonComponent::class)
+object CloudModule {
+    /** Firebase AI Logic with plan limits; the old user-key providers only when the dev flag `devAiKeys` is on. */
+    @Provides
+    @Singleton
+    fun aiService(
+        failover: FailoverAiService,
+        firebase: FirebaseAiService,
+        auth: AuthService,
+        users: UserRepository,
+        usage: UsageRepository,
+        history: AiHistoryRepository,
+        settings: SettingsRepository,
+        billing: BillingRepository,
+    ): AiService =
+        if (BuildConfig.DEV_AI_KEYS) failover else MeteredAiService(firebase, auth, users, usage, history, settings, billing)
+
+    @Provides
+    @Singleton
+    fun platformRegistry(youtube: YouTubeAdapter): PlatformRegistry = PlatformRegistry(listOf(youtube))
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class CloudBindingsModule {
+    @Binds abstract fun auth(impl: FirebaseAuthService): AuthService
+    @Binds abstract fun users(impl: FirestoreUserRepository): UserRepository
+    @Binds abstract fun usage(impl: FirestoreUsageRepository): UsageRepository
+    @Binds abstract fun accounts(impl: FirestoreConnectedAccountRepository): ConnectedAccountRepository
+    @Binds abstract fun aiHistory(impl: FirestoreAiHistoryRepository): AiHistoryRepository
+    @Binds abstract fun youTubeAuthorizer(impl: GoogleYouTubeAuthorizer): YouTubeAuthorizer
+    @Binds abstract fun billing(impl: PlayBillingRepository): BillingRepository
+    @Binds abstract fun notificationPrefs(impl: DataStoreNotificationPrefs): NotificationPrefsRepository
+}
+
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
     @Binds abstract fun httpTransport(impl: UrlConnectionTransport): HttpTransport
     @Binds abstract fun secretCipher(impl: AndroidKeystoreCipher): SecretCipher
     @Binds abstract fun aiProviderStore(impl: DataStoreAiProviderStore): AiProviderStore
-    @Binds abstract fun aiService(impl: FailoverAiService): AiService
     @Binds abstract fun settings(impl: DataStoreSettingsRepository): SettingsRepository
     @Binds abstract fun brandKit(impl: DataStoreBrandKitRepository): BrandKitRepository
     @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles

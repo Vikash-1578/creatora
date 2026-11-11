@@ -11,6 +11,10 @@ Guidance for Claude (and humans) working on **Creatora**, an all-in-one AI conte
 - **Build:** Gradle Kotlin DSL (`*.gradle.kts`) with a version catalog at `gradle/libs.versions.toml`
 - **Design system:** custom `CreatoraTheme` (colours, typography, shapes, spacing); fonts are Plus Jakarta
   Sans and Inter bundled in `res/font` (OFL licences in `licenses/`)
+- **Cloud (from Phase A):** Firebase (Auth with Google through Credential Manager, Firestore, Crashlytics; Cloud
+  Functions and Storage later). AI goes through Firebase AI Logic (Gemini) with App Check, plus a monthly usage
+  limit per plan (Free / Pro, Google Play Billing). The old user-key AI providers are only a developer fallback
+  behind `-PdevAiKeys=true` (`BuildConfig.DEV_AI_KEYS`). Specs live in `docs/spec/`; ROADMAP.md lists the phases.
 - **Persistence:** Room (`data/local/`) for content, Jetpack DataStore (Preferences) for settings
 - **Dependency injection:** Hilt (`@HiltAndroidApp`, `@AndroidEntryPoint`, `@HiltViewModel`, modules in
   `data/di/`); annotation processing with KSP
@@ -118,6 +122,13 @@ Android, Compose, or `data`.
   FileProvider declared in the manifest.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
+- **Firebase config is optional at build time:** `app/google-services.json` is never committed (CI writes it from
+  the `GOOGLE_SERVICES_JSON` secret); without it the app builds and cloud features say they are not set up.
+- **Honest AI:** AI never invents numbers. Real metrics are passed in and quoted; missing metrics are shown as
+  "not available"; the user approves any post or delete. Every AI call goes through `MeteredAiService`.
+- **Languages:** every new user-visible string goes in `values/` (English), `values-hi/` (Hindi) and
+  `values-b+hi+Latn/` (Hinglish). The in-app language replaces the device language (`core/Localization.kt`).
+  Strings from before Phase A are English only until the full translation pass (lint MissingTranslation is off).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state
   with a clear action.
 
@@ -139,7 +150,7 @@ Android, Compose, or `data`.
 - **Always work on a new branch** for every change.
 - **Open a pull request** for every change; CI must build the debug APK successfully.
 - **Never push to `main` directly.**
-- **Never commit API keys or secrets.** Keep them in `local.properties` or environment variables / GitHub
+- **Never commit API keys or secrets.** The one exception is `app/debug.keystore` (debug signing only, public password, so the SHA-1 stays stable for Firebase). Keep them in `local.properties` or environment variables / GitHub
   Actions secrets (all git-ignored or outside the repo). Do not commit keystores, `.env` files or
   `google-services.json`.
 
