@@ -25,11 +25,14 @@ All code lives under `app/src/main/java/com/creatora/app/`:
 com.creatora.app
 ├── MainActivity.kt      # the only Activity; sets the theme and CreatoraApp()
 ├── ui/                  # Compose screens, ViewModels, navigation, theme
-│   ├── CreatoraApp.kt   # root composable, owns the NavController
-│   ├── navigation/      # NavHost and route definitions
+│   ├── CreatoraApp.kt   # root composable: NavController, NavHost and bottom tab bar
+│   ├── navigation/      # Routes, TopLevelTab (the 5 tabs), CreatoraNavHost, CreatoraBottomBar
+│   ├── components/      # shared UI: ScreenHeader, TabScreen, SubScreenScaffold, list rows, icon buttons
 │   ├── theme/           # Color.kt, Type.kt, Dimens.kt, Theme.kt (design tokens)
-│   ├── themepreview/    # demo screen for checking the theme
+│   ├── home/ research/ create/ grow/ library/   # the five tab screens
+│   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
 │   └── <feature>/       # one package per feature: <Feature>Screen.kt + <Feature>ViewModel.kt
+│                        # (a ViewModel only once the screen has state)
 ├── data/                # repository implementations, APIs, local storage (DataStore), DTOs, mappers
 ├── domain/              # models, repository interfaces, use cases (plain Kotlin, no Android)
 └── core/                # shared utilities and AppContainer (manual dependency injection)
@@ -66,6 +69,19 @@ Android, Compose, or `data`.
 - Add new dependencies through `gradle/libs.versions.toml`, never with inline version strings.
 - ViewModels expose UI state as `StateFlow`; screens collect it with `collectAsStateWithLifecycle()`.
 - Register every new screen as a route in `ui/navigation/CreatoraNavHost.kt`.
+
+## Navigation rules
+
+- Bottom tabs, in order: Home, Research, Create, Grow, Library (`TopLevelTab`). Each tab is a nested
+  graph, so it keeps its own back stack; switch tabs only with `navController.navigateToTab(tab)`
+  (saveState / restoreState). Back on any tab returns to Home; Back on Home exits.
+- Screens inside a tab go in that tab's `navigation(...)` block and keep the bottom bar. Screens outside
+  every tab graph (Profile, Earn, Settings, ...) hide the bottom bar and use `SubScreenScaffold`
+  (back arrow + title).
+- Wrap navigation click handlers in `dropUnlessResumed { ... }` so double taps don't navigate twice.
+- **Edge-to-edge:** tab screens use `TabScreen`, other screens use `SubScreenScaffold`; both pad for the
+  system bars. Never hardcode status/navigation bar heights.
+- Every icon-only button and every tab has a content description from `strings.xml`.
 
 ## Workflow rules
 

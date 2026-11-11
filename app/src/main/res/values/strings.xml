@@ -1,21 +1,42 @@
 <resources>
     <string name="app_name">Creatora</string>
 
+    <!-- Tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_research">Research</string>
+    <string name="tab_create">Create</string>
+    <string name="tab_grow">Grow</string>
+    <string name="tab_library">Library</string>
+
+    <!-- Tab content descriptions (screen readers) -->
+    <string name="cd_tab_home">Home tab</string>
+    <string name="cd_tab_research">Research tab</string>
+    <string name="cd_tab_create">Create new content</string>
+    <string name="cd_tab_grow">Grow tab</string>
+    <string name="cd_tab_library">Library tab</string>
+
+    <!-- Tab screen headers -->
+    <string name="home_subtitle">Your ideas, projects and channel at a glance</string>
+    <string name="research_subtitle">Keywords, outliers, rivals and trends</string>
+    <string name="create_subtitle">Pick a format and we guide you step by step</string>
+    <string name="grow_subtitle">Analytics, comments, tests and audit</string>
+    <string name="library_subtitle">Projects, assets, characters and voices</string>
+
+    <!-- Header buttons -->
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_profile">Profile</string>
+    <string name="cd_back">Back</string>
+
+    <!-- Profile / Earn / Settings -->
+    <string name="profile_title">Profile</string>
+    <string name="earn_title">Earn</string>
+    <string name="earn_subtitle">Earnings and payouts will appear here</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_description">Choose how Creatora looks. Your choice is saved.</string>
+
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>
     <string name="theme_mode_dark">Dark</string>
-
-    <!-- Theme preview (demo) screen -->
-    <string name="theme_preview_title">Theme preview</string>
-    <string name="theme_preview_subtitle">Check colours, fonts and shapes in light and dark theme.</string>
-    <string name="theme_preview_appearance">Appearance</string>
-    <string name="theme_preview_card_title">Sample card</string>
-    <string name="theme_preview_card_body">Cards use the surface colour, a 1dp border and a 16dp corner radius.</string>
-    <string name="theme_preview_status_success">Success</string>
-    <string name="theme_preview_status_warning">Warning</string>
-    <string name="theme_preview_status_danger">Danger</string>
-    <string name="theme_preview_accent_text">Accent text on accent soft</string>
-    <string name="theme_preview_primary_button">Primary button</string>
-    <string name="theme_preview_muted_text">Muted text is used for secondary information. Your theme choice is saved and kept after restarting the app.</string>
 </resources>

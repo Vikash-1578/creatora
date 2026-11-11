@@ -32,4 +32,14 @@ data class CreatoraDimens(
     /** Minimum height/width of anything tappable. */
     val minTouchTarget: Dp = 44.dp,
     val borderWidth: Dp = 1.dp,
+    /** Standard icon size. */
+    val icon: Dp = 24.dp,
+    /** Bottom tab bar height, excluding the system navigation bar inset. */
+    val bottomBarHeight: Dp = 84.dp,
+    /** Diameter of the raised Create button in the tab bar. */
+    val createButtonSize: Dp = 48.dp,
+    /** How far the Create button sticks up above the tab bar. */
+    val createButtonLift: Dp = 24.dp,
+    /** Width of the background-coloured ring around the Create button. */
+    val createButtonRing: Dp = 4.dp,
 )
