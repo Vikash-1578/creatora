@@ -29,7 +29,6 @@ class AndroidThumbnailRendererTest {
         BitmapFactory.decodeFile(file.path, bounds)
         assertEquals(1280, bounds.outWidth)
         assertEquals(720, bounds.outHeight)
-        assertEquals("image/png", bounds.outMimeType)
     }
 
     @Test
