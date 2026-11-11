@@ -106,7 +106,7 @@
     <string name="ai_tone_professional">प्रोफ़ेशनल</string>
     <string name="ai_tone_funny">मज़ेदार</string>
     <string name="ai_personalization">पर्सनलाइज़ेशन</string>
-    <string name="ai_personalization_body">AI को जवाबों में आपके कंटेंट (क्रिएटर प्रोफ़ाइल) का इस्तेमाल करने दें।</string>
+    <string name="ai_personalization_body">AI को जवाबों में आपके कंटेंट और लक्ष्य (क्रिएटर प्रोफ़ाइल) का इस्तेमाल करने दें।</string>
     <string name="ai_profile_none">अभी कोई क्रिएटर प्रोफ़ाइल नहीं। चैनल जोड़ें, यह आपके अपने टाइटल और विवरण से बन जाएगी।</string>
     <string name="ai_profile_refresh">मेरे खातों से अपडेट करें</string>
     <string name="ai_profile_updated">प्रोफ़ाइल अपडेट हो गई।</string>
@@ -182,4 +182,16 @@
     <string name="connect_hide">छिपाएं</string>
     <string name="account_profile">प्रोफ़ाइल</string>
     <string name="account_connect_accounts">अपने खाते जोड़ें</string>
+    <string name="onboarding_goal_title">अगले 30 दिनों का आपका लक्ष्य</string>
+    <string name="onboarding_goal_body">एक लक्ष्य चुनें जिसकी ओर बढ़ना है। यह AI के सुझावों को दिशा देता है। यह नतीजों का वादा नहीं है।</string>
+    <string name="goal_metric_subscribers">सब्सक्राइबर</string>
+    <string name="goal_metric_views">व्यूज़</string>
+    <string name="goal_metric_uploads">अपलोड</string>
+    <string name="goal_metric_earnings">कमाई</string>
+    <string name="goal_target_label">लक्ष्य की संख्या</string>
+    <string name="goal_earnings_note">उसी मुद्रा में जिसमें आपका चैनल कमाता है।</string>
+    <string name="goal_desire_label">आप अपने चैनल से सबसे ज़्यादा क्या चाहते हैं? (वैकल्पिक)</string>
+    <string name="goal_frequency">आप कितनी बार अपलोड करना चाहेंगे?</string>
+    <string name="goal_per_week">हफ़्ते में %1$d</string>
+    <string name="goal_save">सेव करें और जारी रखें</string>
 </resources>

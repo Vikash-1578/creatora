@@ -7,6 +7,7 @@ import com.creatora.app.domain.account.ChannelPreview
 import com.creatora.app.domain.account.ConnectPlatform
 import com.creatora.app.domain.account.ConnectedAccount
 import com.creatora.app.domain.account.CreatorProfile
+import com.creatora.app.domain.account.Goal
 import com.creatora.app.domain.account.NotificationCategory
 import com.creatora.app.domain.account.NotificationPrefs
 import com.creatora.app.domain.account.Plan
@@ -23,6 +24,7 @@ import com.creatora.app.domain.repository.BillingRepository
 import com.creatora.app.domain.repository.BillingState
 import com.creatora.app.domain.repository.ConnectedAccountRepository
 import com.creatora.app.domain.repository.DeleteOutcome
+import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.LaunchOutcome
 import com.creatora.app.domain.repository.NotificationPrefsRepository
 import com.creatora.app.domain.repository.SignInOutcome
@@ -178,3 +180,18 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
 
 fun preview(id: String = "UC1", title: String = "My channel", subs: Long? = 1_200) =
     ChannelPreview(ConnectPlatform.YOUTUBE, id, title, handle = "@mine", description = "I make short films", subscribers = subs, videoCount = 20, viewCount = 50_000)
+
+class FakeGoalRepository : GoalRepository {
+    val byUser = MutableStateFlow<Map<String, List<Goal>>>(emptyMap())
+    private var next = 1
+    override fun observe(uid: String): Flow<List<Goal>> = byUser.map { it[uid].orEmpty() }
+    override suspend fun save(uid: String, goal: Goal): String {
+        val id = goal.id.ifBlank { "g${next++}" }
+        byUser.value = byUser.value + (uid to (byUser.value[uid].orEmpty().filterNot { it.id == id } + goal.copy(id = id)))
+        return id
+    }
+
+    override suspend fun delete(uid: String, id: String) {
+        byUser.value = byUser.value + (uid to byUser.value[uid].orEmpty().filterNot { it.id == id })
+    }
+}

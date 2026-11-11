@@ -37,9 +37,10 @@ class MeteredAiServiceTest {
     private val history = FakeAiHistoryRepository()
     private val settings = FakeSettingsRepository()
     private val billing = FakeBillingRepository()
+    private val goals = com.creatora.app.testutil.FakeGoalRepository()
     private val request = AiRequest("Be brief.", listOf(ChatMessage(ChatRole.USER, "Give me ideas")))
 
-    private fun service() = MeteredAiService(delegate, auth, users, usage, history, settings, billing, now = { now })
+    private fun service() = MeteredAiService(delegate, auth, users, usage, history, settings, billing, goals, now = { now })
 
     @Test
     fun successfulCalls_areCounted_andLogged() = runTest {
@@ -113,6 +114,37 @@ class MeteredAiServiceTest {
         } finally {
             java.util.Locale.setDefault(before)
         }
+    }
+
+    private fun goal(reached: Long? = null) = com.creatora.app.domain.account.Goal(
+        metric = com.creatora.app.domain.account.GoalMetric.SUBSCRIBERS, target = 1_000, startedAt = 1, deadline = 2,
+        startValue = 400, desire = "quit my job and make videos", uploadsPerWeek = 3, reachedAt = reached,
+    )
+
+    @Test
+    fun theGoalSteersEveryRequest_withoutPromisingResults() = runTest {
+        goals.save("uid1", goal())
+
+        service().complete(request)
+
+        val system = delegate.requests.single().system
+        assertTrue("gain 1000 subscribers (starting from 400)" in system)
+        assertTrue("quit my job and make videos" in system && "3 times a week" in system)
+        assertTrue("Never promise virality or guaranteed results" in system)
+    }
+
+    @Test
+    fun aReachedGoal_orPersonalizationOff_doesNotSteer() = runTest {
+        goals.save("uid1", goal(reached = 5))
+        service().complete(request)
+        assertFalse("aim for the next 30 days" in delegate.requests.single().system)
+
+        delegate.requests.clear()
+        goals.save("uid1", goal())
+        settings.personalization.value = false
+        service().complete(request)
+        assertFalse("aim for the next 30 days" in delegate.requests.single().system)
+        assertTrue("Never promise virality" in delegate.requests.single().system) // the honesty rule always applies
     }
 
     @Test

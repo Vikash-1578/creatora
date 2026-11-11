@@ -12,12 +12,16 @@ import com.creatora.app.domain.account.CreatorProfile
 import com.creatora.app.domain.account.NotificationCategory
 import com.creatora.app.domain.account.NotificationPrefs
 import com.creatora.app.domain.account.CreatorProfileService
+import com.creatora.app.domain.account.GoalMetric
+import com.creatora.app.domain.account.newGoal
 import com.creatora.app.domain.account.ProfileSource
 import com.creatora.app.domain.account.profileSamples
 import com.creatora.app.domain.account.toAccount
 import com.creatora.app.domain.repository.AuthService
 import com.creatora.app.domain.repository.AuthUser
 import com.creatora.app.domain.repository.BillingRepository
+import com.creatora.app.domain.repository.ConnectedAccountRepository
+import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.LaunchOutcome
 import com.creatora.app.domain.repository.NotificationPrefsRepository
 import com.creatora.app.domain.repository.SettingsRepository
@@ -36,7 +40,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class OnboardingStep { LANGUAGE, WELCOME, CONNECT, ASK, NOTIFICATIONS, PLAN }
+enum class OnboardingStep { LANGUAGE, WELCOME, CONNECT, ASK, GOAL, NOTIFICATIONS, PLAN }
 
 data class OnboardingUiState(
     val step: OnboardingStep = OnboardingStep.LANGUAGE,
@@ -67,6 +71,8 @@ class OnboardingViewModel @Inject constructor(
     private val profiles: CreatorProfileService,
     private val notifications: NotificationPrefsRepository,
     private val billing: BillingRepository,
+    private val goals: GoalRepository,
+    private val accounts: ConnectedAccountRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(OnboardingUiState())
@@ -172,7 +178,7 @@ class OnboardingViewModel @Inject constructor(
 
     /** Leaves the connect step. The one question is only asked when nothing is connected. */
     fun finishConnect() {
-        goTo(if (_state.value.connectedTitles.isEmpty()) OnboardingStep.ASK else OnboardingStep.NOTIFICATIONS)
+        goTo(if (_state.value.connectedTitles.isEmpty()) OnboardingStep.ASK else OnboardingStep.GOAL)
     }
 
     fun answerWhatYouMake(answer: String) {
@@ -183,8 +189,24 @@ class OnboardingViewModel @Inject constructor(
                 runCatching { users.setCreatorProfile(uid, CreatorProfile(niche = text, source = ProfileSource.ASKED)) }
             }
         }
-        goTo(OnboardingStep.NOTIFICATIONS)
+        goTo(OnboardingStep.GOAL)
     }
+
+    /** Saves the 30-day goal (the aim the AI is steered by) and moves on. A target that is not a positive number saves nothing. */
+    fun saveGoal(metric: GoalMetric, target: Long, desire: String, uploadsPerWeek: Int?) {
+        val uid = user?.uid
+        if (uid == null) {
+            goTo(OnboardingStep.NOTIFICATIONS)
+            return
+        }
+        viewModelScope.launch {
+            val goal = newGoal(metric, target, desire, uploadsPerWeek, accounts.observe(uid).first(), System.currentTimeMillis())
+            if (goal != null) runCatching { goals.save(uid, goal) }
+            goTo(OnboardingStep.NOTIFICATIONS)
+        }
+    }
+
+    fun skipGoal() = goTo(OnboardingStep.NOTIFICATIONS)
 
     fun setNotification(category: NotificationCategory, on: Boolean) {
         viewModelScope.launch { notifications.setEnabled(category, on) }
