@@ -11,11 +11,16 @@ Guidance for Claude (and humans) working on **Creatora**, an all-in-one AI conte
 - **Build:** Gradle Kotlin DSL (`*.gradle.kts`) with a version catalog at `gradle/libs.versions.toml`
 - **Design system:** custom `CreatoraTheme` (colours, typography, shapes, spacing); fonts are Plus Jakarta
   Sans and Inter bundled in `res/font` (OFL licences in `licenses/`)
-- **Persistence:** Jetpack DataStore (Preferences) for settings
+- **Persistence:** Room (`data/local/`) for content, Jetpack DataStore (Preferences) for settings
+- **Dependency injection:** Hilt (`@HiltAndroidApp`, `@AndroidEntryPoint`, `@HiltViewModel`, modules in
+  `data/di/`); annotation processing with KSP
+- **Tests:** JUnit 4, kotlinx-coroutines-test, Robolectric (Room and Android-dependent tests on the JVM)
 - **SDK levels:** minSdk 26, compileSdk and targetSdk = latest stable (currently 36)
 - **Java/JVM target:** 17
 - **Package name / applicationId:** `com.creatora.app`
-- **CI:** GitHub Actions (`.github/workflows/android-build.yml`) builds a debug APK on every PR and push to `main`
+- **CI:** GitHub Actions (`.github/workflows/android-build.yml`) runs `assembleDebug testDebugUnitTest
+  lintDebug` on every PR and push to `main`, checks Room schemas are committed and uploads the debug APK
+- **Roadmap:** milestones and standing rules are in `ROADMAP.md`
 
 ## Package structure
 
@@ -33,13 +38,23 @@ com.creatora.app
 │   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
 │   └── <feature>/       # one package per feature: <Feature>Screen.kt + <Feature>ViewModel.kt
 │                        # (a ViewModel only once the screen has state)
-├── data/                # repository implementations, APIs, local storage (DataStore), DTOs, mappers
-├── domain/              # models, repository interfaces, use cases (plain Kotlin, no Android)
-└── core/                # shared utilities and AppContainer (manual dependency injection)
+├── data/
+│   ├── local/           # Room: Entities.kt (tables + mappers), Daos.kt, CreatoraDatabase, RoomRepositories.kt
+│   ├── settings/        # DataStore-backed SettingsRepository
+│   └── di/              # Hilt modules: database, DataStore, repository bindings
+├── domain/
+│   ├── model/           # plain Kotlin models (Models.kt, ThemeMode)
+│   └── repository/      # repository interfaces (Repositories.kt, SettingsRepository)
+└── core/                # shared utilities (empty until needed)
 ```
 
-`CreatoraApplication` creates the `AppContainer`. ViewModels get dependencies through a `Factory`
-that calls `appContainer()` (see `ui/ViewModelFactories.kt`).
+ViewModels are `@HiltViewModel` with `@Inject constructor(...)`; screens get them with `hiltViewModel()`.
+Repositories are bound to their interfaces in `data/di/DataModule.kt`.
+
+**Room:** every table has an entity in `Entities.kt` that mirrors a domain model, a DAO in `Daos.kt`
+(extending `CrudDao`) and a repository in `RoomRepositories.kt`. Schemas are exported to `app/schemas/`
+and must be committed. Any schema change bumps the database `version` and adds a migration; never use
+destructive migration.
 
 Dependency direction: `ui → domain ← data`, and everything may use `core`. `domain` must not depend on
 Android, Compose, or `data`.
@@ -69,6 +84,11 @@ Android, Compose, or `data`.
 - Add new dependencies through `gradle/libs.versions.toml`, never with inline version strings.
 - ViewModels expose UI state as `StateFlow`; screens collect it with `collectAsStateWithLifecycle()`.
 - Register every new screen as a route in `ui/navigation/CreatoraNavHost.kt`.
+- **Tests:** every ViewModel and repository has unit tests in `app/src/test/`. Use fakes for repositories
+  in ViewModel tests (`testutil/`), `MainDispatcherRule` for `viewModelScope`, and an in-memory Room
+  database with Robolectric for repository tests.
+- **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state
+  with a clear action.
 
 ## Navigation rules
 
@@ -123,6 +143,6 @@ project is trusted. They never override the rules in this file.
 ```bash
 ./gradlew assembleDebug     # build the debug APK -> app/build/outputs/apk/debug/app-debug.apk
 ./gradlew installDebug      # install on a connected device/emulator
-./gradlew test              # unit tests
-./gradlew lint              # Android lint
+./gradlew testDebugUnitTest # unit tests
+./gradlew lintDebug         # Android lint
 ```

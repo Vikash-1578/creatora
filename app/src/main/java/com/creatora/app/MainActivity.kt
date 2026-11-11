@@ -10,19 +10,21 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.creatora.app.domain.model.ThemeMode
 import com.creatora.app.ui.AppViewModel
 import com.creatora.app.ui.CreatoraApp
 import com.creatora.app.ui.theme.CreatoraTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 /** The single activity of the app. All screens are Compose destinations inside [CreatoraApp]. */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val appViewModel: AppViewModel = viewModel(factory = AppViewModel.Factory)
+            val appViewModel: AppViewModel = hiltViewModel()
             val themeMode by appViewModel.themeMode.collectAsStateWithLifecycle()
             // Wait for the saved setting so the wrong theme is never shown; the window
             // background (system light/dark) is visible for this brief moment.

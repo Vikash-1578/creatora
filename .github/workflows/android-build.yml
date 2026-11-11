@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    name: Build debug APK
+    name: Build, test and lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -32,8 +32,30 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Build debug APK, run unit tests and lint
+        run: ./gradlew assembleDebug testDebugUnitTest lintDebug --stacktrace
+
+      # Room writes app/schemas/ during the build; schemas must be committed so future migrations work.
+      - name: Check Room schemas are committed
+        run: |
+          changes=$(git status --porcelain app/schemas)
+          if [ -n "$changes" ]; then
+            echo "::error::Room schema changed but is not committed. Commit these files:"
+            echo "$changes"
+            git ls-files --others --modified app/schemas | while read -r f; do echo "===== $f"; cat "$f"; done
+            exit 1
+          fi
+
+      - name: Upload test and lint reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: |
+            app/build/reports/tests/
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v7

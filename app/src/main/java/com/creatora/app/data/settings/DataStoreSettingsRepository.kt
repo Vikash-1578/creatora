@@ -1,12 +1,10 @@
 package com.creatora.app.data.settings
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.creatora.app.domain.model.ThemeMode
 import com.creatora.app.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -14,15 +12,12 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.IOException
-
-private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+import javax.inject.Inject
 
 /** [SettingsRepository] backed by Jetpack Preferences DataStore. */
-class DataStoreSettingsRepository(
+class DataStoreSettingsRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
 ) : SettingsRepository {
-
-    constructor(context: Context) : this(context.applicationContext.settingsDataStore)
 
     override val themeMode: Flow<ThemeMode> = dataStore.data
         .catch { error ->
