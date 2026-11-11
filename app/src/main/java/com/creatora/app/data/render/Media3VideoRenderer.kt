@@ -23,6 +23,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.BitmapOverlay
 import androidx.media3.effect.OverlayEffect
 import androidx.media3.effect.Presentation
+import androidx.media3.effect.StaticOverlaySettings
 import androidx.media3.effect.TextureOverlay
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
@@ -163,7 +164,7 @@ private class CaptionOverlay(private val ratio: AspectRatio, private val cues: L
     private val zoneHeight = ((zone.bottom - zone.top) * ratio.height).toInt()
     private val blank = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
     private val bitmaps = HashMap<CaptionCue, Bitmap>()
-    private val settings = OverlaySettings.Builder()
+    private val settings: OverlaySettings = StaticOverlaySettings.Builder()
         // Anchor the overlay's centre on the middle of the safe zone (frame coordinates run from -1 to 1, top is +1).
         .setBackgroundFrameAnchor(0f, 1f - (zone.top + zone.bottom))
         .setOverlayFrameAnchor(0f, 0f)
