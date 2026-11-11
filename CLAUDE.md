@@ -36,6 +36,7 @@ com.creatora.app
 │   ├── theme/           # Color.kt, Type.kt, Dimens.kt, Theme.kt (design tokens)
 │   ├── home/ research/ create/ grow/            # tab screens (placeholders until their milestone)
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
+│   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
 │   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
 │   ├── brandkit/ licences/                      # screens opened from the Library
 │   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
@@ -43,6 +44,7 @@ com.creatora.app
 │                        # (a ViewModel only once the screen has state)
 ├── data/
 │   ├── local/           # Room: Entities.kt (tables + mappers), Daos.kt, CreatoraDatabase, RoomRepositories.kt
+│   ├── ai/              # AI clients (Gemini, Groq, OpenRouter), failover, encrypted key store
 │   ├── media/           # ContentResolverUserFiles: copies picked files into app storage
 │   ├── settings/        # DataStore-backed SettingsRepository and BrandKitRepository
 │   └── di/              # Hilt modules: database, DataStore, repository bindings
@@ -98,6 +100,11 @@ Android, Compose, or `data`.
   database with Robolectric for repository tests.
 - **Autosave:** the Create wizard edits an in-memory draft and saves it to Room after a 500 ms pause, on every
   step change and when the screen closes (`WizardViewModel.flush`). New long forms should do the same.
+- **AI and API keys:** AI calls go through `AiService` (domain) and the tasks in `AiTasks`; never call a
+  provider from a screen. Users enter their own keys in Settings > AI providers. Keys are encrypted with the
+  Android Keystore, live in their own DataStore file (excluded from backups), travel only in request headers
+  and are never logged, put in URLs, error messages or the repo. Every AI action shows an "add a key" or error
+  state through `AiErrors`. New providers implement `AiClient`.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state
