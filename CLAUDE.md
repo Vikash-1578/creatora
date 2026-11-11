@@ -89,7 +89,11 @@ Android, Compose, or `data`.
 - **Typography:** use `CreatoraTheme.typography.*` (screenTitle 24sp, sectionTitle 17sp, cardTitle 15sp —
   Plus Jakarta Sans Bold; body 14sp, caption 12sp, tabLabel 11sp — Inter). No ad-hoc font sizes.
 - **Shapes and spacing:** corners from `CreatoraTheme.shapes` (radius8/12/14/16/20/24), spacing from
-  `CreatoraTheme.spacing` (xs 4, sm 8, md 12, lg 16, xl 20). No ad-hoc dp values for these.
+  `CreatoraTheme.spacing` (xs 4, sm 8, md 12, lg 16, xl 20, xxl 24 between sections). No ad-hoc dp values for these.
+- **Tab screens** end with `tabBottomSpace()` (built into `TabScreen`; pass it as bottom `contentPadding` for lazy
+  lists) so the last item scrolls clear of the raised Create button. A feature with no data yet uses
+  `FeatureCard` (what it does, what is needed, one action), never a blank screen. Cards clip only their picture,
+  never their text.
 - **Touch targets:** anything tappable is at least `CreatoraTheme.dimens.minTouchTarget` (44dp).
 - **Theme setting:** the user's System / Light / Dark choice is saved in DataStore via
   `SettingsRepository` and applied in `MainActivity`. Screens must never read `isSystemInDarkTheme()`

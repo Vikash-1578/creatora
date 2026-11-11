@@ -1,12 +1,14 @@
 package com.creatora.app.ui.earn
 
 import android.content.res.Configuration
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.creatora.app.R
+import com.creatora.app.ui.components.EmptyState
 import com.creatora.app.ui.components.SubScreenScaffold
 import com.creatora.app.ui.theme.CreatoraTheme
 
@@ -18,10 +20,10 @@ fun EarnScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         onBack = onBack,
         modifier = modifier,
     ) {
-        Text(
-            text = stringResource(R.string.earn_subtitle),
-            style = CreatoraTheme.typography.body,
-            color = CreatoraTheme.colors.textMuted,
+        EmptyState(
+            icon = Icons.Outlined.Paid,
+            title = stringResource(R.string.earn_empty_title),
+            body = stringResource(R.string.earn_subtitle),
         )
     }
 }

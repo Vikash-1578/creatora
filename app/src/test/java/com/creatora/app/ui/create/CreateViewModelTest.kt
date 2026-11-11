@@ -42,6 +42,34 @@ class CreateViewModelTest {
     }
 
     @Test
+    fun start_reusesAnEmptyDraftOfTheSameFormat_insteadOfCreatingAnotherOne() {
+        val viewModel = CreateViewModel(projects, AiTasks(aiService))
+        val ids = mutableListOf<Long>()
+
+        viewModel.start(VideoFormat.LONG_VIDEO, "Untitled Long video", onCreated = { ids += it })
+        // The user renames it in the wizard, backs out and taps Start again.
+        projects.items.value = projects.items.value.map { it.copy(title = "hello World") }
+        viewModel.start(VideoFormat.LONG_VIDEO, "Untitled Long video", onCreated = { ids += it })
+
+        assertEquals(1, projects.items.value.size)
+        assertEquals(listOf(ids[0], ids[0]), ids)
+        assertEquals("hello World", projects.items.value.single().title)
+    }
+
+    @Test
+    fun start_createsANewProjectWhenTheDraftHasContentOrAnotherFormatIsChosen() {
+        val viewModel = CreateViewModel(projects, AiTasks(aiService))
+        viewModel.start(VideoFormat.LONG_VIDEO, "One", onCreated = {})
+        projects.items.value = projects.items.value.map { it.copy(brief = "Some brief") }
+
+        viewModel.start(VideoFormat.LONG_VIDEO, "Two", onCreated = {})
+        viewModel.start(VideoFormat.SHORTS_REELS, "Three", onCreated = {})
+        viewModel.start(VideoFormat.SHORTS_REELS, "Four", onCreated = {}, brief = "From an idea")
+
+        assertEquals(listOf("One", "Two", "Three", "Four"), projects.items.value.sortedBy { it.id }.map { it.title })
+    }
+
+    @Test
     fun suggestIdeas_showsTheIdeasOrTheErrors() {
         val viewModel = CreateViewModel(projects, AiTasks(aiService))
 

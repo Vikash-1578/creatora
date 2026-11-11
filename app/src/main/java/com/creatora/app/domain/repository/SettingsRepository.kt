@@ -9,4 +9,9 @@ interface SettingsRepository {
     val themeMode: Flow<ThemeMode>
 
     suspend fun setThemeMode(mode: ThemeMode)
+
+    /** The name shown on the Profile screen; empty until the user sets one. */
+    val displayName: Flow<String>
+
+    suspend fun setDisplayName(name: String)
 }

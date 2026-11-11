@@ -18,6 +18,7 @@ import com.creatora.app.ui.create.WizardScreen
 import com.creatora.app.ui.create.WizardViewModel
 import com.creatora.app.ui.earn.EarnScreen
 import com.creatora.app.ui.grow.GrowScreen
+import com.creatora.app.ui.help.HelpScreen
 import com.creatora.app.ui.home.HomeScreen
 import com.creatora.app.ui.library.LibraryScreen
 import com.creatora.app.ui.licences.LicencesScreen
@@ -40,6 +41,7 @@ object Routes {
     const val PROFILE = "profile"
     const val EARN = "earn"
     const val SETTINGS = "settings"
+    const val HELP = "help"
     const val BRAND_KIT = "brand_kit"
     const val WIZARD = "wizard/{projectId}"
     const val AI_PROVIDERS = "ai_providers"
@@ -83,11 +85,16 @@ fun CreatoraNavHost(
                     onProfileClick = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
                     onContinue = { id -> navController.navigate(Routes.wizard(id)) },
                     onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
+                    onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
+                    onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
+                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
                 )
             }
         }
         navigation(route = TopLevelTab.RESEARCH.graphRoute, startDestination = Routes.RESEARCH) {
-            composable(Routes.RESEARCH) { ResearchScreen() }
+            composable(Routes.RESEARCH) {
+                ResearchScreen(onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS) })
+            }
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {
             composable(Routes.CREATE) {
@@ -98,7 +105,12 @@ fun CreatoraNavHost(
             }
         }
         navigation(route = TopLevelTab.GROW.graphRoute, startDestination = Routes.GROW) {
-            composable(Routes.GROW) { GrowScreen() }
+            composable(Routes.GROW) {
+                GrowScreen(
+                    onConnectChannel = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
+                    onOpenCreate = { navController.navigateToTab(TopLevelTab.CREATE) },
+                )
+            }
         }
         navigation(route = TopLevelTab.LIBRARY.graphRoute, startDestination = Routes.LIBRARY) {
             composable(Routes.LIBRARY) {
@@ -142,7 +154,11 @@ fun CreatoraNavHost(
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onEarnClick = dropUnlessResumed { navController.navigate(Routes.EARN) },
                 onSettingsClick = dropUnlessResumed { navController.navigate(Routes.SETTINGS) },
+                onHelpClick = dropUnlessResumed { navController.navigate(Routes.HELP) },
             )
+        }
+        composable(Routes.HELP) {
+            HelpScreen(onBack = dropUnlessResumed { navController.popBackStack() })
         }
         composable(Routes.EARN) {
             EarnScreen(onBack = dropUnlessResumed { navController.popBackStack() })

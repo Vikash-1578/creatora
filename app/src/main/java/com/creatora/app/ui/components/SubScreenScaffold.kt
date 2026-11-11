@@ -67,8 +67,8 @@ fun SubScreenScaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = spacing.lg, vertical = spacing.md),
-            verticalArrangement = Arrangement.spacedBy(spacing.xl),
+                .padding(start = spacing.lg, end = spacing.lg, top = spacing.md, bottom = spacing.xxl),
+            verticalArrangement = Arrangement.spacedBy(spacing.xxl),
             content = content,
         )
     }

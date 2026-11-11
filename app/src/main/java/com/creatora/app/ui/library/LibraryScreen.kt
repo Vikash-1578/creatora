@@ -61,6 +61,7 @@ import com.creatora.app.ui.components.ListRowDivider
 import com.creatora.app.ui.components.NavigationListRow
 import com.creatora.app.ui.components.PrimaryButton
 import com.creatora.app.ui.components.ScreenHeader
+import com.creatora.app.ui.components.tabBottomSpace
 import com.creatora.app.ui.components.TextInputDialog
 import com.creatora.app.ui.theme.CreatoraTheme
 
@@ -165,7 +166,7 @@ fun LibraryContent(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = spacing.xl),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = tabBottomSpace()),
             verticalArrangement = Arrangement.spacedBy(spacing.md),
         ) {
             item {

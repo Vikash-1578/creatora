@@ -81,6 +81,23 @@ fun NavigationListRow(
     }
 }
 
+/** Row with a title and a value on the right, for facts that are not tappable. */
+@Composable
+fun InfoListRow(title: String, value: String, modifier: Modifier = Modifier) {
+    val spacing = CreatoraTheme.spacing
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = CreatoraTheme.dimens.minTouchTarget)
+            .padding(horizontal = spacing.lg, vertical = spacing.md),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(spacing.md),
+    ) {
+        Text(title, style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.text, modifier = Modifier.weight(1f))
+        Text(value, style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
+    }
+}
+
 @Composable
 fun ListRowDivider() {
     Box(
