@@ -89,7 +89,7 @@ reviewer merges PRs.
 1. Start every milestone with the **ponytail** skill and follow it: smallest correct code, reuse platform
    features, no speculative abstractions. `CLAUDE.md` rules still win.
 2. Design follows the Figma file "Creatora app UI" (file key `rwgZE07y4u4X4rpKG62Otz`, light and dark
-   rows) and `CreatoraTheme` tokens. Review each new screen with **ui-ux-pro-max** and **impeccable**
+   rows) and `CreatoraTheme` tokens. Review each new screen with **ui-ux-pro-max**
    (audit only, adapted to Compose) and fix real issues. Run **humanizer** on all new user-facing strings.
 3. No fake or hardcoded sample data in the shipped UI. Where data needs a key or the user's content, show
    a real empty state with a clear action.

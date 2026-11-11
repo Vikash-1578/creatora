@@ -1,19 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "env": {
-    "CLAUDE_MEM_TELEMETRY": "0",
-    "CLAUDE_MEM_TELEMETRY_ERRORS": "0"
-  },
   "enabledPlugins": {
     "claude-code-setup@claude-plugins-official": true,
     "ponytail@ponytail": true,
     "humanizer@humanizer": true,
-    "impeccable@impeccable": true,
-    "hallmark@hallmark": true,
     "ui-ux-pro-max@ui-ux-pro-max-skill": true,
     "diagram-design@diagram-design": true,
-    "task-observer@one-skill-to-rule-them-all": true,
-    "claude-mem@thedotmack": true
+    "task-observer@one-skill-to-rule-them-all": true
   },
   "extraKnownMarketplaces": {
     "ponytail": {
@@ -26,18 +19,6 @@
       "source": {
         "source": "github",
         "repo": "blader/humanizer"
-      }
-    },
-    "impeccable": {
-      "source": {
-        "source": "github",
-        "repo": "pbakaus/impeccable"
-      }
-    },
-    "hallmark": {
-      "source": {
-        "source": "github",
-        "repo": "nutlope/hallmark"
       }
     },
     "ui-ux-pro-max-skill": {
@@ -56,12 +37,6 @@
       "source": {
         "source": "github",
         "repo": "rebelytics/one-skill-to-rule-them-all"
-      }
-    },
-    "thedotmack": {
-      "source": {
-        "source": "github",
-        "repo": "thedotmack/claude-mem"
       }
     },
     "claude-plugins-official": {

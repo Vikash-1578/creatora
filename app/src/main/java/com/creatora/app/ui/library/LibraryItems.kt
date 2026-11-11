@@ -156,6 +156,7 @@ fun NewProjectTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = CreatoraTheme.colors
     val dashColor = colors.border
     val shape = CreatoraTheme.shapes.radius16
+    val strokeWidth = CreatoraTheme.dimens.borderWidth * 2
     Column(
         modifier = modifier
             .aspectRatio(PREVIEW_RATIO)
@@ -166,7 +167,7 @@ fun NewProjectTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
                     color = dashColor,
                     size = Size(size.width, size.height),
                     cornerRadius = CornerRadius(shape.topStart.toPx(size, this)),
-                    style = Stroke(width = 2.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f))),
+                    style = Stroke(width = strokeWidth.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f))),
                 )
             },
         horizontalAlignment = Alignment.CenterHorizontally,
