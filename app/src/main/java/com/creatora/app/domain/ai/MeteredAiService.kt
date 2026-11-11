@@ -2,6 +2,8 @@ package com.creatora.app.domain.ai
 
 import com.creatora.app.domain.account.AppLanguage
 import com.creatora.app.domain.account.CreatorProfile
+import com.creatora.app.domain.account.Goal
+import com.creatora.app.domain.account.aimText
 import com.creatora.app.domain.account.Plan
 import com.creatora.app.domain.account.UsageLevel
 import com.creatora.app.domain.account.monthKey
@@ -14,6 +16,7 @@ import com.creatora.app.domain.repository.AiService
 import com.creatora.app.domain.repository.AiTone
 import com.creatora.app.domain.repository.AuthService
 import com.creatora.app.domain.repository.BillingRepository
+import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.SettingsRepository
 import com.creatora.app.domain.repository.UsageRepository
 import com.creatora.app.domain.repository.UserRepository
@@ -31,6 +34,7 @@ class MeteredAiService(
     private val history: AiHistoryRepository,
     private val settings: SettingsRepository,
     private val billing: BillingRepository,
+    private val goals: GoalRepository,
     private val now: () -> Long = System::currentTimeMillis,
 ) : AiService {
 
@@ -48,6 +52,7 @@ class MeteredAiService(
             language = settings.language.first() ?: AppLanguage.deviceDefault(),
             tone = settings.aiTone.first(),
             profile = if (personalize) doc?.creatorProfile else null,
+            goal = if (personalize) goals.observe(user.uid).first().firstOrNull { it.primary && it.reachedAt == null } else null,
         )
         val outcome = delegate.complete(request.copy(system = request.system + "\n\n" + persona))
         if (outcome is AiOutcome.Ok) {
@@ -64,7 +69,7 @@ class MeteredAiService(
 }
 
 /** Extra instructions added to every request: reply language, tone and (when allowed) what the creator makes. */
-fun personaInstructions(language: AppLanguage, tone: AiTone, profile: CreatorProfile?): String = buildString {
+fun personaInstructions(language: AppLanguage, tone: AiTone, profile: CreatorProfile?, goal: Goal? = null): String = buildString {
     append(
         when (language) {
             AppLanguage.ENGLISH -> "Reply in English."
@@ -81,10 +86,17 @@ fun personaInstructions(language: AppLanguage, tone: AiTone, profile: CreatorPro
         },
     )
     append(" Never invent numbers or facts; if something is not known, say so.")
+    append(" Never promise virality or guaranteed results; talk about aims, plans and progress.")
     if (profile != null) {
         append(" About this creator: niche ${profile.niche}")
         if (profile.formats.isNotEmpty()) append(", formats ${profile.formats.joinToString()}")
         if (profile.summary.isNotBlank()) append(". ${profile.summary}")
         append('.')
+    }
+    if (goal != null) {
+        append(" The creator's aim for the next 30 days: ${goal.aimText()}.")
+        if (goal.desire.isNotBlank()) append(" In their own words: \"${goal.desire}\".")
+        goal.uploadsPerWeek?.let { append(" They would like to upload $it times a week.") }
+        append(" Steer suggestions toward this aim.")
     }
 }

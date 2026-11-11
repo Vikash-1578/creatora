@@ -75,6 +75,15 @@ interface AiHistoryRepository {
     suspend fun clear(uid: String)
 }
 
+interface GoalRepository {
+    /** Newest first. */
+    fun observe(uid: String): Flow<List<com.creatora.app.domain.account.Goal>>
+
+    /** Saves the goal and returns its id (a new id when [goal] has none). */
+    suspend fun save(uid: String, goal: com.creatora.app.domain.account.Goal): String
+    suspend fun delete(uid: String, id: String)
+}
+
 sealed interface AuthorizationOutcome {
     data class Granted(val accessToken: String) : AuthorizationOutcome
     /** The user closed the permission screen or said no. */

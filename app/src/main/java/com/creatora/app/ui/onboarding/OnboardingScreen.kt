@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -86,6 +87,8 @@ fun OnboardingScreen(modifier: Modifier = Modifier, viewModel: OnboardingViewMod
             dismissPasted = viewModel::dismissPasted,
             finishConnect = viewModel::finishConnect,
             answer = viewModel::answerWhatYouMake,
+            saveGoal = viewModel::saveGoal,
+            skipGoal = viewModel::skipGoal,
             toggle = viewModel::setNotification,
             milestone = viewModel::setMilestone,
             allowNotifications = {
@@ -109,6 +112,8 @@ class OnboardingActions(
     val dismissPasted: () -> Unit,
     val finishConnect: () -> Unit,
     val answer: (String) -> Unit,
+    val saveGoal: (com.creatora.app.domain.account.GoalMetric, Long, String, Int?) -> Unit,
+    val skipGoal: () -> Unit,
     val toggle: (NotificationCategory, Boolean) -> Unit,
     val milestone: (Long) -> Unit,
     val allowNotifications: () -> Unit,
@@ -129,6 +134,7 @@ fun OnboardingContent(state: OnboardingUiState, actions: OnboardingActions, modi
             OnboardingStep.WELCOME -> WelcomeStep(state, actions.signIn)
             OnboardingStep.CONNECT -> ConnectStep(state, actions)
             OnboardingStep.ASK -> AskStep(actions.answer)
+            OnboardingStep.GOAL -> GoalStep(actions.saveGoal, actions.skipGoal)
             OnboardingStep.NOTIFICATIONS -> NotificationsStep(state.notificationPrefs, actions)
             OnboardingStep.PLAN -> PlanStep(state.proUnavailable, actions.continueFree, actions.tryPro)
         }
@@ -297,6 +303,60 @@ private fun AskStep(onAnswer: (String) -> Unit) {
     }
 }
 
+private fun com.creatora.app.domain.account.GoalMetric.labelRes() = when (this) {
+    com.creatora.app.domain.account.GoalMetric.SUBSCRIBERS -> R.string.goal_metric_subscribers
+    com.creatora.app.domain.account.GoalMetric.VIEWS -> R.string.goal_metric_views
+    com.creatora.app.domain.account.GoalMetric.UPLOADS -> R.string.goal_metric_uploads
+    com.creatora.app.domain.account.GoalMetric.EARNINGS -> R.string.goal_metric_earnings
+}
+
+/** 1D2: an aim for the next 30 days, in the user's own terms. It steers the AI; it is never presented as a promise. */
+@Composable
+private fun GoalStep(onSave: (com.creatora.app.domain.account.GoalMetric, Long, String, Int?) -> Unit, onSkip: () -> Unit) {
+    val spacing = CreatoraTheme.spacing
+    var metric by rememberSaveable { mutableStateOf(com.creatora.app.domain.account.GoalMetric.SUBSCRIBERS) }
+    var target by rememberSaveable { mutableStateOf("") }
+    var desire by rememberSaveable { mutableStateOf("") }
+    var perWeek by rememberSaveable { mutableStateOf<Int?>(null) }
+    val targetNumber = target.toLongOrNull()?.takeIf { it > 0 }
+    StepColumn {
+        Title(stringResource(R.string.onboarding_goal_title), stringResource(R.string.onboarding_goal_body))
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
+            com.creatora.app.domain.account.GoalMetric.entries.forEach {
+                com.creatora.app.ui.components.ChoiceChip(stringResource(it.labelRes()), it == metric, { metric = it })
+            }
+        }
+        OutlinedTextField(
+            value = target,
+            onValueChange = { value -> target = value.filter { it.isDigit() }.take(12) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.goal_target_label)) },
+            supportingText = if (metric == com.creatora.app.domain.account.GoalMetric.EARNINGS) {
+                { Text(stringResource(R.string.goal_earnings_note)) }
+            } else {
+                null
+            },
+            singleLine = true,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+        )
+        OutlinedTextField(
+            value = desire,
+            onValueChange = { desire = it.take(500) },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.goal_desire_label)) },
+            minLines = 2,
+        )
+        Text(stringResource(R.string.goal_frequency), style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text)
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
+            listOf(1, 2, 3, 5, 7).forEach {
+                com.creatora.app.ui.components.ChoiceChip(stringResource(R.string.goal_per_week, it), it == perWeek, { perWeek = if (perWeek == it) null else it })
+            }
+        }
+        PrimaryButton(stringResource(R.string.goal_save), { onSave(metric, targetNumber ?: 0, desire, perWeek) }, Modifier.fillMaxWidth(), enabled = targetNumber != null)
+        SecondaryButton(stringResource(R.string.action_skip_for_now), onSkip, Modifier.fillMaxWidth())
+    }
+}
+
 /** 1F: permission ask and a switch per category. */
 @Composable
 private fun NotificationsStep(prefs: NotificationPrefs, actions: OnboardingActions) {
@@ -330,7 +390,11 @@ private fun PlanStep(proUnavailable: Boolean, onFree: () -> Unit, onPro: () -> U
     }
 }
 
-private val PreviewActions = OnboardingActions({}, {}, {}, {}, {}, {}, { _, _ -> }, {}, {}, {}, { _, _ -> }, {}, {}, {}, {})
+private val PreviewActions = OnboardingActions(
+    chooseLanguage = {}, next = {}, signIn = {}, retryChannels = {}, confirmChannel = {}, login = {}, lookUp = { _, _ -> },
+    dismissPasted = {}, finishConnect = {}, answer = {}, saveGoal = { _, _, _, _ -> }, skipGoal = {},
+    toggle = { _, _ -> }, milestone = {}, allowNotifications = {}, continueFree = {}, tryPro = {},
+)
 
 @Preview(name = "Light language", showBackground = true)
 @Composable

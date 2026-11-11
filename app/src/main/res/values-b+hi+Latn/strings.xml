@@ -106,7 +106,7 @@
     <string name="ai_tone_professional">Professional</string>
     <string name="ai_tone_funny">Funny</string>
     <string name="ai_personalization">Personalization</string>
-    <string name="ai_personalization_body">AI ko jawabon mein tumhare content (creator profile) ka use karne do.</string>
+    <string name="ai_personalization_body">AI ko jawabon mein tumhare content aur goal (creator profile) ka use karne do.</string>
     <string name="ai_profile_none">Abhi koi creator profile nahi. Channel jodo, ye tumhare apne titles aur descriptions se ban jayegi.</string>
     <string name="ai_profile_refresh">Mere accounts se update karo</string>
     <string name="ai_profile_updated">Profile update ho gayi.</string>
@@ -182,4 +182,16 @@
     <string name="connect_hide">Chhupao</string>
     <string name="account_profile">Profile</string>
     <string name="account_connect_accounts">Apne accounts jodo</string>
+    <string name="onboarding_goal_title">Agle 30 dinon ka tumhara aim</string>
+    <string name="onboarding_goal_body">Ek target chuno jiski taraf badhna hai. Ye AI ke suggestions ko direction deta hai. Ye results ka promise nahi hai.</string>
+    <string name="goal_metric_subscribers">Subscribers</string>
+    <string name="goal_metric_views">Views</string>
+    <string name="goal_metric_uploads">Uploads</string>
+    <string name="goal_metric_earnings">Earnings</string>
+    <string name="goal_target_label">Target number</string>
+    <string name="goal_earnings_note">Usi currency mein jisme tumhara channel kamata hai.</string>
+    <string name="goal_desire_label">Tum apne channel se sabse zyada kya chahte ho? (optional)</string>
+    <string name="goal_frequency">Tum kitni baar upload karna chahoge?</string>
+    <string name="goal_per_week">Hafte mein %1$d</string>
+    <string name="goal_save">Save karo aur continue karo</string>
 </resources>

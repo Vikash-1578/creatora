@@ -4,12 +4,15 @@ import com.creatora.app.domain.account.AppLanguage
 import com.creatora.app.domain.account.ConnectPlatform
 import com.creatora.app.domain.account.ConnectedAccount
 import com.creatora.app.domain.account.CreatorProfile
+import com.creatora.app.domain.account.Goal
+import com.creatora.app.domain.account.GoalMetric
 import com.creatora.app.domain.account.Plan
 import com.creatora.app.domain.account.ProfileSource
 import com.creatora.app.domain.repository.AiHistoryEntry
 import com.creatora.app.domain.repository.AiHistoryRepository
 import com.creatora.app.domain.repository.AuthUser
 import com.creatora.app.domain.repository.ConnectedAccountRepository
+import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.UsageRepository
 import com.creatora.app.domain.repository.UserDoc
 import com.creatora.app.domain.repository.UserRepository
@@ -199,4 +202,52 @@ class FirestoreAiHistoryRepository @Inject constructor(private val config: Cloud
     private companion object {
         const val HISTORY_LIMIT = 50L
     }
+}
+
+class FirestoreGoalRepository @Inject constructor(private val config: CloudConfig) : GoalRepository {
+
+    private fun collection(uid: String) = userDoc(uid).collection("goals")
+
+    override fun observe(uid: String): Flow<List<Goal>> =
+        if (!config.isConfigured) flowOf(emptyList()) else collection(uid).orderBy("startedAt", Query.Direction.DESCENDING).listFlow { it.toGoal() }
+
+    override suspend fun save(uid: String, goal: Goal): String {
+        val doc = if (goal.id.isBlank()) collection(uid).document() else collection(uid).document(goal.id)
+        doc.set(
+            mapOf(
+                "metric" to goal.metric.name,
+                "target" to goal.target,
+                "startedAt" to goal.startedAt,
+                "deadline" to goal.deadline,
+                "startValue" to goal.startValue,
+                "accountKey" to goal.accountKey,
+                "desire" to goal.desire,
+                "uploadsPerWeek" to goal.uploadsPerWeek,
+                "primary" to goal.primary,
+                "reachedAt" to goal.reachedAt,
+            ),
+        ).await()
+        return doc.id
+    }
+
+    override suspend fun delete(uid: String, id: String) {
+        collection(uid).document(id).delete().await()
+    }
+}
+
+private fun DocumentSnapshot.toGoal(): Goal? {
+    val metric = GoalMetric.entries.firstOrNull { it.name == getString("metric") } ?: return null
+    return Goal(
+        id = id,
+        metric = metric,
+        target = getLong("target") ?: return null,
+        startedAt = getLong("startedAt") ?: 0,
+        deadline = getLong("deadline") ?: 0,
+        startValue = getLong("startValue"),
+        accountKey = getString("accountKey"),
+        desire = getString("desire").orEmpty(),
+        uploadsPerWeek = getLong("uploadsPerWeek")?.toInt(),
+        primary = getBoolean("primary") ?: false,
+        reachedAt = getLong("reachedAt"),
+    )
 }

@@ -524,7 +524,7 @@
     <string name="ai_tone_professional">Professional</string>
     <string name="ai_tone_funny">Funny</string>
     <string name="ai_personalization">Personalization</string>
-    <string name="ai_personalization_body">Let the AI use what you make (your creator profile) in its answers.</string>
+    <string name="ai_personalization_body">Let the AI use what you make and your goal (your creator profile) in its answers.</string>
     <string name="ai_profile_none">No creator profile yet. Connect a channel and it is worked out from your own titles and descriptions.</string>
     <string name="ai_profile_refresh">Update from my accounts</string>
     <string name="ai_profile_updated">Profile updated.</string>
@@ -600,4 +600,16 @@
     <string name="connect_hide">Hide</string>
     <string name="account_profile">Profile</string>
     <string name="account_connect_accounts">Connect your accounts</string>
+    <string name="onboarding_goal_title">Your aim for the next 30 days</string>
+    <string name="onboarding_goal_body">Pick a target to aim for. It guides the AI’s suggestions. It is not a promise of results.</string>
+    <string name="goal_metric_subscribers">Subscribers</string>
+    <string name="goal_metric_views">Views</string>
+    <string name="goal_metric_uploads">Uploads</string>
+    <string name="goal_metric_earnings">Earnings</string>
+    <string name="goal_target_label">Target number</string>
+    <string name="goal_earnings_note">In the currency your channel earns in.</string>
+    <string name="goal_desire_label">What do you want most from your channel? (optional)</string>
+    <string name="goal_frequency">How often would you like to upload?</string>
+    <string name="goal_per_week">%1$d a week</string>
+    <string name="goal_save">Save and continue</string>
 </resources>

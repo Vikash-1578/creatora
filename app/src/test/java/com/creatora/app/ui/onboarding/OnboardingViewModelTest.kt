@@ -43,6 +43,7 @@ class OnboardingViewModelTest {
     private val youtube = FakePlatformAdapter()
     private val billing = FakeBillingRepository()
     private val prefs = FakeNotificationPrefs()
+    private val goals = com.creatora.app.testutil.FakeGoalRepository()
     private val ai = FakeAiService(okReply("NICHE: street food\nFORMATS: shorts\nLANGUAGE: Hindi\nSUMMARY: Food films."))
 
     private fun viewModel(): OnboardingViewModel {
@@ -51,7 +52,7 @@ class OnboardingViewModelTest {
             settings, auth, users,
             AccountConnector(registry, accounts, users, billing),
             CreatorProfileService(registry, accounts, users, AiTasks(ai)),
-            prefs, billing,
+            prefs, billing, goals, accounts,
         )
     }
 
@@ -142,7 +143,7 @@ class OnboardingViewModelTest {
         assertEquals("street food", users.docs.value.getValue(TestUser.uid).creatorProfile?.niche)
 
         vm.finishConnect()
-        assertEquals(OnboardingStep.NOTIFICATIONS, vm.state.value.step) // no question: an account is connected
+        assertEquals(OnboardingStep.GOAL, vm.state.value.step) // no question: an account is connected
     }
 
     @Test
@@ -170,7 +171,7 @@ class OnboardingViewModelTest {
         val profile = users.docs.value.getValue(TestUser.uid).creatorProfile!!
         assertEquals("gaming videos", profile.niche)
         assertEquals(com.creatora.app.domain.account.ProfileSource.ASKED, profile.source)
-        assertEquals(OnboardingStep.NOTIFICATIONS, vm.state.value.step)
+        assertEquals(OnboardingStep.GOAL, vm.state.value.step)
         assertTrue(ai.requests.isEmpty() || ai.requests.none { "gaming" in it.messages.joinToString { m -> m.text } })
     }
 
@@ -183,7 +184,7 @@ class OnboardingViewModelTest {
         vm.answerWhatYouMake("")
 
         assertNull(users.docs.value.getValue(TestUser.uid).creatorProfile)
-        assertEquals(OnboardingStep.NOTIFICATIONS, vm.state.value.step)
+        assertEquals(OnboardingStep.GOAL, vm.state.value.step)
     }
 
     @Test
@@ -203,6 +204,45 @@ class OnboardingViewModelTest {
 
         vm.lookUp("nonsense words", ConnectPlatform.YOUTUBE)
         assertEquals(ConnectProblem.UNRECOGNISED, vm.state.value.lookup.problem)
+    }
+
+    @Test
+    fun theGoalIsSavedForThirtyDays_withTheRealStartingSubscribers() = runTest {
+        youtube.own = AdapterOutcome.Ok(listOf(preview("UC1", subs = 1_200)))
+        val vm = viewModel()
+        vm.signIn()
+        vm.confirmChannel(vm.state.value.channels.single())
+        vm.finishConnect()
+        assertEquals(OnboardingStep.GOAL, vm.state.value.step)
+
+        vm.saveGoal(com.creatora.app.domain.account.GoalMetric.SUBSCRIBERS, 2_000, "  grow my food channel ", 3)
+
+        val goal = goals.byUser.value.getValue(TestUser.uid).single()
+        assertEquals(2_000L, goal.target)
+        assertEquals(1_200L, goal.startValue)
+        assertEquals("grow my food channel", goal.desire)
+        assertEquals(3, goal.uploadsPerWeek)
+        assertTrue(goal.primary)
+        assertEquals(30L * 24 * 60 * 60 * 1000, goal.deadline - goal.startedAt)
+        assertEquals(OnboardingStep.NOTIFICATIONS, vm.state.value.step)
+    }
+
+    @Test
+    fun skippingTheGoal_orAZeroTarget_savesNothing() = runTest {
+        val vm = viewModel()
+        vm.signIn()
+        vm.finishConnect() // nothing connected: the question comes first
+        vm.answerWhatYouMake("")
+        assertEquals(OnboardingStep.GOAL, vm.state.value.step)
+
+        vm.saveGoal(com.creatora.app.domain.account.GoalMetric.VIEWS, 0, "x", null)
+        assertTrue(goals.byUser.value.isEmpty())
+        assertEquals(OnboardingStep.NOTIFICATIONS, vm.state.value.step)
+
+        val other = viewModel()
+        other.skipGoal()
+        assertEquals(OnboardingStep.NOTIFICATIONS, other.state.value.step)
+        assertTrue(goals.byUser.value.isEmpty())
     }
 
     @Test
