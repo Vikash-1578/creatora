@@ -150,9 +150,10 @@ Android, Compose, or `data`.
 - **Always work on a new branch** for every change.
 - **Open a pull request** for every change; CI must build the debug APK successfully.
 - **Never push to `main` directly.**
-- **Never commit API keys or secrets.** The one exception is `app/debug.keystore` (debug signing only, public password, so the SHA-1 stays stable for Firebase). Keep them in `local.properties` or environment variables / GitHub
+- **Never commit API keys or secrets.** Keep them in `local.properties` or environment variables / GitHub
   Actions secrets (all git-ignored or outside the repo). Do not commit keystores, `.env` files or
-  `google-services.json`.
+  `google-services.json`. The one exception is `app/debug.keystore`: debug signing only, public password, not a
+  secret, committed so the signing SHA-1 stays stable for Firebase and Google sign-in.
 
 ## Tooling
 
