@@ -73,19 +73,41 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier.heightIn(min = CreatoraTheme.dimens.minTouchTarget),
         shape = CreatoraTheme.shapes.radius12,
         colors = ButtonDefaults.buttonColors(
             containerColor = CreatoraTheme.colors.accent,
             contentColor = CreatoraTheme.colors.onAccent,
+            disabledContainerColor = CreatoraTheme.colors.surfaceAlt,
+            disabledContentColor = CreatoraTheme.colors.textMuted,
         ),
     ) {
         if (icon != null) {
             Icon(icon, contentDescription = null, modifier = Modifier.padding(end = CreatoraTheme.spacing.sm))
         }
+        Text(text, style = CreatoraTheme.typography.bodySemiBold)
+    }
+}
+
+/** Outlined button for the less important of two actions, at least 44dp tall. */
+@Composable
+fun SecondaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.material3.OutlinedButton(
+        onClick = onClick,
+        modifier = modifier.heightIn(min = CreatoraTheme.dimens.minTouchTarget),
+        shape = CreatoraTheme.shapes.radius12,
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = CreatoraTheme.colors.text),
+        border = androidx.compose.foundation.BorderStroke(CreatoraTheme.dimens.borderWidth, CreatoraTheme.colors.border),
+    ) {
         Text(text, style = CreatoraTheme.typography.bodySemiBold)
     }
 }

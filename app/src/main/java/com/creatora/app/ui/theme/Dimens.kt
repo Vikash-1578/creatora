@@ -40,6 +40,8 @@ data class CreatoraDimens(
     val createButtonSize: Dp = 48.dp,
     /** How far the Create button sticks up above the tab bar. */
     val createButtonLift: Dp = 24.dp,
+    /** Height of one segment of the wizard progress bar. */
+    val progressHeight: Dp = 4.dp,
     /** Tallest the logo preview in the brand kit gets. */
     val logoPreviewMaxHeight: Dp = 160.dp,
     /** Width of the background-coloured ring around the Create button. */

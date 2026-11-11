@@ -155,6 +155,102 @@
     <string name="licences_delete_entry">Delete entry</string>
     <string name="licences_unknown_asset">Deleted file</string>
 
+    <!-- Create tab -->
+    <string name="create_format_long">Long video</string>
+    <string name="create_format_long_hint">Documentary, explainer</string>
+    <string name="create_format_shorts">Shorts / Reels</string>
+    <string name="create_format_shorts_hint">Vertical, under 60 sec</string>
+    <string name="create_format_cartoon">Cartoon story</string>
+    <string name="create_format_cartoon_hint">Characters and voices</string>
+    <string name="create_format_ad">Video ad</string>
+    <string name="create_format_ad_hint">From photo, link or script</string>
+    <string name="create_format_avatar">Avatar video</string>
+    <string name="create_format_avatar_hint">Presenter, your voice</string>
+    <string name="create_format_post">Post / Carousel</string>
+    <string name="create_format_post_hint">Slides, thread, podcast</string>
+    <string name="create_steps_title">%1$d simple steps</string>
+    <string name="create_steps_note">You approve first</string>
+    <string name="create_steps_list">Brief · Script · Cast · Voice · Footage · Review and cost · Generate</string>
+    <string name="create_start">Start with a brief</string>
+    <string name="create_default_title">Untitled %1$s</string>
+
+    <!-- Create wizard -->
+    <string name="wizard_step_of">Step %1$d of %2$d</string>
+    <string name="wizard_step_brief">Brief</string>
+    <string name="wizard_step_script">Script</string>
+    <string name="wizard_step_cast">Cast</string>
+    <string name="wizard_step_voice">Voice</string>
+    <string name="wizard_step_footage">Footage policy</string>
+    <string name="wizard_step_review">Review</string>
+    <string name="wizard_step_generate">Generate</string>
+    <string name="wizard_next">Next</string>
+    <string name="wizard_back">Back</string>
+    <string name="wizard_mark_ready">Mark as ready</string>
+    <string name="wizard_open_library">Open Library</string>
+    <string name="wizard_title_label">Project name</string>
+    <string name="wizard_brief_label">What is this video about?</string>
+    <string name="wizard_brief_hint">Who it is for and what they should take away.</string>
+    <string name="wizard_format_label">Format</string>
+    <string name="wizard_script_hook">Hook</string>
+    <string name="wizard_script_hook_hint">The first few seconds. Give people a reason to stay.</string>
+    <string name="wizard_script_structure">Structure</string>
+    <string name="wizard_script_structure_hint">The main points, in order.</string>
+    <string name="wizard_script_cta">Call to action</string>
+    <string name="wizard_script_cta_hint">What viewers should do next.</string>
+    <string name="wizard_script_stats">%1$s · about %2$s</string>
+    <plurals name="wizard_words">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+    <string name="wizard_duration_seconds">%1$d sec</string>
+    <string name="wizard_duration_minutes">%1$d min %2$02d sec</string>
+    <string name="wizard_pronunciations">Pronunciation notes</string>
+    <string name="wizard_pronunciations_hint">One per line, like: Creatora = kree-uh-TOR-uh</string>
+    <string name="wizard_cast_body">Pick the characters in this video. Skip this for narration only.</string>
+    <string name="wizard_cast_empty_title">No characters yet</string>
+    <string name="wizard_cast_empty_body">Add characters in the Library, then come back.</string>
+    <string name="wizard_voice_body">Choose a voice preset for the narrator and for each character, then preview it.</string>
+    <string name="wizard_voice_narrator">Narrator</string>
+    <string name="wizard_voice_default">Phone\'s voice</string>
+    <string name="wizard_voice_preview">Preview</string>
+    <string name="wizard_voice_sample">This is how your video will sound.</string>
+    <string name="wizard_voice_tts_missing">This phone has no text-to-speech voice installed. Install one in your phone\'s settings to hear previews.</string>
+    <string name="wizard_voice_empty_title">No voice presets yet</string>
+    <string name="wizard_voice_empty_body">A preset sets pitch and speaking speed. Add one in the Library, or use the phone\'s voice.</string>
+    <string name="wizard_footage_body">Decide which of your imported files this video may use.</string>
+    <string name="wizard_footage_licensed">Licensed files only</string>
+    <string name="wizard_footage_licensed_body">Only files with a licence logged. The safest choice.</string>
+    <string name="wizard_footage_any">Any file I imported</string>
+    <string name="wizard_footage_any_body">Every file in your Library, even without a licence entry.</string>
+    <string name="wizard_footage_count">%1$d of %2$d imported files have a licence logged.</string>
+    <string name="wizard_footage_none">You haven\'t imported any files yet.</string>
+    <string name="wizard_review_project">Project</string>
+    <string name="wizard_review_format">Format</string>
+    <string name="wizard_review_script">Script</string>
+    <string name="wizard_review_cast">Cast</string>
+    <string name="wizard_review_voice">Narrator voice</string>
+    <string name="wizard_review_footage">Footage</string>
+    <plurals name="wizard_cast_count">
+        <item quantity="one">%1$d character</item>
+        <item quantity="other">%1$d characters</item>
+    </plurals>
+    <string name="wizard_estimate_length">Spoken length</string>
+    <string name="wizard_estimate_size">File size</string>
+    <string name="wizard_estimate_size_value">about %1$d MB</string>
+    <string name="wizard_estimate_time">Render time</string>
+    <string name="wizard_estimate_time_value">about %1$d min</string>
+    <string name="wizard_estimate_note">Rough estimates for a typical phone. Rendering runs on your phone and costs nothing.</string>
+    <string name="wizard_blocker_script">The script is empty. Write it before you mark this ready.</string>
+    <string name="wizard_generate_title">Ready to generate</string>
+    <string name="wizard_generate_body">Your project is saved. Mark it ready and it waits in your Library. Video rendering isn\'t available yet.</string>
+
+    <!-- Library and Home additions -->
+    <string name="library_open">Open</string>
+    <string name="library_status_ready">Ready</string>
+    <string name="home_continue_title">Continue where you left off</string>
+    <string name="home_continue_step">Step %1$d of %2$d · %3$s</string>
+    <string name="home_continue_action">Continue</string>
+
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>

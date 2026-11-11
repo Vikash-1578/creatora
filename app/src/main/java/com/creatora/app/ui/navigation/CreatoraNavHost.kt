@@ -12,6 +12,8 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.creatora.app.ui.brandkit.BrandKitScreen
 import com.creatora.app.ui.create.CreateScreen
+import com.creatora.app.ui.create.WizardScreen
+import com.creatora.app.ui.create.WizardViewModel
 import com.creatora.app.ui.earn.EarnScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.home.HomeScreen
@@ -35,7 +37,10 @@ object Routes {
     const val EARN = "earn"
     const val SETTINGS = "settings"
     const val BRAND_KIT = "brand_kit"
+    const val WIZARD = "wizard/{projectId}"
     const val LICENCES = "licences?assetId={assetId}"
+
+    fun wizard(projectId: Long) = "wizard/$projectId"
 
     fun licences(assetId: Long?) = "licences?assetId=${assetId ?: LicencesViewModel.ALL}"
 }
@@ -65,14 +70,19 @@ fun CreatoraNavHost(
     ) {
         navigation(route = TopLevelTab.HOME.graphRoute, startDestination = Routes.HOME) {
             composable(Routes.HOME) {
-                HomeScreen(onProfileClick = dropUnlessResumed { navController.navigate(Routes.PROFILE) })
+                HomeScreen(
+                    onProfileClick = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
+                    onContinue = { id -> navController.navigate(Routes.wizard(id)) },
+                )
             }
         }
         navigation(route = TopLevelTab.RESEARCH.graphRoute, startDestination = Routes.RESEARCH) {
             composable(Routes.RESEARCH) { ResearchScreen() }
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {
-            composable(Routes.CREATE) { CreateScreen() }
+            composable(Routes.CREATE) {
+                CreateScreen(onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) })
+            }
         }
         navigation(route = TopLevelTab.GROW.graphRoute, startDestination = Routes.GROW) {
             composable(Routes.GROW) { GrowScreen() }
@@ -82,10 +92,20 @@ fun CreatoraNavHost(
                 LibraryScreen(
                     onOpenBrandKit = dropUnlessResumed { navController.navigate(Routes.BRAND_KIT) },
                     onOpenLicences = { assetId -> navController.navigate(Routes.licences(assetId)) },
+                    onOpenProject = { id -> navController.navigate(Routes.wizard(id)) },
                 )
             }
         }
 
+        composable(
+            route = Routes.WIZARD,
+            arguments = listOf(navArgument(WizardViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),
+        ) {
+            WizardScreen(
+                onClose = { navController.popBackStack() },
+                onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
+            )
+        }
         composable(Routes.BRAND_KIT) {
             BrandKitScreen(onBack = dropUnlessResumed { navController.popBackStack() })
         }

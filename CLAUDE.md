@@ -35,6 +35,7 @@ com.creatora.app
 │   ├── components/      # shared UI: ScreenHeader, TabScreen, SubScreenScaffold, list rows, icon buttons
 │   ├── theme/           # Color.kt, Type.kt, Dimens.kt, Theme.kt (design tokens)
 │   ├── home/ research/ create/ grow/            # tab screens (placeholders until their milestone)
+│   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
 │   ├── brandkit/ licences/                      # screens opened from the Library
 │   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
@@ -95,6 +96,8 @@ Android, Compose, or `data`.
 - **Tests:** every ViewModel and repository has unit tests in `app/src/test/`. Use fakes for repositories
   in ViewModel tests (`testutil/`), `MainDispatcherRule` for `viewModelScope`, and an in-memory Room
   database with Robolectric for repository tests.
+- **Autosave:** the Create wizard edits an in-memory draft and saves it to Room after a 500 ms pause, on every
+  step change and when the screen closes (`WizardViewModel.flush`). New long forms should do the same.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state

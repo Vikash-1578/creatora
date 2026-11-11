@@ -62,3 +62,16 @@ interface UserFiles {
     /** Deletes a copy made by [import]. Other URIs are ignored. */
     suspend fun discard(uri: String)
 }
+
+/** On-device text-to-speech for voice previews. */
+interface SpeechPlayer {
+    /**
+     * Speaks [text] with the given pitch and speed (1.0 is normal). Returns false if this phone has no
+     * working text-to-speech engine.
+     */
+    suspend fun speak(text: String, pitch: Float, speechRate: Float): Boolean
+    fun stop()
+
+    /** Frees the engine. It starts again on the next [speak]. */
+    fun release()
+}

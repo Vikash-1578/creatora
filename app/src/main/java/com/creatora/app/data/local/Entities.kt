@@ -13,6 +13,7 @@ import com.creatora.app.domain.model.Idea
 import com.creatora.app.domain.model.LicenceEntry
 import com.creatora.app.domain.model.Platform
 import com.creatora.app.domain.model.Project
+import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.ScheduledPost
 import com.creatora.app.domain.model.VoicePreset
 
@@ -25,6 +26,19 @@ data class ProjectEntity(
     @ColumnInfo(defaultValue = "0") val isTemplate: Boolean,
     val createdAt: Long,
     val updatedAt: Long,
+    // Create wizard. Text columns are nullable so Room can add them to existing rows without defaults.
+    val format: VideoFormat?,
+    val brief: String?,
+    val hook: String?,
+    val structure: String?,
+    val callToAction: String?,
+    val pronunciations: String?,
+    /** Character ids, comma-separated. */
+    val castIds: String?,
+    val narratorVoiceId: Long?,
+    @ColumnInfo(defaultValue = "1") val licensedFootageOnly: Boolean,
+    @ColumnInfo(defaultValue = "0") val step: Int,
+    @ColumnInfo(defaultValue = "0") val isReady: Boolean,
 )
 
 @Entity(
@@ -115,8 +129,18 @@ data class ChannelSnapshotEntity(
     val capturedAt: Long,
 )
 
-fun ProjectEntity.toModel() = Project(id, title, isTemplate, createdAt, updatedAt)
-fun Project.toEntity() = ProjectEntity(id, title, isTemplate, createdAt, updatedAt)
+fun ProjectEntity.toModel() = Project(
+    id, title, isTemplate, createdAt, updatedAt, format,
+    brief.orEmpty(), hook.orEmpty(), structure.orEmpty(), callToAction.orEmpty(), pronunciations.orEmpty(),
+    castIds.orEmpty().split(',').mapNotNull { it.toLongOrNull() },
+    narratorVoiceId, licensedFootageOnly, step, isReady,
+)
+
+fun Project.toEntity() = ProjectEntity(
+    id, title, isTemplate, createdAt, updatedAt, format,
+    brief, hook, structure, callToAction, pronunciations, castIds.joinToString(","),
+    narratorVoiceId, licensedFootageOnly, step, isReady,
+)
 
 fun IdeaEntity.toModel() = Idea(id, title, notes, projectId, createdAt)
 fun Idea.toEntity() = IdeaEntity(id, title, notes, projectId, createdAt)

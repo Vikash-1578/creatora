@@ -9,7 +9,37 @@ data class Project(
     val isTemplate: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = createdAt,
-)
+    /** Null until the project was started from the Create tab. */
+    val format: VideoFormat? = null,
+    val brief: String = "",
+    val hook: String = "",
+    /** The body of the script. */
+    val structure: String = "",
+    val callToAction: String = "",
+    /** One "word = say it like this" note per line. */
+    val pronunciations: String = "",
+    /** Characters in the cast. Ids of deleted characters are ignored. */
+    val castIds: List<Long> = emptyList(),
+    /** Voice preset for the narrator; null means the phone's default voice. */
+    val narratorVoiceId: Long? = null,
+    /** True: only use files with a licence log entry. False: any imported file. */
+    val licensedFootageOnly: Boolean = true,
+    /** Index of the wizard step the user is on (see [WizardStep]). */
+    val step: Int = 0,
+    val isReady: Boolean = false,
+) {
+    /** The whole script in reading order. */
+    val script: String get() = listOf(hook, structure, callToAction).filter { it.isNotBlank() }.joinToString("\n\n")
+
+    /** Started in the Create flow and not marked ready yet. */
+    val isInProgress: Boolean get() = format != null && !isTemplate && !isReady
+}
+
+/** The six formats on the Create tab. */
+enum class VideoFormat { LONG_VIDEO, SHORTS_REELS, CARTOON_STORY, VIDEO_AD, AVATAR_VIDEO, POST_CAROUSEL }
+
+/** The steps of the Create wizard, in order. The ordinal is the step index stored on the project. */
+enum class WizardStep { BRIEF, SCRIPT, CAST, VOICE, FOOTAGE, REVIEW, GENERATE }
 
 data class Idea(
     val id: Long = 0,
