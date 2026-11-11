@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "scrapling": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "scrapling[ai]", "scrapling", "mcp"]
+    }
+  }
+}
