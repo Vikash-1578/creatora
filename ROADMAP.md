@@ -10,8 +10,8 @@ reviewer merges PRs.
 | # | Milestone | Status |
 |---|-----------|--------|
 | M1–M3 | Project setup, theme system, navigation shell | Done |
-| M4 | Data foundation | PR #5 |
-| M5 | Library tab | Planned |
+| M4 | Data foundation | PR #5, CI green |
+| M5 | Library tab | PR #6 (stacked on #5) |
 | M6 | Create flow | Planned |
 | M7 | AI layer | Planned |
 | M8 | Video render | Planned |

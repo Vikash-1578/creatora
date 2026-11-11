@@ -34,13 +34,16 @@ com.creatora.app
 │   ├── navigation/      # Routes, TopLevelTab (the 5 tabs), CreatoraNavHost, CreatoraBottomBar
 │   ├── components/      # shared UI: ScreenHeader, TabScreen, SubScreenScaffold, list rows, icon buttons
 │   ├── theme/           # Color.kt, Type.kt, Dimens.kt, Theme.kt (design tokens)
-│   ├── home/ research/ create/ grow/ library/   # the five tab screens
+│   ├── home/ research/ create/ grow/            # tab screens (placeholders until their milestone)
+│   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
+│   ├── brandkit/ licences/                      # screens opened from the Library
 │   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
 │   └── <feature>/       # one package per feature: <Feature>Screen.kt + <Feature>ViewModel.kt
 │                        # (a ViewModel only once the screen has state)
 ├── data/
 │   ├── local/           # Room: Entities.kt (tables + mappers), Daos.kt, CreatoraDatabase, RoomRepositories.kt
-│   ├── settings/        # DataStore-backed SettingsRepository
+│   ├── media/           # ContentResolverUserFiles: copies picked files into app storage
+│   ├── settings/        # DataStore-backed SettingsRepository and BrandKitRepository
 │   └── di/              # Hilt modules: database, DataStore, repository bindings
 ├── domain/
 │   ├── model/           # plain Kotlin models (Models.kt, ThemeMode)
@@ -53,8 +56,13 @@ Repositories are bound to their interfaces in `data/di/DataModule.kt`.
 
 **Room:** every table has an entity in `Entities.kt` that mirrors a domain model, a DAO in `Daos.kt`
 (extending `CrudDao`) and a repository in `RoomRepositories.kt`. Schemas are exported to `app/schemas/`
-and must be committed. Any schema change bumps the database `version` and adds a migration; never use
-destructive migration.
+and must be committed. Any schema change bumps the database `version` and adds a migration (an
+`AutoMigration` when Room can generate it); never use destructive migration. The first CI run after a schema
+change fails and prints the new schema file: commit it exactly as printed.
+
+**Imported files** (assets, logo, fonts) are copied into app storage by `UserFiles.import` so they stay
+readable; `UserFiles.discard` deletes the copy when the item is deleted. The Library uses the Android photo
+picker (images, video) and the document picker (audio, fonts); no storage permission is needed.
 
 Dependency direction: `ui → domain ← data`, and everything may use `core`. `domain` must not depend on
 Android, Compose, or `data`.
@@ -87,6 +95,8 @@ Android, Compose, or `data`.
 - **Tests:** every ViewModel and repository has unit tests in `app/src/test/`. Use fakes for repositories
   in ViewModel tests (`testutil/`), `MainDispatcherRule` for `viewModelScope`, and an in-memory Room
   database with Robolectric for repository tests.
+- **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
+  for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state
   with a clear action.
 

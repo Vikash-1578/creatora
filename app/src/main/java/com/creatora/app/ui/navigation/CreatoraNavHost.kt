@@ -5,14 +5,19 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.creatora.app.ui.brandkit.BrandKitScreen
 import com.creatora.app.ui.create.CreateScreen
 import com.creatora.app.ui.earn.EarnScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.home.HomeScreen
 import com.creatora.app.ui.library.LibraryScreen
+import com.creatora.app.ui.licences.LicencesScreen
+import com.creatora.app.ui.licences.LicencesViewModel
 import com.creatora.app.ui.profile.ProfileScreen
 import com.creatora.app.ui.research.ResearchScreen
 import com.creatora.app.ui.settings.SettingsScreen
@@ -29,6 +34,10 @@ object Routes {
     const val PROFILE = "profile"
     const val EARN = "earn"
     const val SETTINGS = "settings"
+    const val BRAND_KIT = "brand_kit"
+    const val LICENCES = "licences?assetId={assetId}"
+
+    fun licences(assetId: Long?) = "licences?assetId=${assetId ?: LicencesViewModel.ALL}"
 }
 
 /**
@@ -69,7 +78,22 @@ fun CreatoraNavHost(
             composable(Routes.GROW) { GrowScreen() }
         }
         navigation(route = TopLevelTab.LIBRARY.graphRoute, startDestination = Routes.LIBRARY) {
-            composable(Routes.LIBRARY) { LibraryScreen() }
+            composable(Routes.LIBRARY) {
+                LibraryScreen(
+                    onOpenBrandKit = dropUnlessResumed { navController.navigate(Routes.BRAND_KIT) },
+                    onOpenLicences = { assetId -> navController.navigate(Routes.licences(assetId)) },
+                )
+            }
+        }
+
+        composable(Routes.BRAND_KIT) {
+            BrandKitScreen(onBack = dropUnlessResumed { navController.popBackStack() })
+        }
+        composable(
+            route = Routes.LICENCES,
+            arguments = listOf(navArgument(LicencesViewModel.ARG_ASSET_ID) { type = NavType.LongType; defaultValue = LicencesViewModel.ALL }),
+        ) {
+            LicencesScreen(onBack = dropUnlessResumed { navController.popBackStack() })
         }
 
         composable(Routes.PROFILE) {
