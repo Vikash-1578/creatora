@@ -37,6 +37,7 @@ com.creatora.app
 │   ├── home/ research/ create/ grow/            # tab screens (placeholders until their milestone)
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
+│   ├── render/ thumbnail/                       # Generate-step render panel, thumbnail maker
 │   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
 │   ├── brandkit/ licences/                      # screens opened from the Library
 │   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
@@ -45,6 +46,7 @@ com.creatora.app
 ├── data/
 │   ├── local/           # Room: Entities.kt (tables + mappers), Daos.kt, CreatoraDatabase, RoomRepositories.kt
 │   ├── ai/              # AI clients (Gemini, Groq, OpenRouter), failover, encrypted key store
+│   ├── render/          # Media3 video renderer, TTS narrator, thumbnail drawing, gallery saver
 │   ├── media/           # ContentResolverUserFiles: copies picked files into app storage
 │   ├── settings/        # DataStore-backed SettingsRepository and BrandKitRepository
 │   └── di/              # Hilt modules: database, DataStore, repository bindings
@@ -105,6 +107,11 @@ Android, Compose, or `data`.
   Android Keystore, live in their own DataStore file (excluded from backups), travel only in request headers
   and are never logged, put in URLs, error messages or the repo. Every AI action shows an "add a key" or error
   state through `AiErrors`. New providers implement `AiClient`.
+- **Video rendering** runs on the phone with Media3 Transformer (`data/render/`). Planning (sentences, caption
+  timing, scenes, safe zones) is pure Kotlin in `domain/render/` and unit-tested; keep new render logic there.
+  Media3 is `@UnstableApi`: annotate classes that use it with `@androidx.annotation.OptIn(UnstableApi::class)`.
+  Renders go to `filesDir/renders/`, thumbnails to `cacheDir/thumbnails/`; both are shared through the
+  FileProvider declared in the manifest.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state

@@ -242,7 +242,7 @@
     <string name="wizard_estimate_note">Rough estimates for a typical phone. Rendering runs on your phone and costs nothing.</string>
     <string name="wizard_blocker_script">The script is empty. Write it before you mark this ready.</string>
     <string name="wizard_generate_title">Ready to generate</string>
-    <string name="wizard_generate_body">Your project is saved. Mark it ready and it waits in your Library. Video rendering isn\'t available yet.</string>
+    <string name="wizard_generate_body">Choose how the video should look, then render it. It is made on your phone and nothing is uploaded.</string>
 
     <!-- Library and Home additions -->
     <string name="library_open">Open</string>
@@ -307,6 +307,44 @@
     <string name="create_ideas_topic_label">Topic or niche (optional)</string>
     <string name="create_ideas_suggest">Suggest ideas</string>
     <string name="create_ideas_use">Use</string>
+
+    <!-- Render -->
+    <string name="render_no_footage_title">No pictures or videos to use</string>
+    <string name="render_no_footage_licensed">This project only uses files with a licence logged. Import pictures or videos in the Library and log where they came from.</string>
+    <string name="render_no_footage_any">Import some pictures or videos in the Library first.</string>
+    <string name="render_footage_count">Using %1$d pictures and videos from your Library, in order.</string>
+    <string name="render_size">Size</string>
+    <string name="render_ratio_portrait">Vertical 9:16</string>
+    <string name="render_ratio_landscape">Wide 16:9</string>
+    <string name="render_ratio_square">Square 1:1</string>
+    <string name="render_captions">Burn in captions</string>
+    <string name="render_music">Background music</string>
+    <string name="render_music_off">None</string>
+    <string name="render_music_none_available">Import an audio file in the Library to add background music.</string>
+    <string name="render_start">Render video</string>
+    <string name="render_again">Render again</string>
+    <string name="render_narrating">Recording the voice: sentence %1$d of %2$d</string>
+    <string name="render_rendering">Rendering %1$d%%</string>
+    <string name="render_ready">Your video is ready</string>
+    <string name="render_save">Save to gallery</string>
+    <string name="render_share">Share</string>
+    <string name="render_saved">Saved.</string>
+    <string name="render_save_failed">Couldn\'t save the file.</string>
+    <string name="render_error_no_script">The script is empty. Write it first.</string>
+    <string name="render_error_no_footage">There are no pictures or videos to use.</string>
+    <string name="render_error_no_voice">Couldn\'t record the voice. This phone may have no text-to-speech voice installed.</string>
+    <string name="render_error_failed">The render failed. Try a smaller size or fewer clips.</string>
+
+    <!-- Thumbnail maker -->
+    <string name="thumbnail_make">Make a thumbnail</string>
+    <string name="thumbnail_title">Thumbnail</string>
+    <string name="thumbnail_text_label">Text on the thumbnail</string>
+    <string name="thumbnail_picture">Picture</string>
+    <string name="thumbnail_plain_colour">Plain colour</string>
+    <string name="thumbnail_no_pictures">Import pictures in the Library to use one here. A plain colour from your brand kit works too.</string>
+    <string name="thumbnail_create">Create thumbnail</string>
+    <string name="thumbnail_failed">Couldn\'t read that picture.</string>
+    <string name="thumbnail_result_description">Your thumbnail</string>
 
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>
