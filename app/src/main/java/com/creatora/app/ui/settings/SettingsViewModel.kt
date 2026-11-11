@@ -1,19 +1,18 @@
 package com.creatora.app.ui.settings
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.creatora.app.domain.model.ThemeMode
 import com.creatora.app.domain.repository.SettingsRepository
-import com.creatora.app.ui.appContainer
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class SettingsViewModel(
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
@@ -22,11 +21,5 @@ class SettingsViewModel(
 
     fun onThemeModeSelected(mode: ThemeMode) {
         viewModelScope.launch { settingsRepository.setThemeMode(mode) }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer { SettingsViewModel(appContainer().settingsRepository) }
-        }
     }
 }
