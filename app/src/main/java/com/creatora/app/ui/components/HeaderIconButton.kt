@@ -32,7 +32,6 @@ fun HeaderIconButton(
                     Modifier
                 },
             ),
-        shape = CircleShape,
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = if (outlined) colors.surface else colors.background,
             contentColor = colors.text,
