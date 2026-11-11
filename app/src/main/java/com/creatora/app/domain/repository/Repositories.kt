@@ -101,3 +101,34 @@ interface AiProviderStore {
     /** A blank [model] goes back to the provider's default. */
     suspend fun setModel(provider: AiProvider, model: String)
 }
+
+/** Turns text into spoken audio files. */
+interface Narrator {
+    /** Speaks [text] into an audio file. Null if the phone has no text-to-speech voice or it failed. */
+    suspend fun synthesize(text: String, pitch: Float, speechRate: Float): com.creatora.app.domain.render.NarrationClip?
+
+    /** Deletes the audio files made so far and frees the speech engine. */
+    fun release()
+}
+
+interface MediaProbe {
+    /** Length of a video in milliseconds, or null if it can't be read. */
+    suspend fun videoDurationMs(uri: String): Long?
+}
+
+/** Puts finished files where the user can find them. */
+interface MediaSaver {
+    /** Copies the file into the gallery (Movies or Pictures / Creatora). Android 10 and newer only. */
+    suspend fun saveToGallery(fileUri: String, displayName: String, mimeType: String): Boolean
+
+    /** Copies the file to a place the user picked with the system file dialog. */
+    suspend fun copyTo(fileUri: String, destinationUri: String): Boolean
+}
+
+interface ThumbnailRenderer {
+    /**
+     * Draws a 1280 x 720 thumbnail: the image (or a plain colour) with [text] on top. Returns the PNG's
+     * file:// URI, or null if the image can't be read.
+     */
+    suspend fun render(imageUri: String?, text: String, fallbackColor: String?): String?
+}

@@ -69,7 +69,7 @@ class RoomRepositoriesTest {
             format = com.creatora.app.domain.model.VideoFormat.VIDEO_AD,
             brief = "Brief", hook = "Hook", structure = "Body", callToAction = "Call",
             pronunciations = "a = b", castIds = listOf(3L, 5L), narratorVoiceId = 7L,
-            licensedFootageOnly = false, step = 4, isReady = true,
+            licensedFootageOnly = false, step = 4, isReady = true, renderUri = "file:///r.mp4",
         )
 
         val id = repository.save(project)

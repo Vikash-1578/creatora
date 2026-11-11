@@ -129,3 +129,53 @@ class FakeAiProviderStore : com.creatora.app.domain.repository.AiProviderStore {
         models.value = if (model.isBlank()) models.value - provider else models.value + (provider to model.trim())
     }
 }
+
+class FakeNarrator : com.creatora.app.domain.repository.Narrator {
+    /** Seconds each sentence lasts; null makes narration fail. */
+    var secondsPerSentence: Long? = 2
+    val spoken = mutableListOf<Triple<String, Float, Float>>()
+    var released = 0
+
+    override suspend fun synthesize(text: String, pitch: Float, speechRate: Float): com.creatora.app.domain.render.NarrationClip? {
+        spoken += Triple(text, pitch, speechRate)
+        val seconds = secondsPerSentence ?: return null
+        return com.creatora.app.domain.render.NarrationClip("file:///n${spoken.size}.wav", seconds * 1_000_000)
+    }
+
+    override fun release() {
+        released++
+    }
+}
+
+class FakeMediaProbe(var durations: Map<String, Long> = emptyMap()) : com.creatora.app.domain.repository.MediaProbe {
+    override suspend fun videoDurationMs(uri: String): Long? = durations[uri]
+}
+
+class FakeVideoRenderer(var events: List<com.creatora.app.domain.render.RenderEvent>) : com.creatora.app.domain.render.VideoRenderer {
+    var request: com.creatora.app.domain.render.RenderRequest? = null
+    override fun render(request: com.creatora.app.domain.render.RenderRequest) = kotlinx.coroutines.flow.flow {
+        this@FakeVideoRenderer.request = request
+        events.forEach { emit(it) }
+    }
+}
+
+class FakeMediaSaver(var succeeds: Boolean = true) : com.creatora.app.domain.repository.MediaSaver {
+    val gallery = mutableListOf<Triple<String, String, String>>()
+    val copies = mutableListOf<Pair<String, String>>()
+    override suspend fun saveToGallery(fileUri: String, displayName: String, mimeType: String): Boolean {
+        gallery += Triple(fileUri, displayName, mimeType)
+        return succeeds
+    }
+    override suspend fun copyTo(fileUri: String, destinationUri: String): Boolean {
+        copies += fileUri to destinationUri
+        return succeeds
+    }
+}
+
+class FakeThumbnailRenderer(var result: String? = "file:///thumb.png") : com.creatora.app.domain.repository.ThumbnailRenderer {
+    val calls = mutableListOf<Triple<String?, String, String?>>()
+    override suspend fun render(imageUri: String?, text: String, fallbackColor: String?): String? {
+        calls += Triple(imageUri, text, fallbackColor)
+        return result
+    }
+}

@@ -25,6 +25,8 @@ import com.creatora.app.ui.licences.LicencesViewModel
 import com.creatora.app.ui.profile.ProfileScreen
 import com.creatora.app.ui.research.ResearchScreen
 import com.creatora.app.ui.settings.SettingsScreen
+import com.creatora.app.ui.thumbnail.ThumbnailScreen
+import com.creatora.app.ui.thumbnail.ThumbnailViewModel
 
 /** All screen routes. Tab screens live inside their tab's graph (see [TopLevelTab]). */
 object Routes {
@@ -41,10 +43,13 @@ object Routes {
     const val BRAND_KIT = "brand_kit"
     const val WIZARD = "wizard/{projectId}"
     const val AI_PROVIDERS = "ai_providers"
+    const val THUMBNAIL = "thumbnail/{projectId}"
     const val COACH = "coach"
     const val LICENCES = "licences?assetId={assetId}"
 
     fun wizard(projectId: Long) = "wizard/$projectId"
+
+    fun thumbnail(projectId: Long) = "thumbnail/$projectId"
 
     fun licences(assetId: Long?) = "licences?assetId=${assetId ?: LicencesViewModel.ALL}"
 }
@@ -113,7 +118,14 @@ fun CreatoraNavHost(
                 onClose = { navController.popBackStack() },
                 onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
                 onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
             )
+        }
+        composable(
+            route = Routes.THUMBNAIL,
+            arguments = listOf(navArgument(ThumbnailViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),
+        ) {
+            ThumbnailScreen(onBack = dropUnlessResumed { navController.popBackStack() })
         }
         composable(Routes.BRAND_KIT) {
             BrandKitScreen(onBack = dropUnlessResumed { navController.popBackStack() })

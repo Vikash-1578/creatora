@@ -40,6 +40,7 @@ import com.creatora.app.domain.model.WizardStep
 import com.creatora.app.ui.components.HeaderIconButton
 import com.creatora.app.ui.components.PrimaryButton
 import com.creatora.app.ui.components.SecondaryButton
+import com.creatora.app.ui.render.RenderPanel
 import com.creatora.app.ui.theme.CreatoraTheme
 
 /** Callbacks the step screens use to edit the project. */
@@ -71,6 +72,7 @@ fun WizardScreen(
     onClose: () -> Unit,
     onOpenLibrary: () -> Unit,
     onOpenAiProviders: () -> Unit,
+    onOpenThumbnail: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WizardViewModel = hiltViewModel(),
 ) {
@@ -109,6 +111,7 @@ fun WizardScreen(
             onClose()
         },
         onClose = onClose,
+        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail) },
         modifier = modifier,
     )
 }
@@ -121,6 +124,7 @@ fun WizardContent(
     onFinish: () -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
+    generatePanel: @Composable () -> Unit = {},
 ) {
     val spacing = CreatoraTheme.spacing
     val project = state.project
@@ -186,7 +190,7 @@ fun WizardContent(
                         WizardStep.VOICE -> VoiceStep(project, state, actions)
                         WizardStep.FOOTAGE -> FootageStep(project, state, actions)
                         WizardStep.REVIEW -> ReviewStep(project, state, actions)
-                        WizardStep.GENERATE -> GenerateStep(state)
+                        WizardStep.GENERATE -> GenerateStep(state, generatePanel)
                     }
                 }
             }

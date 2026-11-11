@@ -333,6 +333,7 @@ fun ReviewStep(project: Project, state: WizardUiState, actions: WizardActions) {
     state.blockers.forEach {
         Text(stringResource(R.string.wizard_blocker_script), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.warning)
     }
+    panel()
 }
 
 @Composable
@@ -349,7 +350,7 @@ private fun InfoRow(label: String, value: String) {
 }
 
 @Composable
-fun GenerateStep(state: WizardUiState) {
+fun GenerateStep(state: WizardUiState, panel: @Composable () -> Unit) {
     Text(stringResource(R.string.wizard_generate_title), style = CreatoraTheme.typography.sectionTitle, color = CreatoraTheme.colors.text)
     Intro(stringResource(R.string.wizard_generate_body))
     if (state.blockers.isNotEmpty()) {

@@ -39,6 +39,7 @@ data class ProjectEntity(
     @ColumnInfo(defaultValue = "1") val licensedFootageOnly: Boolean,
     @ColumnInfo(defaultValue = "0") val step: Int,
     @ColumnInfo(defaultValue = "0") val isReady: Boolean,
+    val renderUri: String?,
 )
 
 @Entity(
@@ -133,13 +134,13 @@ fun ProjectEntity.toModel() = Project(
     id, title, isTemplate, createdAt, updatedAt, format,
     brief.orEmpty(), hook.orEmpty(), structure.orEmpty(), callToAction.orEmpty(), pronunciations.orEmpty(),
     castIds.orEmpty().split(',').mapNotNull { it.toLongOrNull() },
-    narratorVoiceId, licensedFootageOnly, step, isReady,
+    narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
 )
 
 fun Project.toEntity() = ProjectEntity(
     id, title, isTemplate, createdAt, updatedAt, format,
     brief, hook, structure, callToAction, pronunciations, castIds.joinToString(","),
-    narratorVoiceId, licensedFootageOnly, step, isReady,
+    narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
 )
 
 fun IdeaEntity.toModel() = Idea(id, title, notes, projectId, createdAt)

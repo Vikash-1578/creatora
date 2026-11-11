@@ -27,6 +27,8 @@ data class Project(
     /** Index of the wizard step the user is on (see [WizardStep]). */
     val step: Int = 0,
     val isReady: Boolean = false,
+    /** file:// URI of the last finished render in app storage, if any. */
+    val renderUri: String? = null,
 ) {
     /** The whole script in reading order. */
     val script: String get() = listOf(hook, structure, callToAction).filter { it.isNotBlank() }.joinToString("\n\n")
