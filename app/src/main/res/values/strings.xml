@@ -255,8 +255,8 @@
     <string name="action_done">Done</string>
     <string name="action_copy">Copy</string>
     <string name="cd_open_coach">Ask the AI Coach</string>
-    <string name="ai_providers_title">AI providers</string>
-    <string name="ai_providers_row_value">Your own API keys</string>
+    <string name="ai_providers_title">API keys</string>
+    <string name="ai_providers_row_value">AI services and YouTube</string>
     <string name="ai_providers_intro">Creatora uses AI services with your own API keys. Keys are encrypted on this phone, are never backed up, and are only sent to the service they belong to. Add more than one and Creatora tries the next one when a service fails.</string>
     <string name="ai_provider_gemini">Google Gemini</string>
     <string name="ai_provider_gemini_hint">Get a free key at aistudio.google.com</string>
@@ -270,13 +270,13 @@
     <string name="ai_key_replace_label">New API key (leave empty to keep the saved one)</string>
     <string name="ai_key_remove">Remove key</string>
     <string name="ai_model_label">Model</string>
-    <string name="ai_open_providers">Open AI providers</string>
-    <string name="ai_error_no_key">Add an API key first. Open Settings, then AI providers.</string>
-    <string name="ai_error_invalid_key">%1$s rejected your key. Check it in AI providers.</string>
+    <string name="ai_open_providers">Open API keys</string>
+    <string name="ai_error_no_key">Add an API key first. Open Settings, then API keys.</string>
+    <string name="ai_error_invalid_key">%1$s rejected your key. Check it in API keys.</string>
     <string name="ai_error_rate_limited">%1$s says you have made too many requests. Try again in a minute.</string>
     <string name="ai_error_network">Couldn\'t reach %1$s. Check your internet connection.</string>
     <string name="ai_error_server">%1$s had a problem (error %2$d).</string>
-    <string name="ai_error_bad_request">%1$s couldn\'t handle the request. Check the model name in AI providers.</string>
+    <string name="ai_error_bad_request">%1$s couldn\'t handle the request. Check the model name in API keys.</string>
     <string name="ai_error_bad_response">%1$s sent a reply Creatora couldn\'t read.</string>
 
     <!-- AI Coach -->
@@ -345,6 +345,77 @@
     <string name="thumbnail_create">Create thumbnail</string>
     <string name="thumbnail_failed">Couldn\'t read that picture.</string>
     <string name="thumbnail_result_description">Your thumbnail</string>
+
+    <!-- Research -->
+    <string name="youtube_key_title">YouTube Data API</string>
+    <string name="youtube_key_hint">Used by the Research tab. Create a free key in Google Cloud Console and turn on YouTube Data API v3 for it.</string>
+    <string name="research_no_key_title">Add a YouTube key</string>
+    <string name="research_no_key_body">Research reads public YouTube numbers with your own free API key.</string>
+    <string name="research_add_key">Add YouTube key</string>
+    <string name="research_search_keyword">Search a keyword or topic</string>
+    <string name="research_search_channel">Channel name, @handle or link</string>
+    <string name="research_tab_keywords">Keywords</string>
+    <string name="research_tab_outliers">Outliers</string>
+    <string name="research_tab_rivals">Rivals</string>
+    <string name="research_tab_trends">Trends</string>
+    <string name="research_keywords_hint">Search a keyword to see how many videos already cover it and which ones lead.</string>
+    <string name="research_match_count">About %1$s videos match</string>
+    <string name="research_competition_note">YouTube shares no search volume. Competition here comes from how many videos match.</string>
+    <string name="research_competition_low">Low competition</string>
+    <string name="research_competition_medium">Medium</string>
+    <string name="research_competition_high">High</string>
+    <string name="research_views">%1$s views</string>
+    <string name="research_times_usual">%1$s× usual views</string>
+    <string name="research_outlier_detail">%1$s · %2$s views vs %3$s usual</string>
+    <string name="research_outliers_hint">Search a topic to find videos that got far more views than their channel usually gets.</string>
+    <string name="research_outliers_none">No video in this search got 2× or more of its channel\'s usual views. Try another topic.</string>
+    <string name="research_rivals_hint">Search for a channel, then track it to watch its numbers over time.</string>
+    <string name="research_channel_none">No channel found. Try its @handle or link.</string>
+    <string name="research_track">Track this channel</string>
+    <string name="research_tracked">Tracked channels</string>
+    <string name="research_refresh">Refresh</string>
+    <string name="research_channel_stats">%1$s subscribers · %2$s videos · %3$s average views</string>
+    <string name="research_hidden">Hidden</string>
+    <string name="research_trends_hint">Loading what is trending near you.</string>
+    <string name="research_trends_title">Trending now</string>
+    <string name="research_study">Study a video or channel\'s style</string>
+    <string name="research_saved">Saved ideas and swipe file</string>
+    <string name="research_save_swipe">Save to swipe file</string>
+    <string name="research_save_idea">Save as idea</string>
+    <string name="research_open_youtube">Open on YouTube</string>
+    <string name="research_notice_swipe">Saved to your swipe file.</string>
+    <string name="research_notice_idea">Saved to your idea bank.</string>
+    <string name="research_notice_tracked">You already track this channel.</string>
+    <string name="yt_error_no_key">Add a YouTube key first.</string>
+    <string name="yt_error_invalid_key">YouTube rejected your key. Check it, and that YouTube Data API v3 is turned on for it.</string>
+    <string name="yt_error_quota">Your YouTube quota for today is used up. It resets at midnight Pacific time.</string>
+    <string name="yt_error_network">Couldn\'t reach YouTube. Check your internet connection.</string>
+    <string name="yt_error_server">YouTube had a problem. Try again in a moment.</string>
+    <string name="yt_error_bad_request">YouTube couldn\'t handle that search.</string>
+    <string name="yt_error_bad_response">YouTube sent a reply Creatora couldn\'t read.</string>
+
+    <!-- Study -->
+    <string name="study_title">Study a video</string>
+    <string name="study_intro">Paste a YouTube link. Creatora looks up the video and asks your AI what makes it work.</string>
+    <string name="study_link_label">YouTube link</string>
+    <string name="study_button">Study this video</string>
+    <string name="study_not_link">That doesn\'t look like a YouTube video link.</string>
+    <string name="study_not_found">No video found for that link.</string>
+    <string name="study_video_detail">%1$s · %2$s views</string>
+    <string name="study_saved">Saved to your swipe file.</string>
+
+    <!-- Saved ideas and swipe file -->
+    <string name="saved_title">Saved</string>
+    <string name="saved_tab_ideas">Idea bank</string>
+    <string name="saved_tab_swipe">Swipe file</string>
+    <string name="saved_add_idea">Add idea</string>
+    <string name="saved_idea_title_label">Idea</string>
+    <string name="saved_idea_notes_label">Notes (optional)</string>
+    <string name="saved_use_idea">Start a project</string>
+    <string name="saved_ideas_empty_title">No ideas yet</string>
+    <string name="saved_ideas_empty_body">Add your own, or save one from Research. Start a project from any idea.</string>
+    <string name="saved_swipe_empty_title">Nothing saved yet</string>
+    <string name="saved_swipe_empty_body">Save videos from Research or Study to keep them as inspiration.</string>
 
     <!-- Theme setting -->
     <string name="theme_mode_system">System</string>

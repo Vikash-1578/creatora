@@ -83,6 +83,23 @@ class RoomRepositoriesTest {
     }
 
     @Test
+    fun competitorsAndSwipeItems_roundTrip_andACompetitorChannelIsUnique() = runTest {
+        val competitors = RoomCompetitorRepository(db)
+        val id = competitors.save(com.creatora.app.domain.research.Competitor(channelId = "c1", title = "B", subscribers = null, views = 10, videos = 2, updatedAt = 5))
+        competitors.save(com.creatora.app.domain.research.Competitor(channelId = "c2", title = "a", subscribers = 7, views = 1, videos = 1, updatedAt = 6))
+
+        assertEquals(listOf("a", "B"), competitors.observeAll().first().map { it.title })
+        assertNull(competitors.observe(id).first()!!.subscribers)
+
+        val swipe = RoomSwipeRepository(db)
+        val item = com.creatora.app.domain.research.SwipeItem(title = "T", url = "https://youtu.be/x", channelTitle = "C", note = "N", createdAt = 3)
+        val swipeId = swipe.save(item)
+        assertEquals(item.copy(id = swipeId), swipe.observe(swipeId).first())
+        swipe.delete(swipeId)
+        assertTrue(swipe.observeAll().first().isEmpty())
+    }
+
+    @Test
     fun ideas_keepIdeaWhenItsProjectIsDeleted() = runTest {
         val projectId = newProject()
         val repository = RoomIdeaRepository(db)

@@ -107,3 +107,23 @@ class DataStoreAiProviderStore @Inject constructor(
     private fun keyOf(provider: AiProvider) = stringPreferencesKey("key_${provider.name}")
     private fun modelOf(provider: AiProvider) = stringPreferencesKey("model_${provider.name}")
 }
+
+/** The YouTube Data API key, stored encrypted in the same file as the AI keys. */
+class DataStoreYouTubeKeyStore @Inject constructor(
+    @AiKeysStore private val dataStore: DataStore<Preferences>,
+    private val cipher: SecretCipher,
+) : com.creatora.app.domain.repository.YouTubeKeyStore {
+    private val keyName = stringPreferencesKey("key_YOUTUBE")
+
+    override val hasKey: Flow<Boolean> = dataStore.data.map { prefs -> prefs[keyName]?.let(cipher::decrypt) != null }
+
+    override suspend fun key(): String? = dataStore.data.first()[keyName]?.let(cipher::decrypt)
+
+    override suspend fun setKey(key: String) {
+        dataStore.edit { it[keyName] = cipher.encrypt(key.trim()) }
+    }
+
+    override suspend fun removeKey() {
+        dataStore.edit { it.remove(keyName) }
+    }
+}

@@ -46,6 +46,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-media3-transformer = { group = "androidx.media3", name = "media3-transformer", version.ref = "media3" }
 androidx-media3-effect = { group = "androidx.media3", name = "media3-effect", version.ref = "media3" }
 androidx-media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }

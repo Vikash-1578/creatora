@@ -14,9 +14,16 @@ import androidx.room.RoomDatabase
         CharacterEntity::class,
         ScheduledPostEntity::class,
         ChannelSnapshotEntity::class,
+        CompetitorEntity::class,
+        SwipeItemEntity::class,
     ],
-    version = 4,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
+    version = 5,
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2),
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
+        AutoMigration(from = 4, to = 5),
+    ],
 )
 abstract class CreatoraDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
@@ -27,6 +34,8 @@ abstract class CreatoraDatabase : RoomDatabase() {
     abstract fun characterDao(): CharacterDao
     abstract fun scheduledPostDao(): ScheduledPostDao
     abstract fun channelSnapshotDao(): ChannelSnapshotDao
+    abstract fun competitorDao(): CompetitorDao
+    abstract fun swipeItemDao(): SwipeItemDao
 
     companion object {
         const val NAME = "creatora.db"

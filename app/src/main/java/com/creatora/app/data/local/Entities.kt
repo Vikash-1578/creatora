@@ -16,6 +16,8 @@ import com.creatora.app.domain.model.Project
 import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.ScheduledPost
 import com.creatora.app.domain.model.VoicePreset
+import com.creatora.app.domain.research.Competitor
+import com.creatora.app.domain.research.SwipeItem
 
 // Room tables. Each entity mirrors its domain model; enums are stored by name.
 
@@ -120,6 +122,27 @@ data class ScheduledPostEntity(
     val createdAt: Long,
 )
 
+@Entity(tableName = "competitors", indices = [Index("channelId", unique = true)])
+data class CompetitorEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    val channelId: String,
+    val title: String,
+    val subscribers: Long?,
+    val views: Long,
+    val videos: Long,
+    val updatedAt: Long,
+)
+
+@Entity(tableName = "swipe_items")
+data class SwipeItemEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    val title: String,
+    val url: String,
+    val channelTitle: String,
+    val note: String,
+    val createdAt: Long,
+)
+
 @Entity(tableName = "channel_snapshots", indices = [Index("channelId", "capturedAt")])
 data class ChannelSnapshotEntity(
     @PrimaryKey(autoGenerate = true) val id: Long,
@@ -160,6 +183,12 @@ fun Character.toEntity() = CharacterEntity(id, name, description, voicePresetId,
 
 fun ScheduledPostEntity.toModel() = ScheduledPost(id, projectId, platform, scheduledAt, createdAt)
 fun ScheduledPost.toEntity() = ScheduledPostEntity(id, projectId, platform, scheduledAt, createdAt)
+
+fun CompetitorEntity.toModel() = Competitor(id, channelId, title, subscribers, views, videos, updatedAt)
+fun Competitor.toEntity() = CompetitorEntity(id, channelId, title, subscribers, views, videos, updatedAt)
+
+fun SwipeItemEntity.toModel() = SwipeItem(id, title, url, channelTitle, note, createdAt)
+fun SwipeItem.toEntity() = SwipeItemEntity(id, title, url, channelTitle, note, createdAt)
 
 fun ChannelSnapshotEntity.toModel() =
     ChannelSnapshot(id, channelId, subscriberCount, viewCount, videoCount, capturedAt)

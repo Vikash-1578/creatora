@@ -38,6 +38,7 @@ com.creatora.app
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
 │   ├── render/ thumbnail/                       # Generate-step render panel, thumbnail maker
+│   ├── research/ study/ saved/                  # Research tab, "study a video" and idea bank / swipe file screens
 │   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
 │   ├── brandkit/ licences/                      # screens opened from the Library
 │   ├── profile/ earn/ settings/                 # screens opened from Home's Profile button
@@ -46,6 +47,7 @@ com.creatora.app
 ├── data/
 │   ├── local/           # Room: Entities.kt (tables + mappers), Daos.kt, CreatoraDatabase, RoomRepositories.kt
 │   ├── ai/              # AI clients (Gemini, Groq, OpenRouter), failover, encrypted key store
+│   ├── youtube/         # YouTube Data API v3 client (user's own key) and JSON parsing
 │   ├── render/          # Media3 video renderer, TTS narrator, thumbnail drawing, gallery saver
 │   ├── media/           # ContentResolverUserFiles: copies picked files into app storage
 │   ├── settings/        # DataStore-backed SettingsRepository and BrandKitRepository
@@ -112,6 +114,10 @@ Android, Compose, or `data`.
   Media3 is `@UnstableApi`: annotate classes that use it with `@androidx.annotation.OptIn(UnstableApi::class)`.
   Renders go to `filesDir/renders/`, thumbnails to `cacheDir/thumbnails/`; both are shared through the
   FileProvider declared in the manifest.
+- **YouTube data** comes from the YouTube Data API v3 with the user's own key (stored like the AI keys, sent in
+  the `X-Goog-Api-Key` header). It gives no search volume or competition score, so never show or invent
+  either: "competition" is derived from the number of matching videos and labelled that way. search.list costs
+  100 quota units a call (10,000 a day by default); prefer videos.list and channels.list (1 unit).
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state

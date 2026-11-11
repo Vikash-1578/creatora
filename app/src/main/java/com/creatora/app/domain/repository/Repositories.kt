@@ -132,3 +132,26 @@ interface ThumbnailRenderer {
      */
     suspend fun render(imageUri: String?, text: String, fallbackColor: String?): String?
 }
+
+/** The public YouTube Data API v3, called with the user's own key. */
+interface YouTubeApi {
+    suspend fun searchVideos(query: String): com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.VideoSearch>
+    suspend fun channels(ids: List<String>): com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtChannel>>
+
+    /** Finds one channel by id, @handle or name. Null if nothing matches. */
+    suspend fun findChannel(query: com.creatora.app.domain.research.ChannelQuery): com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.YtChannel?>
+    suspend fun video(id: String): com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.YtVideo?>
+    suspend fun trending(regionCode: String): com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtVideo>>
+}
+
+/** The user's YouTube Data API key, encrypted on the phone. */
+interface YouTubeKeyStore {
+    val hasKey: Flow<Boolean>
+    suspend fun key(): String?
+    suspend fun setKey(key: String)
+    suspend fun removeKey()
+}
+
+interface CompetitorRepository : Repository<com.creatora.app.domain.research.Competitor>
+
+interface SwipeRepository : Repository<com.creatora.app.domain.research.SwipeItem>

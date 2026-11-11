@@ -15,7 +15,7 @@ reviewer merges PRs.
 | M6 | Create flow | PR #7 (stacked on #6) |
 | M7 | AI layer | PR #8 (stacked on #7) |
 | M8 | Video render | PR #9 (stacked on #8) |
-| M9 | Research tab | Planned |
+| M9 | Research tab | PR #10 (stacked on #9) |
 | M10 | Publish and schedule | Planned |
 | M11 | Grow tab | Planned |
 | M12 | Home tab | Planned |

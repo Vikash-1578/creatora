@@ -9,6 +9,10 @@ import com.creatora.app.domain.model.Project
 import com.creatora.app.domain.model.ScheduledPost
 import com.creatora.app.domain.model.VoicePreset
 import com.creatora.app.domain.repository.AssetRepository
+import com.creatora.app.domain.repository.CompetitorRepository
+import com.creatora.app.domain.repository.SwipeRepository
+import com.creatora.app.domain.research.Competitor
+import com.creatora.app.domain.research.SwipeItem
 import com.creatora.app.domain.repository.ChannelSnapshotRepository
 import com.creatora.app.domain.repository.CharacterRepository
 import com.creatora.app.domain.repository.IdeaRepository
@@ -70,6 +74,14 @@ class RoomCharacterRepository @Inject constructor(db: CreatoraDatabase) :
 class RoomScheduledPostRepository @Inject constructor(db: CreatoraDatabase) :
     RoomRepository<ScheduledPost, ScheduledPostEntity>(db.scheduledPostDao(), { it.toModel() }, { it.toEntity() }, { it.id }),
     ScheduledPostRepository
+
+class RoomCompetitorRepository @Inject constructor(db: CreatoraDatabase) :
+    RoomRepository<Competitor, CompetitorEntity>(db.competitorDao(), { it.toModel() }, { it.toEntity() }, { it.id }),
+    CompetitorRepository
+
+class RoomSwipeRepository @Inject constructor(db: CreatoraDatabase) :
+    RoomRepository<SwipeItem, SwipeItemEntity>(db.swipeItemDao(), { it.toModel() }, { it.toEntity() }, { it.id }),
+    SwipeRepository
 
 class RoomChannelSnapshotRepository @Inject constructor(db: CreatoraDatabase) :
     RoomRepository<ChannelSnapshot, ChannelSnapshotEntity>(

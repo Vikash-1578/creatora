@@ -9,6 +9,7 @@ import androidx.room.Room
 import com.creatora.app.data.ai.AiKeysStore
 import com.creatora.app.data.ai.AndroidKeystoreCipher
 import com.creatora.app.data.ai.DataStoreAiProviderStore
+import com.creatora.app.data.ai.DataStoreYouTubeKeyStore
 import com.creatora.app.data.ai.FailoverAiService
 import com.creatora.app.data.ai.HttpTransport
 import com.creatora.app.data.ai.SecretCipher
@@ -16,6 +17,9 @@ import com.creatora.app.data.ai.UrlConnectionTransport
 import com.creatora.app.data.local.CreatoraDatabase
 import com.creatora.app.data.local.RoomAssetRepository
 import com.creatora.app.data.local.RoomChannelSnapshotRepository
+import com.creatora.app.data.local.RoomCompetitorRepository
+import com.creatora.app.data.local.RoomSwipeRepository
+import com.creatora.app.data.youtube.HttpYouTubeApi
 import com.creatora.app.data.local.RoomCharacterRepository
 import com.creatora.app.data.local.RoomIdeaRepository
 import com.creatora.app.data.local.RoomLicenceRepository
@@ -34,6 +38,10 @@ import com.creatora.app.data.settings.DataStoreSettingsRepository
 import com.creatora.app.domain.repository.AiProviderStore
 import com.creatora.app.domain.repository.AiService
 import com.creatora.app.domain.repository.AssetRepository
+import com.creatora.app.domain.repository.CompetitorRepository
+import com.creatora.app.domain.repository.SwipeRepository
+import com.creatora.app.domain.repository.YouTubeApi
+import com.creatora.app.domain.repository.YouTubeKeyStore
 import com.creatora.app.domain.repository.BrandKitRepository
 import com.creatora.app.domain.repository.ChannelSnapshotRepository
 import com.creatora.app.domain.repository.CharacterRepository
@@ -86,6 +94,10 @@ abstract class RepositoryModule {
     @Binds abstract fun secretCipher(impl: AndroidKeystoreCipher): SecretCipher
     @Binds abstract fun aiProviderStore(impl: DataStoreAiProviderStore): AiProviderStore
     @Binds abstract fun aiService(impl: FailoverAiService): AiService
+    @Binds abstract fun youTubeKeyStore(impl: DataStoreYouTubeKeyStore): YouTubeKeyStore
+    @Binds abstract fun youTubeApi(impl: HttpYouTubeApi): YouTubeApi
+    @Binds abstract fun competitors(impl: RoomCompetitorRepository): CompetitorRepository
+    @Binds abstract fun swipeItems(impl: RoomSwipeRepository): SwipeRepository
     @Binds abstract fun settings(impl: DataStoreSettingsRepository): SettingsRepository
     @Binds abstract fun brandKit(impl: DataStoreBrandKitRepository): BrandKitRepository
     @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles

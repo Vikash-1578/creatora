@@ -31,6 +31,13 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
         this.body = body
         return response
     }
+
+    override suspend fun get(url: String, headers: Map<String, String>): HttpResponse {
+        if (offline) throw IOException("offline")
+        this.url = url
+        this.headers = headers
+        return response
+    }
 }
 
 @RunWith(RobolectricTestRunner::class)

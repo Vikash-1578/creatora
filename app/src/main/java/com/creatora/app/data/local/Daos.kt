@@ -104,6 +104,30 @@ interface ScheduledPostDao : CrudDao<ScheduledPostEntity> {
 }
 
 @Dao
+interface CompetitorDao : CrudDao<CompetitorEntity> {
+    @Query("SELECT * FROM competitors ORDER BY title COLLATE NOCASE")
+    override fun observeAll(): Flow<List<CompetitorEntity>>
+
+    @Query("SELECT * FROM competitors WHERE id = :id")
+    override fun observe(id: Long): Flow<CompetitorEntity?>
+
+    @Query("DELETE FROM competitors WHERE id = :id")
+    override suspend fun deleteById(id: Long)
+}
+
+@Dao
+interface SwipeItemDao : CrudDao<SwipeItemEntity> {
+    @Query("SELECT * FROM swipe_items ORDER BY createdAt DESC")
+    override fun observeAll(): Flow<List<SwipeItemEntity>>
+
+    @Query("SELECT * FROM swipe_items WHERE id = :id")
+    override fun observe(id: Long): Flow<SwipeItemEntity?>
+
+    @Query("DELETE FROM swipe_items WHERE id = :id")
+    override suspend fun deleteById(id: Long)
+}
+
+@Dao
 interface ChannelSnapshotDao : CrudDao<ChannelSnapshotEntity> {
     @Query("SELECT * FROM channel_snapshots ORDER BY capturedAt")
     override fun observeAll(): Flow<List<ChannelSnapshotEntity>>

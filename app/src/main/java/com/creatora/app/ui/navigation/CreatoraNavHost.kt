@@ -24,6 +24,8 @@ import com.creatora.app.ui.licences.LicencesScreen
 import com.creatora.app.ui.licences.LicencesViewModel
 import com.creatora.app.ui.profile.ProfileScreen
 import com.creatora.app.ui.research.ResearchScreen
+import com.creatora.app.ui.saved.SavedScreen
+import com.creatora.app.ui.study.StudyScreen
 import com.creatora.app.ui.settings.SettingsScreen
 import com.creatora.app.ui.thumbnail.ThumbnailScreen
 import com.creatora.app.ui.thumbnail.ThumbnailViewModel
@@ -43,6 +45,8 @@ object Routes {
     const val BRAND_KIT = "brand_kit"
     const val WIZARD = "wizard/{projectId}"
     const val AI_PROVIDERS = "ai_providers"
+    const val STUDY = "study"
+    const val SAVED = "saved"
     const val THUMBNAIL = "thumbnail/{projectId}"
     const val COACH = "coach"
     const val LICENCES = "licences?assetId={assetId}"
@@ -87,7 +91,13 @@ fun CreatoraNavHost(
             }
         }
         navigation(route = TopLevelTab.RESEARCH.graphRoute, startDestination = Routes.RESEARCH) {
-            composable(Routes.RESEARCH) { ResearchScreen() }
+            composable(Routes.RESEARCH) {
+                ResearchScreen(
+                    onOpenKeys = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                    onOpenStudy = dropUnlessResumed { navController.navigate(Routes.STUDY) },
+                    onOpenSaved = dropUnlessResumed { navController.navigate(Routes.SAVED) },
+                )
+            }
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {
             composable(Routes.CREATE) {
@@ -151,6 +161,18 @@ fun CreatoraNavHost(
             SettingsScreen(
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+            )
+        }
+        composable(Routes.STUDY) {
+            StudyScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenKeys = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+            )
+        }
+        composable(Routes.SAVED) {
+            SavedScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) },
             )
         }
         composable(Routes.AI_PROVIDERS) {

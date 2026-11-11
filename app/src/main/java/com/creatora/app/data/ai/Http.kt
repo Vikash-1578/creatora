@@ -12,22 +12,29 @@ import kotlinx.coroutines.withContext
 
 data class HttpResponse(val code: Int, val body: String)
 
-/** Sends one HTTPS POST. Throws [IOException] when the network fails. */
+/** Sends one HTTPS request. Throws [IOException] when the network fails. */
 interface HttpTransport {
     suspend fun post(url: String, headers: Map<String, String>, body: String): HttpResponse
+    suspend fun get(url: String, headers: Map<String, String>): HttpResponse
 }
 
 class UrlConnectionTransport @Inject constructor() : HttpTransport {
-    override suspend fun post(url: String, headers: Map<String, String>, body: String): HttpResponse =
+    override suspend fun post(url: String, headers: Map<String, String>, body: String): HttpResponse = send(url, headers, body)
+
+    override suspend fun get(url: String, headers: Map<String, String>): HttpResponse = send(url, headers, null)
+
+    private suspend fun send(url: String, headers: Map<String, String>, body: String?): HttpResponse =
         withContext(Dispatchers.IO) {
             val connection = URL(url).openConnection() as HttpURLConnection
             try {
-                connection.requestMethod = "POST"
+                connection.requestMethod = if (body == null) "GET" else "POST"
                 connection.connectTimeout = TIMEOUT_MS
                 connection.readTimeout = TIMEOUT_MS
-                connection.doOutput = true
                 headers.forEach { (name, value) -> connection.setRequestProperty(name, value) }
-                connection.outputStream.use { it.write(body.toByteArray()) }
+                if (body != null) {
+                    connection.doOutput = true
+                    connection.outputStream.use { it.write(body.toByteArray()) }
+                }
                 val code = connection.responseCode
                 val stream = if (code in 200..299) connection.inputStream else connection.errorStream
                 HttpResponse(code, stream?.bufferedReader()?.use { it.readText() }.orEmpty())

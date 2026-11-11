@@ -37,20 +37,66 @@ fun AiProvidersScreen(
     viewModel: AiProvidersViewModel = hiltViewModel(),
 ) {
     val configs by viewModel.configs.collectAsStateWithLifecycle()
-    AiProvidersContent(configs, onBack, viewModel::save, viewModel::removeKey, modifier)
+    val youTubeHasKey by viewModel.youTubeHasKey.collectAsStateWithLifecycle()
+    AiProvidersContent(
+        configs, youTubeHasKey, onBack, viewModel::save, viewModel::removeKey,
+        viewModel::saveYouTubeKey, viewModel::removeYouTubeKey, modifier,
+    )
 }
 
 @Composable
 fun AiProvidersContent(
     configs: List<AiProviderConfig>,
+    youTubeHasKey: Boolean,
     onBack: () -> Unit,
     onSave: (AiProvider, key: String, model: String) -> Unit,
     onRemove: (AiProvider) -> Unit,
+    onSaveYouTube: (String) -> Unit,
+    onRemoveYouTube: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SubScreenScaffold(stringResource(R.string.ai_providers_title), onBack, modifier) {
         Text(stringResource(R.string.ai_providers_intro), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.textMuted)
         configs.forEach { config -> ProviderCard(config, onSave, onRemove) }
+        YouTubeKeyCard(youTubeHasKey, onSaveYouTube, onRemoveYouTube)
+    }
+}
+
+@Composable
+private fun YouTubeKeyCard(hasKey: Boolean, onSave: (String) -> Unit, onRemove: () -> Unit) {
+    val colors = CreatoraTheme.colors
+    val shape = CreatoraTheme.shapes.radius16
+    var key by rememberSaveable { mutableStateOf("") }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(colors.surface)
+            .border(CreatoraTheme.dimens.borderWidth, colors.border, shape)
+            .padding(CreatoraTheme.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm),
+    ) {
+        Row {
+            Text(stringResource(R.string.youtube_key_title), style = CreatoraTheme.typography.cardTitle, color = colors.text, modifier = Modifier.weight(1f))
+            Text(
+                stringResource(if (hasKey) R.string.ai_key_saved else R.string.ai_key_missing),
+                style = CreatoraTheme.typography.caption,
+                color = if (hasKey) colors.success else colors.textMuted,
+            )
+        }
+        Text(stringResource(R.string.youtube_key_hint), style = CreatoraTheme.typography.caption, color = colors.textMuted)
+        OutlinedTextField(
+            value = key,
+            onValueChange = { key = it },
+            label = { Text(stringResource(if (hasKey) R.string.ai_key_replace_label else R.string.ai_key_label)) },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
+            PrimaryButton(stringResource(R.string.action_save), { onSave(key); key = "" }, enabled = key.isNotBlank())
+            if (hasKey) SecondaryButton(stringResource(R.string.ai_key_remove), onRemove)
+        }
     }
 }
 
@@ -120,11 +166,11 @@ private val PreviewConfigs = listOf(
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun AiProvidersLightPreview() {
-    CreatoraTheme(darkTheme = false) { AiProvidersContent(PreviewConfigs, {}, { _, _, _ -> }, {}) }
+    CreatoraTheme(darkTheme = false) { AiProvidersContent(PreviewConfigs, true, {}, { _, _, _ -> }, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun AiProvidersDarkPreview() {
-    CreatoraTheme(darkTheme = true) { AiProvidersContent(PreviewConfigs, {}, { _, _, _ -> }, {}) }
+    CreatoraTheme(darkTheme = true) { AiProvidersContent(PreviewConfigs, false, {}, { _, _, _ -> }, {}, {}, {}) }
 }

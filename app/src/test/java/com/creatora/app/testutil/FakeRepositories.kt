@@ -20,6 +20,7 @@ import com.creatora.app.domain.repository.VoicePresetRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.map
 
 /** In-memory [Repository]: ids start at 1, [items] holds the current rows in insertion order. */
 open class FakeRepository<T>(
@@ -178,4 +179,39 @@ class FakeThumbnailRenderer(var result: String? = "file:///thumb.png") : com.cre
         calls += Triple(imageUri, text, fallbackColor)
         return result
     }
+}
+
+class FakeCompetitorRepository : FakeRepository<com.creatora.app.domain.research.Competitor>({ it.id }, { c, id -> c.copy(id = id) }), com.creatora.app.domain.repository.CompetitorRepository
+class FakeSwipeRepository : FakeRepository<com.creatora.app.domain.research.SwipeItem>({ it.id }, { s, id -> s.copy(id = id) }), com.creatora.app.domain.repository.SwipeRepository
+class FakeIdeaRepository : FakeRepository<com.creatora.app.domain.model.Idea>({ it.id }, { i, id -> i.copy(id = id) }), com.creatora.app.domain.repository.IdeaRepository
+
+class FakeYouTubeKeyStore(initial: String? = null) : com.creatora.app.domain.repository.YouTubeKeyStore {
+    private val current = kotlinx.coroutines.flow.MutableStateFlow(initial)
+    override val hasKey = current.map { it != null }
+    override suspend fun key() = current.value
+    override suspend fun setKey(key: String) {
+        current.value = key.trim()
+    }
+    override suspend fun removeKey() {
+        current.value = null
+    }
+}
+
+/** Answers from the fields; each call is recorded in [calls]. */
+class FakeYouTubeApi : com.creatora.app.domain.repository.YouTubeApi {
+    private fun <T> ok(value: T) = com.creatora.app.domain.research.YtOutcome.Ok(value)
+
+    var search: com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.VideoSearch> =
+        ok(com.creatora.app.domain.research.VideoSearch(0, emptyList()))
+    var channelList: com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtChannel>> = ok(emptyList())
+    var channel: com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.YtChannel?> = ok(null)
+    var videoResult: com.creatora.app.domain.research.YtOutcome<com.creatora.app.domain.research.YtVideo?> = ok(null)
+    var trendingList: com.creatora.app.domain.research.YtOutcome<List<com.creatora.app.domain.research.YtVideo>> = ok(emptyList())
+    val calls = mutableListOf<String>()
+
+    override suspend fun searchVideos(query: String) = search.also { calls += "search:$query" }
+    override suspend fun channels(ids: List<String>) = channelList.also { calls += "channels:${ids.joinToString(",")}" }
+    override suspend fun findChannel(query: com.creatora.app.domain.research.ChannelQuery) = channel.also { calls += "find:$query" }
+    override suspend fun video(id: String) = videoResult.also { calls += "video:$id" }
+    override suspend fun trending(regionCode: String) = trendingList.also { calls += "trending" }
 }

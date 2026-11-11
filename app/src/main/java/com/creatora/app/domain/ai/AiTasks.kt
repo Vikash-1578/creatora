@@ -52,8 +52,20 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         ).map { parsePublishText(it) }
 
+    /** Plain-language notes on why a video works and what to borrow from its style. */
+    suspend fun styleNotes(title: String, channel: String, description: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You analyse the style of online videos for creators. Using only the title, channel and description given, " +
+                    "write 4 short bullet points (each starting with \"- \"): the hook style, how the title makes people click, " +
+                    "the likely structure, and one idea to borrow. Say so if the description is too short to tell.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Title: $title\nChannel: $channel\nDescription: ${description.take(DESCRIPTION_LIMIT)}")),
+            ),
+        )
+
     companion object {
         const val IDEA_COUNT = 5
+        const val DESCRIPTION_LIMIT = 1_500
         const val COACH_SYSTEM =
             "You are Creatora's AI Coach, a friendly and practical coach for people who make videos and posts. " +
                 "Give short, concrete advice: hooks, structure, titles, posting and growth. Ask one question if you need more detail."
