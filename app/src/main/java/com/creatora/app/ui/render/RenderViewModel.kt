@@ -166,7 +166,7 @@ class RenderViewModel @Inject constructor(
                 is RenderEvent.Progress -> phase.value = RenderPhase.Rendering(event.percent)
                 is RenderEvent.Failed -> problem = RenderProblem.RENDER_FAILED
                 is RenderEvent.Done -> {
-                    projects.save(project.copy(renderUri = event.uri, isReady = true, updatedAt = System.currentTimeMillis()))
+                    projects.save(project.copy(renderUri = event.uri, captionsIncluded = state.options.captions, isReady = true, updatedAt = System.currentTimeMillis()))
                     phase.value = RenderPhase.Done(event.uri)
                 }
             }

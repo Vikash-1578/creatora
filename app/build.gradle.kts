@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.androidx.media3.common)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
+    implementation(libs.androidx.work.runtime)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

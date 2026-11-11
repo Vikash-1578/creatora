@@ -155,3 +155,10 @@ interface YouTubeKeyStore {
 interface CompetitorRepository : Repository<com.creatora.app.domain.research.Competitor>
 
 interface SwipeRepository : Repository<com.creatora.app.domain.research.SwipeItem>
+
+/** Shows a notification when a scheduled post is due. */
+interface ReminderScheduler {
+    /** Replaces any earlier reminder for [postId]. A time in the past schedules nothing. */
+    fun schedule(postId: Long, projectId: Long, title: String, platformName: String, atMillis: Long)
+    fun cancel(postId: Long)
+}

@@ -73,6 +73,7 @@ fun WizardScreen(
     onOpenLibrary: () -> Unit,
     onOpenAiProviders: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
+    onOpenPublish: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: WizardViewModel = hiltViewModel(),
 ) {
@@ -111,7 +112,7 @@ fun WizardScreen(
             onClose()
         },
         onClose = onClose,
-        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail) },
+        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail, onOpenPublish = onOpenPublish) },
         modifier = modifier,
     )
 }

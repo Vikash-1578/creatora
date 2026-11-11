@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.creatora.app.ui.ai.AiProvidersScreen
 import com.creatora.app.ui.brandkit.BrandKitScreen
+import com.creatora.app.ui.calendar.CalendarScreen
 import com.creatora.app.ui.coach.CoachScreen
 import com.creatora.app.ui.create.CreateScreen
 import com.creatora.app.ui.create.WizardScreen
@@ -23,6 +24,8 @@ import com.creatora.app.ui.library.LibraryScreen
 import com.creatora.app.ui.licences.LicencesScreen
 import com.creatora.app.ui.licences.LicencesViewModel
 import com.creatora.app.ui.profile.ProfileScreen
+import com.creatora.app.ui.publish.PublishScreen
+import com.creatora.app.ui.publish.PublishViewModel
 import com.creatora.app.ui.research.ResearchScreen
 import com.creatora.app.ui.saved.SavedScreen
 import com.creatora.app.ui.study.StudyScreen
@@ -46,6 +49,8 @@ object Routes {
     const val WIZARD = "wizard/{projectId}"
     const val AI_PROVIDERS = "ai_providers"
     const val STUDY = "study"
+    const val PUBLISH = "publish/{projectId}"
+    const val CALENDAR = "calendar"
     const val SAVED = "saved"
     const val THUMBNAIL = "thumbnail/{projectId}"
     const val COACH = "coach"
@@ -54,6 +59,8 @@ object Routes {
     fun wizard(projectId: Long) = "wizard/$projectId"
 
     fun thumbnail(projectId: Long) = "thumbnail/$projectId"
+
+    fun publish(projectId: Long) = "publish/$projectId"
 
     fun licences(assetId: Long?) = "licences?assetId=${assetId ?: LicencesViewModel.ALL}"
 }
@@ -116,6 +123,8 @@ fun CreatoraNavHost(
                     onOpenBrandKit = dropUnlessResumed { navController.navigate(Routes.BRAND_KIT) },
                     onOpenLicences = { assetId -> navController.navigate(Routes.licences(assetId)) },
                     onOpenProject = { id -> navController.navigate(Routes.wizard(id)) },
+                    onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
+                    onOpenCalendar = dropUnlessResumed { navController.navigate(Routes.CALENDAR) },
                 )
             }
         }
@@ -129,6 +138,7 @@ fun CreatoraNavHost(
                 onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
                 onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
                 onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
+                onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
             )
         }
         composable(
@@ -161,6 +171,22 @@ fun CreatoraNavHost(
             SettingsScreen(
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+            )
+        }
+        composable(
+            route = Routes.PUBLISH,
+            arguments = listOf(navArgument(PublishViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),
+        ) {
+            PublishScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
+                onOpenKeys = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+            )
+        }
+        composable(Routes.CALENDAR) {
+            CalendarScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
             )
         }
         composable(Routes.STUDY) {

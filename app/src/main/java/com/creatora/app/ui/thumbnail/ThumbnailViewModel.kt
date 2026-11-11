@@ -70,6 +70,7 @@ class ThumbnailViewModel @Inject constructor(
         viewModelScope.launch {
             val colour = brandKit.brandKit.first().colors.firstOrNull()
             val uri = renderer.render(state.selectedImageUri, state.text, colour)
+            if (uri != null) projects.observe(projectId).first()?.let { projects.save(it.copy(thumbnailUri = uri)) }
             edits.value = edits.value.copy(working = false, resultUri = uri ?: edits.value.resultUri, failed = uri == null)
         }
     }

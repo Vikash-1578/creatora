@@ -70,6 +70,7 @@ class RoomRepositoriesTest {
             brief = "Brief", hook = "Hook", structure = "Body", callToAction = "Call",
             pronunciations = "a = b", castIds = listOf(3L, 5L), narratorVoiceId = 7L,
             licensedFootageOnly = false, step = 4, isReady = true, renderUri = "file:///r.mp4",
+            captionsIncluded = true, publishTitle = "Pub", publishDescription = "Desc", thumbnailUri = "file:///t.png", aiContent = true, madeForKids = false,
         )
 
         val id = repository.save(project)

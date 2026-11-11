@@ -28,6 +28,7 @@ import com.creatora.app.data.local.RoomScheduledPostRepository
 import com.creatora.app.data.local.RoomVoicePresetRepository
 import com.creatora.app.data.media.AndroidSpeechPlayer
 import com.creatora.app.data.render.AndroidMediaProbe
+import com.creatora.app.data.schedule.WorkManagerReminderScheduler
 import com.creatora.app.data.render.AndroidMediaSaver
 import com.creatora.app.data.render.AndroidNarrator
 import com.creatora.app.data.render.AndroidThumbnailRenderer
@@ -51,6 +52,7 @@ import com.creatora.app.domain.render.VideoRenderer
 import com.creatora.app.domain.repository.MediaProbe
 import com.creatora.app.domain.repository.MediaSaver
 import com.creatora.app.domain.repository.Narrator
+import com.creatora.app.domain.repository.ReminderScheduler
 import com.creatora.app.domain.repository.ProjectRepository
 import com.creatora.app.domain.repository.ThumbnailRenderer
 import com.creatora.app.domain.repository.ScheduledPostRepository
@@ -103,6 +105,7 @@ abstract class RepositoryModule {
     @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles
     @Binds abstract fun speechPlayer(impl: AndroidSpeechPlayer): SpeechPlayer
     @Binds abstract fun narrator(impl: AndroidNarrator): Narrator
+    @Binds abstract fun reminders(impl: WorkManagerReminderScheduler): ReminderScheduler
     @Binds abstract fun mediaProbe(impl: AndroidMediaProbe): MediaProbe
     @Binds abstract fun mediaSaver(impl: AndroidMediaSaver): MediaSaver
     @Binds abstract fun thumbnailRenderer(impl: AndroidThumbnailRenderer): ThumbnailRenderer

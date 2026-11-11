@@ -42,6 +42,7 @@ import java.io.File
 fun RenderPanel(
     onOpenLibrary: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
+    onOpenPublish: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RenderViewModel = hiltViewModel(),
 ) {
@@ -57,6 +58,7 @@ fun RenderPanel(
         onSaveTo = viewModel::saveTo,
         onOpenLibrary = onOpenLibrary,
         onOpenThumbnail = { state.project?.let { onOpenThumbnail(it.id) } },
+        onOpenPublish = { state.project?.let { onOpenPublish(it.id) } },
         modifier = modifier,
     )
 }
@@ -73,6 +75,7 @@ fun RenderContent(
     onSaveTo: (destinationUri: String) -> Unit,
     onOpenLibrary: () -> Unit,
     onOpenThumbnail: () -> Unit,
+    onOpenPublish: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val spacing = CreatoraTheme.spacing
@@ -174,6 +177,7 @@ fun RenderContent(
         }
 
         SecondaryButton(stringResource(R.string.thumbnail_make), onOpenThumbnail)
+        if (state.resultUri != null && !state.busy) PrimaryButton(stringResource(R.string.publish_open), onOpenPublish)
     }
 }
 
@@ -211,7 +215,7 @@ private fun RenderProblem.messageRes() = when (this) {
 @Composable
 private fun RenderPreview(darkTheme: Boolean, state: RenderUiState) {
     CreatoraTheme(darkTheme = darkTheme) {
-        RenderContent(state, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        RenderContent(state, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 

@@ -38,6 +38,7 @@ com.creatora.app
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
 │   ├── render/ thumbnail/                       # Generate-step render panel, thumbnail maker
+│   ├── publish/ calendar/                       # Publish screen (checklist, share), schedule dialog, content calendar
 │   ├── research/ study/ saved/                  # Research tab, "study a video" and idea bank / swipe file screens
 │   ├── library/         # Library tab: LibraryViewModel, LibraryScreen, items and dialogs
 │   ├── brandkit/ licences/                      # screens opened from the Library
@@ -47,6 +48,7 @@ com.creatora.app
 ├── data/
 │   ├── local/           # Room: Entities.kt (tables + mappers), Daos.kt, CreatoraDatabase, RoomRepositories.kt
 │   ├── ai/              # AI clients (Gemini, Groq, OpenRouter), failover, encrypted key store
+│   ├── schedule/        # WorkManager post reminders (data travels in the work input, no Hilt worker)
 │   ├── youtube/         # YouTube Data API v3 client (user's own key) and JSON parsing
 │   ├── render/          # Media3 video renderer, TTS narrator, thumbnail drawing, gallery saver
 │   ├── media/           # ContentResolverUserFiles: copies picked files into app storage
@@ -118,6 +120,9 @@ Android, Compose, or `data`.
   the `X-Goog-Api-Key` header). It gives no search volume or competition score, so never show or invent
   either: "competition" is derived from the number of matching videos and labelled that way. search.list costs
   100 quota units a call (10,000 a day by default); prefer videos.list and channels.list (1 unit).
+- **Reminders** use WorkManager one-time work with the post\'s details in the input data, so the worker needs no
+  injection. A tapped reminder opens the project\'s Publish screen through `MainActivity.EXTRA_PUBLISH_PROJECT_ID`.
+  Date and time pickers are the platform dialogs.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state

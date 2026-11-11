@@ -2,12 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Lets the app find the phone's text-to-speech engine (Android 11+ package visibility). -->
     <queries>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <!-- Lets the Publish screen offer YouTube and Instagram directly when they are installed. -->
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.instagram.android" />
     </queries>
 
     <application
@@ -22,7 +26,8 @@
         android:theme="@style/Theme.Creatora">
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

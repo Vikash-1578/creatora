@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.creatora.app.ui.navigation.CreatoraBottomBar
 import com.creatora.app.ui.navigation.CreatoraNavHost
+import com.creatora.app.ui.navigation.Routes
 import com.creatora.app.ui.navigation.TopLevelTab
 import com.creatora.app.ui.navigation.navigateToTab
 import com.creatora.app.ui.theme.CreatoraTheme
@@ -27,8 +29,17 @@ import com.creatora.app.ui.theme.CreatoraTheme
  * bar while a tab screen is on top. The app is edge-to-edge; each screen pads for system bars.
  */
 @Composable
-fun CreatoraApp() {
+fun CreatoraApp(
+    openPublishProjectId: Long? = null,
+    onPublishOpened: () -> Unit = {},
+) {
     val navController = rememberNavController()
+    LaunchedEffect(openPublishProjectId) {
+        openPublishProjectId?.let {
+            navController.navigate(Routes.publish(it))
+            onPublishOpened()
+        }
+    }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val destination = backStackEntry?.destination
     val currentTab = TopLevelTab.entries.firstOrNull { tab ->

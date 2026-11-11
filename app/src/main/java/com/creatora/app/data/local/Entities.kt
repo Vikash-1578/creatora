@@ -42,6 +42,12 @@ data class ProjectEntity(
     @ColumnInfo(defaultValue = "0") val step: Int,
     @ColumnInfo(defaultValue = "0") val isReady: Boolean,
     val renderUri: String?,
+    @ColumnInfo(defaultValue = "0") val captionsIncluded: Boolean,
+    val publishTitle: String?,
+    val publishDescription: String?,
+    val thumbnailUri: String?,
+    val aiContent: Boolean?,
+    val madeForKids: Boolean?,
 )
 
 @Entity(
@@ -157,13 +163,15 @@ fun ProjectEntity.toModel() = Project(
     id, title, isTemplate, createdAt, updatedAt, format,
     brief.orEmpty(), hook.orEmpty(), structure.orEmpty(), callToAction.orEmpty(), pronunciations.orEmpty(),
     castIds.orEmpty().split(',').mapNotNull { it.toLongOrNull() },
-    narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
+    narratorVoiceId, licensedFootageOnly, step, isReady, renderUri, captionsIncluded,
+    publishTitle.orEmpty(), publishDescription.orEmpty(), thumbnailUri, aiContent, madeForKids,
 )
 
 fun Project.toEntity() = ProjectEntity(
     id, title, isTemplate, createdAt, updatedAt, format,
     brief, hook, structure, callToAction, pronunciations, castIds.joinToString(","),
-    narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
+    narratorVoiceId, licensedFootageOnly, step, isReady, renderUri, captionsIncluded,
+    publishTitle, publishDescription, thumbnailUri, aiContent, madeForKids,
 )
 
 fun IdeaEntity.toModel() = Idea(id, title, notes, projectId, createdAt)

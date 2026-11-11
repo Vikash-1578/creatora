@@ -29,6 +29,14 @@ data class Project(
     val isReady: Boolean = false,
     /** file:// URI of the last finished render in app storage, if any. */
     val renderUri: String? = null,
+    /** Whether the last render has captions burned in. */
+    val captionsIncluded: Boolean = false,
+    // Publishing. aiContent and madeForKids are null until the user answers.
+    val publishTitle: String = "",
+    val publishDescription: String = "",
+    val thumbnailUri: String? = null,
+    val aiContent: Boolean? = null,
+    val madeForKids: Boolean? = null,
 ) {
     /** The whole script in reading order. */
     val script: String get() = listOf(hook, structure, callToAction).filter { it.isNotBlank() }.joinToString("\n\n")

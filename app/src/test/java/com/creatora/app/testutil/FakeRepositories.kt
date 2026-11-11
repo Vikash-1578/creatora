@@ -215,3 +215,16 @@ class FakeYouTubeApi : com.creatora.app.domain.repository.YouTubeApi {
     override suspend fun video(id: String) = videoResult.also { calls += "video:$id" }
     override suspend fun trending(regionCode: String) = trendingList.also { calls += "trending" }
 }
+
+class FakeReminderScheduler : com.creatora.app.domain.repository.ReminderScheduler {
+    data class Reminder(val postId: Long, val projectId: Long, val title: String, val platform: String, val atMillis: Long)
+
+    val scheduled = mutableListOf<Reminder>()
+    val cancelled = mutableListOf<Long>()
+    override fun schedule(postId: Long, projectId: Long, title: String, platformName: String, atMillis: Long) {
+        scheduled += Reminder(postId, projectId, title, platformName, atMillis)
+    }
+    override fun cancel(postId: Long) {
+        cancelled += postId
+    }
+}

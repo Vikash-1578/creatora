@@ -1,5 +1,6 @@
 package com.creatora.app
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -9,6 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.creatora.app.domain.model.ThemeMode
@@ -20,8 +23,17 @@ import dagger.hilt.android.AndroidEntryPoint
 /** The single activity of the app. All screens are Compose destinations inside [CreatoraApp]. */
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    /** Set when the user taps a post reminder; the app then opens that project's Publish screen. */
+    private var publishProjectId by mutableStateOf<Long?>(null)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        publishProjectId = intent.publishProjectId()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        publishProjectId = intent?.publishProjectId() // the intent is not available yet when the property is created
         enableEdgeToEdge()
         setContent {
             val appViewModel: AppViewModel = hiltViewModel()
@@ -44,8 +56,18 @@ class MainActivity : ComponentActivity() {
             }
 
             CreatoraTheme(darkTheme = darkTheme) {
-                CreatoraApp()
+                CreatoraApp(
+                    openPublishProjectId = publishProjectId,
+                    onPublishOpened = { publishProjectId = null },
+                )
             }
         }
     }
+
+    companion object {
+        const val EXTRA_PUBLISH_PROJECT_ID = "publish_project_id"
+    }
 }
+
+private fun Intent.publishProjectId(): Long? =
+    getLongExtra(MainActivity.EXTRA_PUBLISH_PROJECT_ID, 0L).takeIf { it > 0 }

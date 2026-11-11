@@ -36,7 +36,7 @@ class AndroidThumbnailRenderer @Inject constructor(
         }
         drawText(canvas, text.trim())
 
-        val dir = File(context.cacheDir, "thumbnails").apply { mkdirs() }
+        val dir = File(context.filesDir, "thumbnails").apply { mkdirs() }
         val file = File(dir, "thumbnail-${UUID.randomUUID()}.png")
         file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()

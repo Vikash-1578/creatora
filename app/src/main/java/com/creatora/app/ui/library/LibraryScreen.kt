@@ -80,6 +80,8 @@ fun LibraryScreen(
     onOpenBrandKit: () -> Unit,
     onOpenLicences: (assetId: Long?) -> Unit,
     onOpenProject: (projectId: Long) -> Unit,
+    onOpenPublish: (projectId: Long) -> Unit,
+    onOpenCalendar: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel(),
 ) {
@@ -130,6 +132,8 @@ fun LibraryScreen(
         onOpenBrandKit = onOpenBrandKit,
         onOpenLicences = onOpenLicences,
         onOpenProject = onOpenProject,
+        onOpenPublish = onOpenPublish,
+        onOpenCalendar = onOpenCalendar,
         modifier = modifier,
     )
 }
@@ -151,6 +155,8 @@ fun LibraryContent(
     onOpenBrandKit: () -> Unit,
     onOpenLicences: (Long?) -> Unit,
     onOpenProject: (Long) -> Unit,
+    onOpenPublish: (Long) -> Unit,
+    onOpenCalendar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val spacing = CreatoraTheme.spacing
@@ -221,6 +227,8 @@ fun LibraryContent(
                     onOpenBrandKit = onOpenBrandKit,
                     onOpenLicences = { onOpenLicences(null) },
                     onOpenProject = onOpenProject,
+                    onOpenPublish = onOpenPublish,
+                    onOpenCalendar = onOpenCalendar,
                 )
                 LibraryFilter.ASSETS -> assetsSection(state, onAddMedia, onAddAudio, onOpenLicences, onDelete)
                 LibraryFilter.CAST -> castSection(state, onDialog = { dialog = it }, onDelete = onDelete)
@@ -321,6 +329,8 @@ private fun LazyListScope.projectsSection(
     onOpenBrandKit: () -> Unit,
     onOpenLicences: () -> Unit,
     onOpenProject: (Long) -> Unit,
+    onOpenPublish: (Long) -> Unit,
+    onOpenCalendar: () -> Unit,
 ) {
     // Project cards followed by the "New project" tile, two per row. Hidden while searching.
     val searching = state.query.isNotBlank()
@@ -338,6 +348,7 @@ private fun LazyListScope.projectsSection(
                     modifier = modifier,
                     actions = listOfNotNull(
                         project.format?.let { MenuAction(stringResource(R.string.library_open)) { onOpenProject(project.id) } },
+                        project.renderUri?.let { MenuAction(stringResource(R.string.library_publish)) { onOpenPublish(project.id) } },
                         MenuAction(stringResource(R.string.action_rename)) { onDialog(LibraryDialog.Rename(project)) },
                         MenuAction(stringResource(R.string.action_duplicate)) { onDialog(LibraryDialog.Duplicate(project)) },
                         MenuAction(stringResource(R.string.library_save_template)) { onDialog(LibraryDialog.SaveTemplate(project)) },
@@ -359,6 +370,12 @@ private fun LazyListScope.projectsSection(
                 title = stringResource(R.string.library_row_licences),
                 value = stringResource(R.string.library_row_licences_value),
                 onClick = onOpenLicences,
+            )
+            ListRowDivider()
+            NavigationListRow(
+                title = stringResource(R.string.library_row_calendar),
+                value = stringResource(R.string.library_row_calendar_value),
+                onClick = onOpenCalendar,
             )
         }
     }
@@ -536,7 +553,7 @@ private fun LibraryPreview(darkTheme: Boolean, state: LibraryUiState = PreviewSt
             onFilter = {}, onQuery = {}, onCreateProject = {}, onRenameProject = { _, _ -> },
             onCopyProject = { _, _, _ -> }, onSaveCharacter = {}, onSaveVoice = {},
             onDelete = { _, _, _ -> }, onAddMedia = {}, onAddAudio = {},
-            onOpenBrandKit = {}, onOpenLicences = {}, onOpenProject = {},
+            onOpenBrandKit = {}, onOpenLicences = {}, onOpenProject = {}, onOpenPublish = {}, onOpenCalendar = {},
         )
     }
 }
