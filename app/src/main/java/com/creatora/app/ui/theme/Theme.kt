@@ -1,71 +1,111 @@
 package com.creatora.app.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 
-private val LightColors = lightColorScheme(
-    primary = PrimaryLight,
-    onPrimary = OnPrimaryLight,
-    primaryContainer = PrimaryContainerLight,
-    onPrimaryContainer = OnPrimaryContainerLight,
-    secondary = SecondaryLight,
-    onSecondary = OnSecondaryLight,
-    secondaryContainer = SecondaryContainerLight,
-    onSecondaryContainer = OnSecondaryContainerLight,
-    tertiary = TertiaryLight,
-    onTertiary = OnTertiaryLight,
-    background = BackgroundLight,
-    onBackground = OnBackgroundLight,
-    surface = SurfaceLight,
-    onSurface = OnSurfaceLight,
-)
-
-private val DarkColors = darkColorScheme(
-    primary = PrimaryDark,
-    onPrimary = OnPrimaryDark,
-    primaryContainer = PrimaryContainerDark,
-    onPrimaryContainer = OnPrimaryContainerDark,
-    secondary = SecondaryDark,
-    onSecondary = OnSecondaryDark,
-    secondaryContainer = SecondaryContainerDark,
-    onSecondaryContainer = OnSecondaryContainerDark,
-    tertiary = TertiaryDark,
-    onTertiary = OnTertiaryDark,
-    background = BackgroundDark,
-    onBackground = OnBackgroundDark,
-    surface = SurfaceDark,
-    onSurface = OnSurfaceDark,
-)
+private val LocalCreatoraColors = staticCompositionLocalOf { LightCreatoraColors }
+private val LocalCreatoraTypography = staticCompositionLocalOf { CreatoraTypography() }
+private val LocalCreatoraShapes = staticCompositionLocalOf { CreatoraShapes() }
+private val LocalCreatoraSpacing = staticCompositionLocalOf { CreatoraSpacing() }
+private val LocalCreatoraDimens = staticCompositionLocalOf { CreatoraDimens() }
 
 /**
- * App-wide Material 3 theme. Follows the system light/dark setting and uses
- * dynamic colour (Material You) on Android 12+ unless [dynamicColor] is false.
+ * Creatora's design system. Uses a fixed custom palette (no Material dynamic colour).
+ *
+ * @param darkTheme which palette to use. The app passes the user's saved theme setting;
+ * previews pass true/false explicitly.
  */
 @Composable
 fun CreatoraTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColors
-        else -> LightColors
-    }
+    val colors = if (darkTheme) DarkCreatoraColors else LightCreatoraColors
+    val typography = CreatoraTypography()
+    val shapes = CreatoraShapes()
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = CreatoraTypography,
-        content = content,
+    CompositionLocalProvider(
+        LocalCreatoraColors provides colors,
+        LocalCreatoraTypography provides typography,
+        LocalCreatoraShapes provides shapes,
+        LocalCreatoraSpacing provides CreatoraSpacing(),
+        LocalCreatoraDimens provides CreatoraDimens(),
+    ) {
+        MaterialTheme(
+            colorScheme = colors.toMaterialColorScheme(),
+            typography = typography.toMaterialTypography(),
+            shapes = Shapes(
+                extraSmall = shapes.radius8,
+                small = shapes.radius12,
+                medium = shapes.radius16,
+                large = shapes.radius20,
+                extraLarge = shapes.radius24,
+            ),
+            content = content,
+        )
+    }
+}
+
+/** Access point for Creatora design tokens, e.g. `CreatoraTheme.colors.accent`. */
+object CreatoraTheme {
+    val colors: CreatoraColors
+        @Composable @ReadOnlyComposable get() = LocalCreatoraColors.current
+    val typography: CreatoraTypography
+        @Composable @ReadOnlyComposable get() = LocalCreatoraTypography.current
+    val shapes: CreatoraShapes
+        @Composable @ReadOnlyComposable get() = LocalCreatoraShapes.current
+    val spacing: CreatoraSpacing
+        @Composable @ReadOnlyComposable get() = LocalCreatoraSpacing.current
+    val dimens: CreatoraDimens
+        @Composable @ReadOnlyComposable get() = LocalCreatoraDimens.current
+}
+
+/** Maps Creatora tokens onto Material 3 slots so built-in components match the design. */
+private fun CreatoraColors.toMaterialColorScheme(): ColorScheme {
+    val base = if (isDark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = accent,
+        onPrimary = onAccent,
+        primaryContainer = accentSoft,
+        onPrimaryContainer = accentText,
+        inversePrimary = accentText,
+        secondary = accentText,
+        onSecondary = onAccent,
+        secondaryContainer = accentSoft,
+        onSecondaryContainer = accentText,
+        tertiary = accentText,
+        onTertiary = onAccent,
+        tertiaryContainer = accentSoft,
+        onTertiaryContainer = accentText,
+        background = background,
+        onBackground = text,
+        surface = surface,
+        onSurface = text,
+        surfaceVariant = surfaceAlt,
+        onSurfaceVariant = textMuted,
+        surfaceTint = NoTint,
+        inverseSurface = inverse,
+        inverseOnSurface = onInverse,
+        error = danger,
+        onError = onInverse,
+        errorContainer = surfaceAlt,
+        onErrorContainer = danger,
+        outline = border,
+        outlineVariant = border,
+        surfaceBright = surface,
+        surfaceDim = surfaceAlt,
+        surfaceContainerLowest = surface,
+        surfaceContainerLow = surface,
+        surfaceContainer = navBar,
+        surfaceContainerHigh = surfaceAlt,
+        surfaceContainerHighest = surfaceAlt,
     )
 }

@@ -1,37 +1,75 @@
 package com.creatora.app.ui.theme
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
-// The ONLY place raw colour values are allowed. Screens use MaterialTheme.colorScheme.
+// The ONLY file where raw colour values are allowed.
+// Screens read colours through CreatoraTheme.colors.<token>.
 
-// Light scheme
-internal val PrimaryLight = Color(0xFF6A3FD9)
-internal val OnPrimaryLight = Color(0xFFFFFFFF)
-internal val PrimaryContainerLight = Color(0xFFE8DDFF)
-internal val OnPrimaryContainerLight = Color(0xFF22005D)
-internal val SecondaryLight = Color(0xFF9C2F6E)
-internal val OnSecondaryLight = Color(0xFFFFFFFF)
-internal val SecondaryContainerLight = Color(0xFFFFD8E8)
-internal val OnSecondaryContainerLight = Color(0xFF3D0026)
-internal val TertiaryLight = Color(0xFF006A6A)
-internal val OnTertiaryLight = Color(0xFFFFFFFF)
-internal val BackgroundLight = Color(0xFFFEF7FF)
-internal val OnBackgroundLight = Color(0xFF1D1A22)
-internal val SurfaceLight = Color(0xFFFEF7FF)
-internal val OnSurfaceLight = Color(0xFF1D1A22)
+/** Semantic colour tokens for Creatora. Every token exists in both the light and dark palette. */
+@Immutable
+data class CreatoraColors(
+    val background: Color,
+    val surface: Color,
+    val surfaceAlt: Color,
+    val border: Color,
+    val text: Color,
+    val textMuted: Color,
+    val accent: Color,
+    val accentText: Color,
+    val accentSoft: Color,
+    /** Content (text/icons) drawn on top of [accent], e.g. primary button labels. */
+    val onAccent: Color,
+    val navBar: Color,
+    val inverse: Color,
+    val onInverse: Color,
+    val success: Color,
+    val warning: Color,
+    val danger: Color,
+    val chartBar: Color,
+    val isDark: Boolean,
+)
 
-// Dark scheme
-internal val PrimaryDark = Color(0xFFCFBCFF)
-internal val OnPrimaryDark = Color(0xFF3A0093)
-internal val PrimaryContainerDark = Color(0xFF5224C0)
-internal val OnPrimaryContainerDark = Color(0xFFE8DDFF)
-internal val SecondaryDark = Color(0xFFFFAFD4)
-internal val OnSecondaryDark = Color(0xFF5E1142)
-internal val SecondaryContainerDark = Color(0xFF7D1757)
-internal val OnSecondaryContainerDark = Color(0xFFFFD8E8)
-internal val TertiaryDark = Color(0xFF4CDADA)
-internal val OnTertiaryDark = Color(0xFF003737)
-internal val BackgroundDark = Color(0xFF15121A)
-internal val OnBackgroundDark = Color(0xFFE7E0EB)
-internal val SurfaceDark = Color(0xFF15121A)
-internal val OnSurfaceDark = Color(0xFFE7E0EB)
+internal val LightCreatoraColors = CreatoraColors(
+    background = Color(0xFFF5F6FA),
+    surface = Color(0xFFFFFFFF),
+    surfaceAlt = Color(0xFFEEF0F6),
+    border = Color(0xFFE1E4EE),
+    text = Color(0xFF14151A),
+    textMuted = Color(0xFF5A6072),
+    accent = Color(0xFF5B47F0),
+    accentText = Color(0xFF4A37D6),
+    accentSoft = Color(0xFFECEAFE),
+    onAccent = Color(0xFFFFFFFF),
+    navBar = Color(0xFFFFFFFF),
+    inverse = Color(0xFF14151A),
+    onInverse = Color(0xFFFFFFFF),
+    success = Color(0xFF15803D),
+    warning = Color(0xFFA16207),
+    danger = Color(0xFFB91C1C),
+    chartBar = Color(0xFFD5D8E6),
+    isDark = false,
+)
+
+internal val DarkCreatoraColors = CreatoraColors(
+    background = Color(0xFF0E0F14),
+    surface = Color(0xFF181A22),
+    surfaceAlt = Color(0xFF22252F),
+    border = Color(0xFF2A2E3B),
+    text = Color(0xFFF4F5F7),
+    textMuted = Color(0xFFA3A8B8),
+    accent = Color(0xFF6D5BF6),
+    accentText = Color(0xFFA99BFF),
+    accentSoft = Color(0xFF1D1B33),
+    onAccent = Color(0xFFFFFFFF),
+    navBar = Color(0xFF14161D),
+    inverse = Color(0xFFF4F5F7),
+    onInverse = Color(0xFF0E0F14),
+    success = Color(0xFF6EE7A0),
+    warning = Color(0xFFFCD34D),
+    danger = Color(0xFFFCA5A5),
+    chartBar = Color(0xFF343849),
+    isDark = true,
+)
+
+internal val NoTint = Color.Transparent
