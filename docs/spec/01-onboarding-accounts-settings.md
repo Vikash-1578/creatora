@@ -82,8 +82,13 @@ Confirmed approach:
 | TikTok | "Login with TikTok" | Adapter, "coming soon" |
 | Moj, Josh, ShareChat, Snapchat | Paste a link (no suitable API) | Link only: the link is saved, nothing is fetched |
 
-- After connecting: a preview card (photo, name, subscribers, video count) with "Is this you?". Several channels:
-  the user picks from a list. Free plan: 1 account. Pro: more. "Skip for now" is always available.
+- **Several accounts per platform are allowed** (for example 2 or 3 YouTube channels, several Instagram accounts).
+  Accounts are a list keyed by platform plus account id; there is no "primary" account in the data. The plan limit
+  counts the total number of accounts across platforms: Free 1, Pro 5 (placeholders). Once the limit is reached,
+  connecting another shows the upgrade message.
+- After connecting: a preview card (photo, name, subscribers, video count) with "Is this you?". When the Google
+  account has several channels, each one gets its own card and the user confirms the ones they want (up to the
+  plan limit). "Skip for now" is always available.
 - Home shows "Analysing your channel…", then first insights: for each underperforming video, why it
   underperformed and how to improve it. The AI is given the real metrics and must cite them; the card also shows
   the raw numbers.
@@ -121,6 +126,9 @@ it lives inside Account.
 - Limits (placeholders for the manager to confirm): Free 50 AI actions a month, Pro 1000. Accounts: Free 1, Pro 5.
 
 ## Languages
+App-wide rule: all UI text **and all AI replies** use the language the user chose; before they choose, the device
+language (English, Hindi or Hinglish) is used.
+
 `values` (English), `values-hi` (Hindi) and `values-b+hi+Latn` (Hinglish). The in-app choice overrides the
 device language. Strings not yet translated fall back to English; the full Hindi pass is part of release quality.
 

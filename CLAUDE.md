@@ -126,6 +126,13 @@ Android, Compose, or `data`.
   the `GOOGLE_SERVICES_JSON` secret); without it the app builds and cloud features say they are not set up.
 - **Honest AI:** AI never invents numbers. Real metrics are passed in and quoted; missing metrics are shown as
   "not available"; the user approves any post or delete. Every AI call goes through `MeteredAiService`.
+- **One language everywhere (app-wide rule):** all UI text and all AI replies use the app language the user chose in
+  onboarding or Settings; until they choose, the device language (English, Hindi or Hinglish) is used. Never
+  hard-code a language for AI output: it goes through `MeteredAiService`, which adds the language instruction.
+- **Many accounts (app-wide rule):** a user can connect several accounts per platform (for example 2 or 3 YouTube
+  channels and several Instagram accounts). Accounts are a list keyed by platform plus account id
+  (`ConnectedAccount.key`); screens that show account data take the selected account (or "All accounts") and
+  never assume one channel. The plan limit counts the total number of accounts.
 - **Languages:** every new user-visible string goes in `values/` (English), `values-hi/` (Hindi) and
   `values-b+hi+Latn/` (Hinglish). The in-app language replaces the device language (`core/Localization.kt`).
   Strings from before Phase A are English only until the full translation pass (lint MissingTranslation is off).

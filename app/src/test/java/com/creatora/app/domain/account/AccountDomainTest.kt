@@ -65,6 +65,9 @@ class AccountDomainTest {
         assertEquals(AppLanguage.ENGLISH, AppLanguage.forDevice("ta"))
         assertEquals(AppLanguage.HINGLISH, AppLanguage.fromTag("hi-Latn"))
         assertNull(AppLanguage.fromTag("fr"))
+        assertEquals(AppLanguage.HINDI, AppLanguage.deviceDefault(java.util.Locale.forLanguageTag("hi-IN")))
+        assertEquals(AppLanguage.HINGLISH, AppLanguage.deviceDefault(java.util.Locale.forLanguageTag("hi-Latn-IN")))
+        assertEquals(AppLanguage.ENGLISH, AppLanguage.deviceDefault(java.util.Locale.forLanguageTag("en-US")))
     }
 
     // ---- pasted links

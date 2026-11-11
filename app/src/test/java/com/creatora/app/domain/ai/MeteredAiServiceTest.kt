@@ -99,6 +99,23 @@ class MeteredAiServiceTest {
     }
 
     @Test
+    fun withoutAChosenLanguage_theAiRepliesInTheDeviceLanguage() = runTest {
+        val before = java.util.Locale.getDefault()
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("hi-IN"))
+            service().complete(request)
+            assertTrue("Devanagari" in delegate.requests.single().system)
+
+            delegate.requests.clear()
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("en-IN"))
+            service().complete(request)
+            assertTrue("Reply in English" in delegate.requests.single().system)
+        } finally {
+            java.util.Locale.setDefault(before)
+        }
+    }
+
+    @Test
     fun personalizationOff_keepsTheProfileOut() = runTest {
         settings.personalization.value = false
         users.put(users.docs.value.getValue("uid1").copy(creatorProfile = CreatorProfile("street food")))

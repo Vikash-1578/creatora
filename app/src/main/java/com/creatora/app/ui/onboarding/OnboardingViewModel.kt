@@ -28,7 +28,6 @@ import com.creatora.app.ui.accounts.LookupUi
 import com.creatora.app.ui.accounts.lookupForPanel
 import com.creatora.app.ui.accounts.toProblem
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.Locale
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -79,8 +78,7 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             // The saved choice wins; otherwise the device's language is preselected (and applied at once).
             val saved = settings.language.first()
-            val device = Locale.getDefault()
-            val language = saved ?: AppLanguage.forDevice(device.language, device.script)
+            val language = saved ?: AppLanguage.deviceDefault()
             _state.update { it.copy(language = language) }
             if (saved == null) settings.setLanguage(language)
             // Already signed in (for example the app was closed mid-onboarding): carry on from the connect step.

@@ -45,7 +45,7 @@ class MeteredAiService(
 
         val personalize = settings.personalization.first()
         val persona = personaInstructions(
-            language = settings.language.first() ?: AppLanguage.ENGLISH,
+            language = settings.language.first() ?: AppLanguage.deviceDefault(),
             tone = settings.aiTone.first(),
             profile = if (personalize) doc?.creatorProfile else null,
         )
