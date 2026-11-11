@@ -32,6 +32,28 @@ built from an approved spec in `docs/spec/`.
 - [x] Billing (Play Billing) with honest not-available state
 - [x] English, Hindi and Hinglish strings
 
+## Deferred: rework M9–M12
+
+PRs #10 to #13 were closed without merging because they were built for the old local-first plan. The branches are
+**kept** (do not delete or change them) and their code is reused when each screen is specced for the cloud-first
+app (Firebase, Google sign-in, Firebase AI Logic):
+
+| Branch | Was | Useful code to reuse |
+|--------|-----|----------------------|
+| `m9-research` | M9 Research | Keyword search, outliers, rivals (competitors), trends, idea bank, swipe file |
+| `m10-publish` | M10 Publish | Publish checklist, content calendar, post reminders |
+| `m11-grow` | M11 Grow | Channel snapshots, reply drafts, A/B test log |
+| `m12-home` | M12 Home | Home cards (continue, next post, ideas, channel snapshot) and notices |
+
+Before any of it is brought back:
+- Their Room schema check fails in CI (schema JSON for the new versions was never committed). Fix it first, and
+  re-check the migration numbers against whatever the cloud-first screens change in the local database.
+- Rebuild each screen on the cloud-first foundations: Google sign-in, the platform adapters, Firebase AI Logic
+  through `MeteredAiService` (no user-entered API keys), plans and usage limits, English / Hindi / Hinglish strings.
+- Use the approved spec for that screen as the source of truth; the old code is a starting point, not the design.
+
+The parked `m13-earn-profile` work (income tracker, rate card, media kit) was never pushed and is not part of this plan.
+
 ## Milestones
 
 ### M4 Data foundation
