@@ -33,6 +33,7 @@ import com.creatora.app.domain.model.Project
 import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.VoicePreset
 import com.creatora.app.domain.model.readingSeconds
+import com.creatora.app.ui.ai.AiErrors
 import com.creatora.app.ui.components.ChoiceChip
 import com.creatora.app.ui.components.EmptyState
 import com.creatora.app.ui.components.ListGroup
@@ -94,8 +95,23 @@ fun BriefStep(project: Project, actions: WizardActions) {
     }
 }
 
+/** A button that calls the AI, with a progress line while it works and the errors if it fails. */
+@Composable
+private fun AiAction(label: String, enabled: Boolean, state: WizardUiState, actions: WizardActions, onClick: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
+        SecondaryButton(
+            text = if (state.ai.busy) stringResource(R.string.wizard_ai_working) else label,
+            onClick = onClick,
+            enabled = enabled && !state.ai.busy,
+        )
+        state.ai.errors?.let { AiErrors(it, actions.onOpenAiProviders) }
+    }
+}
+
 @Composable
 fun ScriptStep(project: Project, state: WizardUiState, actions: WizardActions) {
+    AiAction(stringResource(R.string.wizard_ai_draft), project.brief.isNotBlank(), state, actions, actions.onDraftScript)
+    if (project.brief.isBlank()) Intro(stringResource(R.string.wizard_ai_draft_needs_brief))
     Field(
         stringResource(R.string.wizard_script_hook), project.hook, actions.onHook,
         hint = stringResource(R.string.wizard_script_hook_hint), minLines = 2,
@@ -283,7 +299,7 @@ private fun PolicyRow(title: String, body: String, selected: Boolean, onClick: (
 }
 
 @Composable
-fun ReviewStep(project: Project, state: WizardUiState) {
+fun ReviewStep(project: Project, state: WizardUiState, actions: WizardActions) {
     val cast = state.cast.size
     ListGroup {
         InfoRow(stringResource(R.string.wizard_review_project), project.title)
@@ -313,6 +329,7 @@ fun ReviewStep(project: Project, state: WizardUiState) {
         InfoRow(stringResource(R.string.wizard_estimate_time), stringResource(R.string.wizard_estimate_time_value, estimate.approxRenderMinutes))
     }
     Intro(stringResource(R.string.wizard_estimate_note))
+    AiAction(stringResource(R.string.wizard_ai_publish_text), state.words > 0, state, actions, actions.onPublishText)
     state.blockers.forEach {
         Text(stringResource(R.string.wizard_blocker_script), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.warning)
     }

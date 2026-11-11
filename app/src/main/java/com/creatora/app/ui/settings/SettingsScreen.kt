@@ -26,6 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.creatora.app.R
 import com.creatora.app.domain.model.ThemeMode
+import com.creatora.app.ui.components.ListGroup
+import com.creatora.app.ui.components.NavigationListRow
 import com.creatora.app.ui.components.SectionTitle
 import com.creatora.app.ui.components.SubScreenScaffold
 import com.creatora.app.ui.theme.CreatoraTheme
@@ -33,6 +35,7 @@ import com.creatora.app.ui.theme.CreatoraTheme
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onOpenAiProviders: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
@@ -41,6 +44,7 @@ fun SettingsScreen(
         themeMode = themeMode,
         onThemeModeSelected = viewModel::onThemeModeSelected,
         onBack = onBack,
+        onOpenAiProviders = onOpenAiProviders,
         modifier = modifier,
     )
 }
@@ -50,6 +54,7 @@ fun SettingsContent(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
     onBack: () -> Unit,
+    onOpenAiProviders: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SubScreenScaffold(
@@ -66,6 +71,13 @@ fun SettingsContent(
                 modifier = Modifier.padding(bottom = CreatoraTheme.spacing.md),
             )
             ThemeModeSelector(selected = themeMode, onSelected = onThemeModeSelected)
+        }
+        ListGroup {
+            NavigationListRow(
+                title = stringResource(R.string.ai_providers_title),
+                value = stringResource(R.string.ai_providers_row_value),
+                onClick = onOpenAiProviders,
+            )
         }
     }
 }
@@ -134,7 +146,7 @@ private fun ThemeMode.labelRes(): Int = when (this) {
 @Composable
 private fun SettingsLightPreview() {
     CreatoraTheme(darkTheme = false) {
-        SettingsContent(themeMode = ThemeMode.LIGHT, onThemeModeSelected = {}, onBack = {})
+        SettingsContent(themeMode = ThemeMode.LIGHT, onThemeModeSelected = {}, onBack = {}, onOpenAiProviders = {})
     }
 }
 
@@ -142,6 +154,6 @@ private fun SettingsLightPreview() {
 @Composable
 private fun SettingsDarkPreview() {
     CreatoraTheme(darkTheme = true) {
-        SettingsContent(themeMode = ThemeMode.DARK, onThemeModeSelected = {}, onBack = {})
+        SettingsContent(themeMode = ThemeMode.DARK, onThemeModeSelected = {}, onBack = {}, onOpenAiProviders = {})
     }
 }

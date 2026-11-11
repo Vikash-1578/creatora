@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -39,6 +40,7 @@ import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.WizardStep
 import com.creatora.app.ui.components.PrimaryButton
 import com.creatora.app.ui.components.ScreenHeader
+import com.creatora.app.ui.components.SecondaryButton
 import com.creatora.app.ui.components.TabScreen
 import com.creatora.app.ui.theme.CreatoraTheme
 
@@ -72,17 +74,37 @@ private fun VideoFormat.icon(): ImageVector = when (this) {
 @Composable
 fun CreateScreen(
     onProjectStarted: (projectId: Long) -> Unit,
+    onOpenAiProviders: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CreateViewModel = hiltViewModel(),
 ) {
     var selected by rememberSaveable { mutableStateOf(VideoFormat.LONG_VIDEO) }
+    var showIdeas by rememberSaveable { mutableStateOf(false) }
+    val ideas by viewModel.ideas.collectAsStateWithLifecycle()
     val title = stringResource(R.string.create_default_title, stringResource(selected.titleRes()))
     CreateContent(
         selected = selected,
         onSelect = { selected = it },
         onStart = { viewModel.start(selected, title, onProjectStarted) },
+        onIdeas = { showIdeas = true },
         modifier = modifier,
     )
+    if (showIdeas) {
+        IdeasDialog(
+            state = ideas,
+            onSuggest = viewModel::suggestIdeas,
+            onUse = { idea ->
+                showIdeas = false
+                viewModel.start(selected, idea, onProjectStarted, brief = idea)
+                viewModel.clearIdeas()
+            },
+            onOpenProviders = {
+                showIdeas = false
+                onOpenAiProviders()
+            },
+            onDismiss = { showIdeas = false },
+        )
+    }
 }
 
 @Composable
@@ -90,6 +112,7 @@ fun CreateContent(
     selected: VideoFormat,
     onSelect: (VideoFormat) -> Unit,
     onStart: () -> Unit,
+    onIdeas: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val spacing = CreatoraTheme.spacing
@@ -112,6 +135,11 @@ fun CreateContent(
                 }
             }
             StepsCard()
+            SecondaryButton(
+                text = stringResource(R.string.create_ideas_button),
+                onClick = onIdeas,
+                modifier = Modifier.fillMaxWidth(),
+            )
             PrimaryButton(
                 text = stringResource(R.string.create_start),
                 onClick = onStart,
@@ -184,11 +212,11 @@ private fun StepsCard() {
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun CreateLightPreview() {
-    CreatoraTheme(darkTheme = false) { CreateContent(VideoFormat.LONG_VIDEO, {}, {}) }
+    CreatoraTheme(darkTheme = false) { CreateContent(VideoFormat.LONG_VIDEO, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CreateDarkPreview() {
-    CreatoraTheme(darkTheme = true) { CreateContent(VideoFormat.SHORTS_REELS, {}, {}) }
+    CreatoraTheme(darkTheme = true) { CreateContent(VideoFormat.SHORTS_REELS, {}, {}, {}) }
 }

@@ -39,13 +39,14 @@ class WizardViewModelTest {
     private val assets = FakeAssetRepository()
     private val licences = FakeLicenceRepository()
     private val speech = FakeSpeechPlayer()
+    private val aiService = com.creatora.app.testutil.FakeAiService(com.creatora.app.testutil.okReply("HOOK: Hook text\nSTRUCTURE: Body text\nCTA: Call text"))
 
     private suspend fun newProject(project: Project = Project(title = "Video", format = VideoFormat.LONG_VIDEO)): Long =
         projects.save(project)
 
     private fun viewModel(projectId: Long) = WizardViewModel(
         SavedStateHandle(mapOf(WizardViewModel.ARG_PROJECT_ID to projectId)),
-        projects, characters, voices, assets, licences, speech,
+        projects, characters, voices, assets, licences, speech, com.creatora.app.domain.ai.AiTasks(aiService),
     )
 
     private fun TestScope.open(projectId: Long): WizardViewModel {
@@ -242,6 +243,63 @@ class WizardViewModelTest {
         viewModel.flush()
 
         assertEquals("Unsaved", saved(id).brief)
+    }
+
+    @Test
+    fun draftScript_waitsForApprovalBeforeChangingTheScript() = runTest {
+        val viewModel = open(newProject(Project(title = "Video", format = VideoFormat.LONG_VIDEO, brief = "About cats", hook = "My hook")))
+
+        viewModel.draftScript()
+
+        val draft = viewModel.uiState.value.ai.draft
+        assertEquals("Body text", draft?.structure)
+        assertTrue(aiService.requests.single().messages.single().text.contains("About cats"))
+        assertEquals("My hook", viewModel.uiState.value.project?.hook) // not replaced yet
+
+        viewModel.applyDraft()
+
+        val project = viewModel.uiState.value.project!!
+        assertEquals("Hook text", project.hook)
+        assertEquals("Body text", project.structure)
+        assertEquals("Call text", project.callToAction)
+        assertNull(viewModel.uiState.value.ai.draft)
+    }
+
+    @Test
+    fun dismissDraft_keepsTheUsersScript() = runTest {
+        val viewModel = open(newProject(Project(title = "Video", brief = "b", hook = "Mine")))
+        viewModel.draftScript()
+
+        viewModel.dismissDraft()
+
+        assertNull(viewModel.uiState.value.ai.draft)
+        assertEquals("Mine", viewModel.uiState.value.project?.hook)
+    }
+
+    @Test
+    fun aiFailure_showsErrorsAndGoToStepClearsThem() = runTest {
+        aiService.outcome = com.creatora.app.domain.model.AiOutcome.Failed(listOf(com.creatora.app.domain.model.AiError.NoKey))
+        val viewModel = open(newProject())
+
+        viewModel.draftScript()
+
+        assertEquals(listOf(com.creatora.app.domain.model.AiError.NoKey), viewModel.uiState.value.ai.errors)
+        assertFalse(viewModel.uiState.value.ai.busy)
+        viewModel.goToStep(WizardStep.SCRIPT.ordinal)
+        assertNull(viewModel.uiState.value.ai.errors)
+    }
+
+    @Test
+    fun generatePublishText_usesTheScriptAndKeepsTheResultUntilDismissed() = runTest {
+        aiService.outcome = com.creatora.app.testutil.okReply("TITLES:\n- A title\nDESCRIPTION: Desc\nHASHTAGS: #x\nCHAPTERS: 00:00 Intro")
+        val viewModel = open(newProject(Project(title = "Video", hook = "Hello world")))
+
+        viewModel.generatePublishText()
+
+        assertEquals(listOf("A title"), viewModel.uiState.value.ai.publishText?.titles)
+        assertTrue(aiService.requests.single().messages.single().text.contains("Hello world"))
+        viewModel.dismissPublishText()
+        assertNull(viewModel.uiState.value.ai.publishText)
     }
 
     @Test

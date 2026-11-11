@@ -6,6 +6,13 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
+import com.creatora.app.data.ai.AiKeysStore
+import com.creatora.app.data.ai.AndroidKeystoreCipher
+import com.creatora.app.data.ai.DataStoreAiProviderStore
+import com.creatora.app.data.ai.FailoverAiService
+import com.creatora.app.data.ai.HttpTransport
+import com.creatora.app.data.ai.SecretCipher
+import com.creatora.app.data.ai.UrlConnectionTransport
 import com.creatora.app.data.local.CreatoraDatabase
 import com.creatora.app.data.local.RoomAssetRepository
 import com.creatora.app.data.local.RoomChannelSnapshotRepository
@@ -19,6 +26,8 @@ import com.creatora.app.data.media.AndroidSpeechPlayer
 import com.creatora.app.data.media.ContentResolverUserFiles
 import com.creatora.app.data.settings.DataStoreBrandKitRepository
 import com.creatora.app.data.settings.DataStoreSettingsRepository
+import com.creatora.app.domain.repository.AiProviderStore
+import com.creatora.app.domain.repository.AiService
 import com.creatora.app.domain.repository.AssetRepository
 import com.creatora.app.domain.repository.BrandKitRepository
 import com.creatora.app.domain.repository.ChannelSnapshotRepository
@@ -47,6 +56,12 @@ object StorageModule {
     fun database(@ApplicationContext context: Context): CreatoraDatabase =
         Room.databaseBuilder(context, CreatoraDatabase::class.java, CreatoraDatabase.NAME).build()
 
+    @Provides
+    @Singleton
+    @AiKeysStore
+    fun aiKeysDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create { context.preferencesDataStoreFile("ai_keys") }
+
     // Same file as the old preferencesDataStore(name = "settings"), so saved settings survive.
     @Provides
     @Singleton
@@ -57,6 +72,10 @@ object StorageModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+    @Binds abstract fun httpTransport(impl: UrlConnectionTransport): HttpTransport
+    @Binds abstract fun secretCipher(impl: AndroidKeystoreCipher): SecretCipher
+    @Binds abstract fun aiProviderStore(impl: DataStoreAiProviderStore): AiProviderStore
+    @Binds abstract fun aiService(impl: FailoverAiService): AiService
     @Binds abstract fun settings(impl: DataStoreSettingsRepository): SettingsRepository
     @Binds abstract fun brandKit(impl: DataStoreBrandKitRepository): BrandKitRepository
     @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles

@@ -1,2 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<full-backup-content />
+<full-backup-content>
+    <!-- API keys are encrypted with a key that never leaves this phone, so a backup would be useless. -->
+    <exclude domain="file" path="datastore/ai_keys.preferences_pb" />
+</full-backup-content>

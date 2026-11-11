@@ -97,3 +97,35 @@ class FakeSpeechPlayer : com.creatora.app.domain.repository.SpeechPlayer {
         released = true
     }
 }
+
+class FakeAiService(var outcome: com.creatora.app.domain.model.AiOutcome<String>) : com.creatora.app.domain.repository.AiService {
+    val requests = mutableListOf<com.creatora.app.domain.model.AiRequest>()
+    override suspend fun complete(request: com.creatora.app.domain.model.AiRequest): com.creatora.app.domain.model.AiOutcome<String> {
+        requests += request
+        return outcome
+    }
+}
+
+fun okReply(text: String) = com.creatora.app.domain.model.AiOutcome.Ok(text, com.creatora.app.domain.model.AiProvider.GEMINI)
+
+class FakeAiProviderStore : com.creatora.app.domain.repository.AiProviderStore {
+    private val keys = kotlinx.coroutines.flow.MutableStateFlow<Map<com.creatora.app.domain.model.AiProvider, String>>(emptyMap())
+    private val models = kotlinx.coroutines.flow.MutableStateFlow<Map<com.creatora.app.domain.model.AiProvider, String>>(emptyMap())
+
+    override val configs = kotlinx.coroutines.flow.combine(keys, models) { k, m ->
+        com.creatora.app.domain.model.AiProvider.entries.map { p ->
+            com.creatora.app.domain.model.AiProviderConfig(p, p in k, m[p] ?: p.defaultModel)
+        }
+    }
+
+    override suspend fun key(provider: com.creatora.app.domain.model.AiProvider) = keys.value[provider]
+    override suspend fun setKey(provider: com.creatora.app.domain.model.AiProvider, key: String) {
+        keys.value = keys.value + (provider to key.trim())
+    }
+    override suspend fun removeKey(provider: com.creatora.app.domain.model.AiProvider) {
+        keys.value = keys.value - provider
+    }
+    override suspend fun setModel(provider: com.creatora.app.domain.model.AiProvider, model: String) {
+        models.value = if (model.isBlank()) models.value - provider else models.value + (provider to model.trim())
+    }
+}
