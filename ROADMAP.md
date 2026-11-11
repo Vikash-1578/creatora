@@ -10,17 +10,27 @@ reviewer merges PRs.
 | # | Milestone | Status |
 |---|-----------|--------|
 | M1–M3 | Project setup, theme system, navigation shell | Done |
-| M4 | Data foundation | PR #5, CI green |
-| M5 | Library tab | PR #6 (stacked on #5) |
-| M6 | Create flow | PR #7 (stacked on #6) |
-| M7 | AI layer | PR #8 (stacked on #7) |
-| M8 | Video render | PR #9 (stacked on #8) |
-| M9 | Research tab | Planned |
-| M10 | Publish and schedule | Planned |
-| M11 | Grow tab | Planned |
-| M12 | Home tab | Planned |
-| M13 | Profile and Earn | Planned |
-| M14 | Release quality (1.0.0) | Planned |
+| M4–M8 | Data foundation, Library, Create flow, AI layer (user keys), Video render | Merged (#5 to #9) |
+| UI polish | Home, Research, Grow, Profile, Settings, Library, Create | Merged (#14) |
+| M9–M13 | Old local-first plan (Research, Publish, Grow, Home, Profile and Earn) | Superseded. PRs #10 to #13 stay open, untouched; to be mined later |
+| **Phase A** | Onboarding, accounts, settings, Firebase, Creatora AI, plans and usage | In progress: spec in `docs/spec/01-onboarding-accounts-settings.md` |
+| Phase B+ | Next screens, from the manager's approved specs | Not started |
+| Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
+
+Direction since Phase A: **cloud-first** (Firebase Auth, Firestore, Storage, Cloud Functions, Crashlytics;
+Firebase AI Logic for AI; Free and Pro plans through Google Play Billing). Each phase is one branch and one PR,
+built from an approved spec in `docs/spec/`.
+
+### Phase A checklist
+- [x] Spec written
+- [ ] Language picker, welcome slides, Google sign-in
+- [ ] YouTube authorization and channel fetch, connected accounts and platform adapters
+- [ ] Creator profile from AI, first insights on Home
+- [ ] Notification categories and YouTube poll
+- [ ] Settings restructure (8 pages)
+- [ ] AI usage meter, dialog, banner and limit
+- [ ] Billing (Play Billing) with honest not-available state
+- [ ] English, Hindi and Hinglish strings
 
 ## Milestones
 
