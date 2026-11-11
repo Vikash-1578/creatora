@@ -2,14 +2,15 @@
 
 Goal: a real, working all-in-one content creation app, not a demo.
 
-Each milestone is **one branch from the latest `main`, one pull request and a green CI run**
-(build, unit tests and lint). Claude reports a short summary when a milestone's PR is green and stops;
-the reviewer merges it and starts the next one.
+Each milestone is **one branch, one pull request and a green CI run** (build, unit tests and lint).
+Milestones are stacked: each branch starts from the previous milestone's branch, and its PR says which PR
+it depends on. Once the earlier PR is merged, the branch is brought up to date with `main`. Only the
+reviewer merges PRs.
 
 | # | Milestone | Status |
 |---|-----------|--------|
 | M1–M3 | Project setup, theme system, navigation shell | Done |
-| M4 | Data foundation | In review |
+| M4 | Data foundation | PR #5 |
 | M5 | Library tab | Planned |
 | M6 | Create flow | Planned |
 | M7 | AI layer | Planned |
@@ -95,4 +96,7 @@ the reviewer merges it and starts the next one.
 4. Unit tests for every ViewModel and repository added. CI must be green before reporting done.
 5. Light and dark previews for every screen; all text in `strings.xml`.
 6. No paid services and no API keys in the repo. Never commit secrets.
-7. When a milestone's PR is green: report a short summary and stop.
+7. Don't pause between milestones. Keep fixing and pushing until the PR's CI is green, then immediately
+   start the next milestone stacked on it, and tick it in the table above with its PR number. Never merge
+   PRs. Stop and ask only for a real blocker that needs the owner: an API key, a signing keystore or
+   GitHub secret, a decision only the owner can make, or a CI failure still unfixed after 5 attempts.

@@ -50,12 +50,6 @@ android {
             }
         }
     }
-
-    lint {
-        // Print issues to the CI log as well as the HTML report.
-        textReport = true
-        textOutput = file("stdout")
-    }
 }
 
 ksp {
