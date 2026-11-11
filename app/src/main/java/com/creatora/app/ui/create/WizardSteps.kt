@@ -333,7 +333,6 @@ fun ReviewStep(project: Project, state: WizardUiState, actions: WizardActions) {
     state.blockers.forEach {
         Text(stringResource(R.string.wizard_blocker_script), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.warning)
     }
-    panel()
 }
 
 @Composable
@@ -356,4 +355,5 @@ fun GenerateStep(state: WizardUiState, panel: @Composable () -> Unit) {
     if (state.blockers.isNotEmpty()) {
         Text(stringResource(R.string.wizard_blocker_script), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.warning)
     }
+    panel()
 }

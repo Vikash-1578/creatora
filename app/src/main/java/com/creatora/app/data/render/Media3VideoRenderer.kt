@@ -16,13 +16,14 @@ import androidx.annotation.OptIn
 import androidx.media3.common.Effect
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
+import androidx.media3.common.OverlaySettings
 import androidx.media3.common.audio.ChannelMixingAudioProcessor
 import androidx.media3.common.audio.ChannelMixingMatrix
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.BitmapOverlay
 import androidx.media3.effect.OverlayEffect
-import androidx.media3.effect.OverlaySettings
 import androidx.media3.effect.Presentation
+import androidx.media3.effect.TextureOverlay
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
 import androidx.media3.transformer.EditedMediaItemSequence
@@ -38,7 +39,6 @@ import com.creatora.app.domain.render.RenderRequest
 import com.creatora.app.domain.render.VideoRenderer
 import com.creatora.app.domain.render.captionZone
 import com.creatora.app.domain.render.renderFileName
-import com.google.common.collect.ImmutableList
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.text.SimpleDateFormat
@@ -141,7 +141,7 @@ class Media3VideoRenderer @Inject constructor(
 
         val builder = Composition.Builder(sequences)
         if (request.cues.isNotEmpty()) {
-            builder.setEffects(Effects(emptyList(), listOf<Effect>(OverlayEffect(ImmutableList.of(CaptionOverlay(request.ratio, request.cues))))))
+            builder.setEffects(Effects(emptyList(), listOf<Effect>(OverlayEffect(listOf<TextureOverlay>(CaptionOverlay(request.ratio, request.cues))))))
         }
         return builder.build()
     }
