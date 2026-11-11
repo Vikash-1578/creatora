@@ -76,6 +76,32 @@ Android, Compose, or `data`.
   Actions secrets (all git-ignored or outside the repo). Do not commit keystores, `.env` files or
   `google-services.json`.
 
+## Tooling
+
+Claude Code plugins and MCP servers are declared at project scope in `.claude/settings.json` and
+`.mcp.json`, so they load for everyone working in this repo (including Claude Code on the web) once the
+project is trusted. They never override the rules in this file.
+
+- **Ponytail** keeps code minimal, but never at the cost of the rules here: theme tokens, `strings.xml`,
+  accessibility (content descriptions, 44dp touch targets) and light + dark support always stay.
+- **Hallmark, Impeccable and UI UX Pro Max** are mainly for web UI. For Compose screens, `CreatoraTheme`
+  tokens and the Figma design win over their suggestions.
+- **Humanizer** is only for user-facing text (`strings.xml`, store listing, README), never for code.
+- **Task Observer** may only *propose* skill changes. Do not edit or create skills without the owner's
+  approval.
+- **claude-mem** stores memory in `~/.claude-mem` on the machine it runs on. On Claude Code on the web
+  that is the session's temporary container, so memory does **not** survive between web sessions (only
+  its opt-in, paid Cloud Sync would). Locally it persists. Telemetry is turned off for this project via
+  `CLAUDE_MEM_TELEMETRY=0` and `CLAUDE_MEM_TELEMETRY_ERRORS=0` in `.claude/settings.json` (`env`); to
+  also turn it off for your machine everywhere, run `npx claude-mem telemetry disable`. On a brand-new
+  machine its first SessionStart hook may fail once (its launcher is not installed yet); it works from
+  the next session.
+- **Scrapling** (MCP server `scrapling`) runs via `uvx --from "scrapling[ai]" scrapling mcp`, so `uv`
+  must be installed. The plain HTTP fetch tools work out of the box; the browser-based fetchers need a
+  one-time `uvx --from "scrapling[ai]" scrapling install` to download browsers.
+- Also enabled: **claude-code-setup** (automation recommendations) and **diagram-design** (diagrams).
+- Not used in this project: OmniRoute, Headroom, REA.
+
 ## Common commands
 
 ```bash
