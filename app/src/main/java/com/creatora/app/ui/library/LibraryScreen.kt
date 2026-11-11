@@ -79,6 +79,7 @@ private sealed interface LibraryDialog {
 fun LibraryScreen(
     onOpenBrandKit: () -> Unit,
     onOpenLicences: (assetId: Long?) -> Unit,
+    onOpenProject: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel(),
 ) {
@@ -128,6 +129,7 @@ fun LibraryScreen(
         onAddAudio = { pickAudio.launch(arrayOf("audio/*")) },
         onOpenBrandKit = onOpenBrandKit,
         onOpenLicences = onOpenLicences,
+        onOpenProject = onOpenProject,
         modifier = modifier,
     )
 }
@@ -148,6 +150,7 @@ fun LibraryContent(
     onAddAudio: () -> Unit,
     onOpenBrandKit: () -> Unit,
     onOpenLicences: (Long?) -> Unit,
+    onOpenProject: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val spacing = CreatoraTheme.spacing
@@ -217,6 +220,7 @@ fun LibraryContent(
                     onDelete = onDelete,
                     onOpenBrandKit = onOpenBrandKit,
                     onOpenLicences = { onOpenLicences(null) },
+                    onOpenProject = onOpenProject,
                 )
                 LibraryFilter.ASSETS -> assetsSection(state, onAddMedia, onAddAudio, onOpenLicences, onDelete)
                 LibraryFilter.CAST -> castSection(state, onDialog = { dialog = it }, onDelete = onDelete)
@@ -316,6 +320,7 @@ private fun LazyListScope.projectsSection(
     onDelete: (DeleteKind, Long, String) -> Unit,
     onOpenBrandKit: () -> Unit,
     onOpenLicences: () -> Unit,
+    onOpenProject: (Long) -> Unit,
 ) {
     // Project cards followed by the "New project" tile, two per row. Hidden while searching.
     val searching = state.query.isNotBlank()
@@ -331,7 +336,8 @@ private fun LazyListScope.projectsSection(
                 ProjectCard(
                     item = cell,
                     modifier = modifier,
-                    actions = listOf(
+                    actions = listOfNotNull(
+                        project.format?.let { MenuAction(stringResource(R.string.library_open)) { onOpenProject(project.id) } },
                         MenuAction(stringResource(R.string.action_rename)) { onDialog(LibraryDialog.Rename(project)) },
                         MenuAction(stringResource(R.string.action_duplicate)) { onDialog(LibraryDialog.Duplicate(project)) },
                         MenuAction(stringResource(R.string.library_save_template)) { onDialog(LibraryDialog.SaveTemplate(project)) },
@@ -530,7 +536,7 @@ private fun LibraryPreview(darkTheme: Boolean, state: LibraryUiState = PreviewSt
             onFilter = {}, onQuery = {}, onCreateProject = {}, onRenameProject = { _, _ -> },
             onCopyProject = { _, _, _ -> }, onSaveCharacter = {}, onSaveVoice = {},
             onDelete = { _, _, _ -> }, onAddMedia = {}, onAddAudio = {},
-            onOpenBrandKit = {}, onOpenLicences = {},
+            onOpenBrandKit = {}, onOpenLicences = {}, onOpenProject = {},
         )
     }
 }

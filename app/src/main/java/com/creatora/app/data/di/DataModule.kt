@@ -15,6 +15,7 @@ import com.creatora.app.data.local.RoomLicenceRepository
 import com.creatora.app.data.local.RoomProjectRepository
 import com.creatora.app.data.local.RoomScheduledPostRepository
 import com.creatora.app.data.local.RoomVoicePresetRepository
+import com.creatora.app.data.media.AndroidSpeechPlayer
 import com.creatora.app.data.media.ContentResolverUserFiles
 import com.creatora.app.data.settings.DataStoreBrandKitRepository
 import com.creatora.app.data.settings.DataStoreSettingsRepository
@@ -27,6 +28,7 @@ import com.creatora.app.domain.repository.LicenceRepository
 import com.creatora.app.domain.repository.ProjectRepository
 import com.creatora.app.domain.repository.ScheduledPostRepository
 import com.creatora.app.domain.repository.SettingsRepository
+import com.creatora.app.domain.repository.SpeechPlayer
 import com.creatora.app.domain.repository.UserFiles
 import com.creatora.app.domain.repository.VoicePresetRepository
 import dagger.Binds
@@ -58,6 +60,7 @@ abstract class RepositoryModule {
     @Binds abstract fun settings(impl: DataStoreSettingsRepository): SettingsRepository
     @Binds abstract fun brandKit(impl: DataStoreBrandKitRepository): BrandKitRepository
     @Binds abstract fun userFiles(impl: ContentResolverUserFiles): UserFiles
+    @Binds abstract fun speechPlayer(impl: AndroidSpeechPlayer): SpeechPlayer
     @Binds abstract fun projects(impl: RoomProjectRepository): ProjectRepository
     @Binds abstract fun ideas(impl: RoomIdeaRepository): IdeaRepository
     @Binds abstract fun assets(impl: RoomAssetRepository): AssetRepository

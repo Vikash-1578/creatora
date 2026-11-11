@@ -75,3 +75,25 @@ class FakeUserFiles : UserFiles {
         discarded += uri
     }
 }
+
+class FakeSpeechPlayer : com.creatora.app.domain.repository.SpeechPlayer {
+    data class Spoken(val text: String, val pitch: Float, val rate: Float)
+
+    val spoken = mutableListOf<Spoken>()
+    var available = true
+    var stops = 0
+    var released = false
+
+    override suspend fun speak(text: String, pitch: Float, speechRate: Float): Boolean {
+        if (available) spoken += Spoken(text, pitch, speechRate)
+        return available
+    }
+
+    override fun stop() {
+        stops++
+    }
+
+    override fun release() {
+        released = true
+    }
+}

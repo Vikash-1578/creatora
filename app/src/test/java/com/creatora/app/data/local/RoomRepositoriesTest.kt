@@ -62,6 +62,27 @@ class RoomRepositoriesTest {
     }
 
     @Test
+    fun projects_keepEveryCreateWizardField() = runTest {
+        val repository = RoomProjectRepository(db)
+        val project = Project(
+            title = "Video", createdAt = 1, updatedAt = 2,
+            format = com.creatora.app.domain.model.VideoFormat.VIDEO_AD,
+            brief = "Brief", hook = "Hook", structure = "Body", callToAction = "Call",
+            pronunciations = "a = b", castIds = listOf(3L, 5L), narratorVoiceId = 7L,
+            licensedFootageOnly = false, step = 4, isReady = true,
+        )
+
+        val id = repository.save(project)
+
+        assertEquals(project.copy(id = id), repository.observe(id).first())
+        // A project from the Library has no format, no cast and the defaults.
+        val plain = repository.observe(repository.save(Project(title = "Plain"))).first()!!
+        assertNull(plain.format)
+        assertTrue(plain.castIds.isEmpty())
+        assertTrue(plain.licensedFootageOnly)
+    }
+
+    @Test
     fun ideas_keepIdeaWhenItsProjectIsDeleted() = runTest {
         val projectId = newProject()
         val repository = RoomIdeaRepository(db)

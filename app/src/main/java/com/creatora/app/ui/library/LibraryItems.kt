@@ -98,8 +98,18 @@ fun ProjectCard(
                 .border(CreatoraTheme.dimens.borderWidth, colors.border, CreatoraTheme.shapes.radius16),
         ) {
             StatusChip(
-                label = stringResource(if (goesLive == null) R.string.library_status_draft else R.string.library_status_scheduled),
-                color = if (goesLive == null) colors.warning else colors.accentText,
+                label = stringResource(
+                    when {
+                        item.project.isReady -> R.string.library_status_ready
+                        goesLive != null -> R.string.library_status_scheduled
+                        else -> R.string.library_status_draft
+                    },
+                ),
+                color = when {
+                    item.project.isReady -> colors.success
+                    goesLive != null -> colors.accentText
+                    else -> colors.warning
+                },
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(CreatoraTheme.spacing.sm),
