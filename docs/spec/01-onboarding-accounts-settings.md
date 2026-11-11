@@ -14,6 +14,22 @@ Status: approved by the manager. Direction: **cloud-first**. This replaces the o
 | Sign-in | Credential Manager (Google ID token) then Firebase Auth |
 | YouTube access | Google Identity `AuthorizationClient`, scopes `youtube.readonly`, `yt-analytics.readonly`, `yt-analytics-monetary.readonly`; `youtube.upload` is requested later (incremental) |
 
+### Firebase project (set up by the manager)
+- Project ID `creatora-e2cef`, project number `5839100796`, Android app id `1:5839100796:android:979ce83849ddc4cca4a2f9`
+  (package `com.creatora.app`). These are identifiers, not secrets.
+- Enabled: Auth (Google provider), Firestore (asia-south1, production mode), Firebase AI Logic with the Gemini
+  Developer API, App Check enforced, AI monitoring. Google Cloud: YouTube Data API v3 and YouTube Analytics API.
+- **Firestore rules** are in `firestore.rules` (deploy with `firebase deploy --only firestore:rules`, config in
+  `firebase.json`): a user can read and write only `users/{uid}` and its subcollections, everything else is closed.
+  Refinement: the plan can be created only as `free` and can never be changed by the client, so a modified app
+  cannot raise its own plan. Usage counters live in the user's own tree and a modified app could still edit them;
+  moving the counter behind a Cloud Function is the fix and is planned.
+- **App Check**: Play Integrity in release builds, the Debug provider in debug builds. A debug build prints its
+  debug secret to logcat (tag `DebugAppCheckProvider`); register it under App Check > Apps > Manage debug tokens.
+- **OAuth consent** is External and In production but unverified: users see Google's "unverified app" warning and
+  the project is capped at 100 users until Google verifies the app. The YouTube scopes are sensitive or restricted,
+  so verification is needed before a public launch.
+
 ### Firebase configuration
 - The manager creates the Firebase project and stores `google-services.json` in the GitHub secret
   `GOOGLE_SERVICES_JSON`. CI writes it to `app/google-services.json` when the secret exists.

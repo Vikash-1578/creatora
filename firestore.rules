@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// Each signed-in user can read and write only their own tree: users/{uid} and everything under it.
+// The plan is written by the server only (Cloud Function after Play purchase verification, later):
+// a client may create its document as "free" and may never change the plan afterwards.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid) && request.resource.data.plan == 'free';
+      allow update: if isOwner(uid) && request.resource.data.plan == resource.data.plan;
+
+      // usage/{month}, accounts/{key}, aiHistory/{id}
+      match /{subcollection}/{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
