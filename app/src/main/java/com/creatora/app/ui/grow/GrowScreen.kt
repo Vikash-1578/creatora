@@ -252,7 +252,7 @@ private fun NextCard(next: NextSuggestion, onSuggest: () -> Unit, onStart: () ->
 }
 
 @Composable
-private fun StatCard(label: String, delta: Delta?, days: Int, modifier: Modifier = Modifier) {
+internal fun StatCard(label: String, delta: Delta?, days: Int, modifier: Modifier = Modifier) {
     val colors = CreatoraTheme.colors
     val shape = CreatoraTheme.shapes.radius16
     Column(

@@ -18,7 +18,7 @@ reviewer merges PRs.
 | M9 | Research tab | PR #10 (stacked on #9) |
 | M10 | Publish and schedule | PR #11 (stacked on #10) |
 | M11 | Grow tab | PR #12 (stacked on #11) |
-| M12 | Home tab | Planned |
+| M12 | Home tab | PR #13 (stacked on #12) |
 | M13 | Profile and Earn | Planned |
 | M14 | Release quality (1.0.0) | Planned |
 

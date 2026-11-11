@@ -1,5 +1,6 @@
 package com.creatora.app.ui.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -17,7 +18,9 @@ import com.creatora.app.ui.coach.CoachScreen
 import com.creatora.app.ui.create.CreateScreen
 import com.creatora.app.ui.create.WizardScreen
 import com.creatora.app.ui.create.WizardViewModel
+import com.creatora.app.ui.coach.CoachViewModel
 import com.creatora.app.ui.earn.EarnScreen
+import com.creatora.app.ui.notifications.NotificationsScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.home.HomeScreen
@@ -54,8 +57,11 @@ object Routes {
     const val CALENDAR = "calendar"
     const val SAVED = "saved"
     const val THUMBNAIL = "thumbnail/{projectId}"
-    const val COACH = "coach"
+    const val COACH = "coach?question={question}"
+    const val NOTIFICATIONS = "notifications"
     const val LICENCES = "licences?assetId={assetId}"
+
+    fun coach(question: String? = null) = if (question == null) "coach" else "coach?question=${Uri.encode(question)}"
 
     fun wizard(projectId: Long) = "wizard/$projectId"
 
@@ -93,8 +99,12 @@ fun CreatoraNavHost(
             composable(Routes.HOME) {
                 HomeScreen(
                     onProfileClick = dropUnlessResumed { navController.navigate(Routes.PROFILE) },
+                    onNotificationsClick = dropUnlessResumed { navController.navigate(Routes.NOTIFICATIONS) },
                     onContinue = { id -> navController.navigate(Routes.wizard(id)) },
-                    onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
+                    onOpenCoach = { question -> navController.navigate(Routes.coach(question)) },
+                    onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
+                    onOpenGrow = { navController.navigateToTab(TopLevelTab.GROW) },
+                    onOpenIdeas = dropUnlessResumed { navController.navigate(Routes.SAVED) },
                 )
             }
         }
@@ -210,7 +220,17 @@ fun CreatoraNavHost(
         composable(Routes.AI_PROVIDERS) {
             AiProvidersScreen(onBack = dropUnlessResumed { navController.popBackStack() })
         }
-        composable(Routes.COACH) {
+        composable(Routes.NOTIFICATIONS) {
+            NotificationsScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
+                onOpenGrow = { navController.navigateToTab(TopLevelTab.GROW) },
+            )
+        }
+        composable(
+            route = Routes.COACH,
+            arguments = listOf(navArgument(CoachViewModel.ARG_QUESTION) { type = NavType.StringType; nullable = true; defaultValue = null }),
+        ) {
             CoachScreen(
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onOpenProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },

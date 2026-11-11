@@ -1,5 +1,6 @@
 package com.creatora.app.ui.coach
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creatora.app.domain.ai.AiTasks
@@ -24,10 +25,18 @@ data class CoachUiState(
 
 /** The AI Coach conversation. It lives as long as the screen; nothing is stored. */
 @HiltViewModel
-class CoachViewModel @Inject constructor(private val tasks: AiTasks) : ViewModel() {
+class CoachViewModel @Inject constructor(
+    private val tasks: AiTasks,
+    savedState: SavedStateHandle,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CoachUiState())
     val uiState: StateFlow<CoachUiState> = _uiState.asStateFlow()
+
+    init {
+        // A question typed on Home is asked right away.
+        savedState.get<String>(ARG_QUESTION)?.let(::send)
+    }
 
     fun send(text: String) {
         val question = text.trim()
@@ -52,5 +61,9 @@ class CoachViewModel @Inject constructor(private val tasks: AiTasks) : ViewModel
                 }
             }
         }
+    }
+
+    companion object {
+        const val ARG_QUESTION = "question"
     }
 }

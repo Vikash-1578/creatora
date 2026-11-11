@@ -34,7 +34,8 @@ com.creatora.app
 │   ├── navigation/      # Routes, TopLevelTab (the 5 tabs), CreatoraNavHost, CreatoraBottomBar
 │   ├── components/      # shared UI: ScreenHeader, TabScreen, SubScreenScaffold, list rows, icon buttons
 │   ├── theme/           # Color.kt, Type.kt, Dimens.kt, Theme.kt (design tokens)
-│   ├── home/ research/ create/ grow/            # tab screens (placeholders until their milestone)
+│   ├── home/ research/ create/ grow/            # tab screens
+│   ├── notifications/   # things needing attention, worked out from posts and reply drafts (nothing stored)
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
 │   ├── render/ thumbnail/                       # Generate-step render panel, thumbnail maker
@@ -127,6 +128,10 @@ Android, Compose, or `data`.
 - **Grow numbers** come only from public YouTube data stored as `ChannelSnapshot`s (taken when the Grow tab opens,
   at most every 12 hours). Retention, click-through rate and watch time need Google sign-in (YouTube Analytics)
   and are not available: never show invented values for them. The pure maths lives in `domain/grow/`.
+- **Home** shows only the user's own data: continue card, next scheduled post, saved ideas not yet turned into
+  projects, and channel numbers from stored snapshots. Each card has a real empty state with an action. The
+  composer starts a project in the chosen format or opens the Coach with the typed question (`coach?question=`).
+  Notifications are derived by `domain/home/buildNotices`, not stored or pushed.
 - **Destructive actions** (delete) hide the item and show an Undo snackbar for 5 seconds before deleting
   for real (see `LibraryViewModel.delete`).
 - **No fake data in the shipped UI.** When data needs a key or the user's content, show a real empty state

@@ -1,5 +1,6 @@
 package com.creatora.app.ui.coach
 
+import androidx.lifecycle.SavedStateHandle
 import com.creatora.app.domain.ai.AiTasks
 import com.creatora.app.domain.model.AiError
 import com.creatora.app.domain.model.AiOutcome
@@ -18,7 +19,15 @@ class CoachViewModelTest {
 
     private val service = FakeAiService(okReply("Post weekly."))
 
-    private fun viewModel() = CoachViewModel(AiTasks(service))
+    private fun viewModel(question: String? = null) =
+        CoachViewModel(AiTasks(service), SavedStateHandle(listOfNotNull(question?.let { CoachViewModel.ARG_QUESTION to it }).toMap()))
+
+    @Test
+    fun aQuestionFromHome_isAskedStraightAway() {
+        val state = viewModel(question = "Which hook works best?").uiState.value
+
+        assertEquals(listOf("Which hook works best?", "Post weekly."), state.messages.map { it.text })
+    }
 
     @Test
     fun send_addsTheQuestionAndTheAnswer() {

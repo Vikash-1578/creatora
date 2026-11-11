@@ -254,7 +254,29 @@
     <!-- AI -->
     <string name="action_done">Done</string>
     <string name="action_copy">Copy</string>
-    <string name="cd_open_coach">Ask the AI Coach</string>
+    <string name="cd_start_project">Start project</string>
+    <string name="home_composer_hint">What do you want to make?</string>
+    <string name="home_ask_coach">Ask the AI Coach</string>
+    <string name="home_untitled">Untitled project</string>
+    <string name="home_next_post_title">Posting next</string>
+    <string name="home_next_post_when">%1$s · %2$s</string>
+    <string name="home_ideas_title">Ideas to start from</string>
+    <string name="home_ideas_empty">Ideas you save show up here, ready to turn into a project.</string>
+    <string name="home_ideas_empty_action">Save an idea</string>
+    <string name="home_idea_use">Start</string>
+    <string name="home_channel_title">Your channel</string>
+    <string name="home_channel_empty">Connect your YouTube channel to see subscribers and views here.</string>
+    <string name="home_channel_empty_action">Connect channel</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_empty_title">You\'re all caught up</string>
+    <string name="notifications_empty_body">Posts coming up and replies waiting for you show here.</string>
+    <string name="notice_post_soon">%1$s is due to post soon</string>
+    <string name="notice_post_missed">Did %1$s go out? Its time has passed</string>
+    <string name="notice_when">%1$s · %2$s</string>
+    <plurals name="notice_replies_waiting">
+        <item quantity="one">%1$d reply draft is waiting for you</item>
+        <item quantity="other">%1$d reply drafts are waiting for you</item>
+    </plurals>
     <string name="ai_providers_title">API keys</string>
     <string name="ai_providers_row_value">AI services and YouTube</string>
     <string name="ai_providers_intro">Creatora uses AI services with your own API keys. Keys are encrypted on this phone, are never backed up, and are only sent to the service they belong to. Add more than one and Creatora tries the next one when a service fails.</string>
