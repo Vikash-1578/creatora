@@ -1,4 +1,4 @@
-package com.creatora.app.ui.themepreview
+package com.creatora.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class ThemePreviewViewModel(
+class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
@@ -26,7 +26,7 @@ class ThemePreviewViewModel(
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer { ThemePreviewViewModel(appContainer().settingsRepository) }
+            initializer { SettingsViewModel(appContainer().settingsRepository) }
         }
     }
 }
