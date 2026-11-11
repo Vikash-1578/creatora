@@ -1,12 +1,18 @@
 package com.creatora.app.ui.settings
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -16,9 +22,11 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.creatora.app.R
 import com.creatora.app.domain.model.ThemeMode
+import com.creatora.app.ui.components.InfoListRow
 import com.creatora.app.ui.components.ListGroup
 import com.creatora.app.ui.components.NavigationListRow
 import com.creatora.app.ui.components.SectionTitle
@@ -40,21 +49,47 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     SettingsContent(
         themeMode = themeMode,
         onThemeModeSelected = viewModel::onThemeModeSelected,
+        version = remember(context) {
+            runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull().orEmpty()
+        },
         onBack = onBack,
         onOpenAiProviders = onOpenAiProviders,
+        onOpenLanguage = { openSystemSettings(context, languageIntent(context)) },
+        onOpenNotifications = {
+            openSystemSettings(
+                context,
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName),
+            )
+        },
         modifier = modifier,
     )
+}
+
+/** Android 13 and newer have a per-app language screen; older versions only have the device's. */
+private fun languageIntent(context: Context): Intent =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Intent(Settings.ACTION_APP_LOCALE_SETTINGS, Uri.fromParts("package", context.packageName, null))
+    } else {
+        Intent(Settings.ACTION_LOCALE_SETTINGS)
+    }
+
+private fun openSystemSettings(context: Context, intent: Intent) {
+    runCatching { context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 }
 
 @Composable
 fun SettingsContent(
     themeMode: ThemeMode,
     onThemeModeSelected: (ThemeMode) -> Unit,
+    version: String,
     onBack: () -> Unit,
     onOpenAiProviders: () -> Unit,
+    onOpenLanguage: () -> Unit,
+    onOpenNotifications: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SubScreenScaffold(
@@ -62,8 +97,7 @@ fun SettingsContent(
         onBack = onBack,
         modifier = modifier,
     ) {
-        Column {
-            SectionTitle(text = stringResource(R.string.settings_appearance))
+        Section(R.string.settings_appearance) {
             Text(
                 text = stringResource(R.string.settings_appearance_description),
                 style = CreatoraTheme.typography.body,
@@ -72,13 +106,35 @@ fun SettingsContent(
             )
             ThemeModeSelector(selected = themeMode, onSelected = onThemeModeSelected)
         }
-        ListGroup {
-            NavigationListRow(
-                title = stringResource(R.string.ai_providers_title),
-                value = stringResource(R.string.ai_providers_row_value),
-                onClick = onOpenAiProviders,
-            )
+        Section(R.string.settings_ai) {
+            ListGroup {
+                NavigationListRow(
+                    title = stringResource(R.string.ai_providers_title),
+                    value = stringResource(R.string.ai_providers_row_value),
+                    onClick = onOpenAiProviders,
+                )
+            }
         }
+        Section(R.string.settings_language) {
+            ListGroup { NavigationListRow(title = stringResource(R.string.settings_language_row), onClick = onOpenLanguage) }
+        }
+        Section(R.string.settings_notifications) {
+            ListGroup { NavigationListRow(title = stringResource(R.string.settings_notifications_row), onClick = onOpenNotifications) }
+        }
+        Section(R.string.settings_about) {
+            ListGroup {
+                InfoListRow(stringResource(R.string.settings_version), version.ifEmpty { stringResource(R.string.profile_version_unknown) })
+            }
+        }
+    }
+}
+
+/** A section header with its content below it. */
+@Composable
+private fun Section(@StringRes title: Int, content: @Composable ColumnScope.() -> Unit) {
+    Column {
+        SectionTitle(text = stringResource(title))
+        content()
     }
 }
 
@@ -146,7 +202,7 @@ private fun ThemeMode.labelRes(): Int = when (this) {
 @Composable
 private fun SettingsLightPreview() {
     CreatoraTheme(darkTheme = false) {
-        SettingsContent(themeMode = ThemeMode.LIGHT, onThemeModeSelected = {}, onBack = {}, onOpenAiProviders = {})
+        SettingsContent(ThemeMode.LIGHT, {}, "0.1.0", {}, {}, {}, {})
     }
 }
 
@@ -154,6 +210,6 @@ private fun SettingsLightPreview() {
 @Composable
 private fun SettingsDarkPreview() {
     CreatoraTheme(darkTheme = true) {
-        SettingsContent(themeMode = ThemeMode.DARK, onThemeModeSelected = {}, onBack = {}, onOpenAiProviders = {})
+        SettingsContent(ThemeMode.DARK, {}, "0.1.0", {}, {}, {}, {})
     }
 }

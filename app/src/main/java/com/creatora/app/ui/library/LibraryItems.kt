@@ -44,6 +44,7 @@ import coil3.compose.AsyncImage
 import com.creatora.app.R
 import com.creatora.app.domain.model.Asset
 import com.creatora.app.domain.model.AssetType
+import com.creatora.app.ui.components.ProjectThumbnail
 import com.creatora.app.ui.theme.CreatoraTheme
 
 /** One entry in an item's dropdown menu. */
@@ -84,9 +85,7 @@ fun ProjectCard(
     val context = LocalContext.current
     val goesLive = item.goesLiveAt
     Column(
-        modifier = modifier
-            .clip(CreatoraTheme.shapes.radius16)
-            .clickable(role = Role.Button) { menuOpen = true },
+        modifier = modifier.clickable(role = Role.Button) { menuOpen = true },
         verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs),
     ) {
         Box(
@@ -97,6 +96,7 @@ fun ProjectCard(
                 .background(colors.surfaceAlt)
                 .border(CreatoraTheme.dimens.borderWidth, colors.border, CreatoraTheme.shapes.radius16),
         ) {
+            ProjectThumbnail(item.project.format)
             StatusChip(
                 label = stringResource(
                     when {
@@ -203,9 +203,7 @@ fun AssetCard(
     val colors = CreatoraTheme.colors
     var menuOpen by remember { mutableStateOf(false) }
     Column(
-        modifier = modifier
-            .clip(CreatoraTheme.shapes.radius16)
-            .clickable(role = Role.Button) { menuOpen = true },
+        modifier = modifier.clickable(role = Role.Button) { menuOpen = true },
         verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs),
     ) {
         Box(

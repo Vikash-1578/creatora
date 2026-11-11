@@ -13,6 +13,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -31,10 +32,27 @@ class CreateViewModel @Inject constructor(
     private val _ideas = MutableStateFlow(IdeasUiState())
     val ideas: StateFlow<IdeasUiState> = _ideas.asStateFlow()
 
-    /** Creates a project in [format] and passes its id to [onCreated] so the wizard can open. */
+    private var starting = false
+
+    /**
+     * Creates a project in [format] and passes its id to [onCreated] so the wizard can open. If the user
+     * already has an empty draft in that format (nothing written yet), it is reused instead of adding
+     * another, and a second tap while the first is still saving is ignored.
+     */
     fun start(format: VideoFormat, title: String, onCreated: (Long) -> Unit, brief: String = "") {
+        if (starting) return
+        starting = true
         viewModelScope.launch {
-            onCreated(projects.save(Project(title = title.trim(), format = format, brief = brief.trim())))
+            try {
+                val empty = if (brief.isBlank()) {
+                    projects.observeAll().first()
+                        .filter { it.isInProgress && it.format == format && it.step == 0 && it.brief.isBlank() && it.script.isBlank() }
+                        .maxByOrNull { it.updatedAt }
+                } else null
+                onCreated(empty?.id ?: projects.save(Project(title = title.trim(), format = format, brief = brief.trim())))
+            } finally {
+                starting = false
+            }
         }
     }
 

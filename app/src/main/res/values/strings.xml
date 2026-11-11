@@ -30,7 +30,8 @@
     <!-- Profile / Earn / Settings -->
     <string name="profile_title">Profile</string>
     <string name="earn_title">Earn</string>
-    <string name="earn_subtitle">Earnings and payouts will appear here</string>
+    <string name="earn_subtitle">Track sponsorships and income here. This part of Creatora is still being built.</string>
+    <string name="earn_empty_title">Nothing to track yet</string>
     <string name="settings_title">Settings</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_appearance_description">Choose how Creatora looks. Your choice is saved.</string>
@@ -170,7 +171,8 @@
     <string name="create_format_post_hint">Slides, thread, podcast</string>
     <string name="create_steps_title">%1$d simple steps</string>
     <string name="create_steps_note">You approve first</string>
-    <string name="create_steps_list">Brief · Script · Cast · Voice · Footage · Review and cost · Generate</string>
+    <string name="create_pick_format">Pick a format to start</string>
+    <string name="create_steps_list">Brief · Script · Cast · Voice · Footage · Review · Generate</string>
     <string name="create_start">Start with a brief</string>
     <string name="create_default_title">Untitled %1$s</string>
 
@@ -249,6 +251,19 @@
     <string name="library_status_ready">Ready</string>
     <string name="home_continue_title">Continue where you left off</string>
     <string name="home_continue_step">Step %1$d of %2$d · %3$s</string>
+    <string name="home_quick_actions">Quick actions</string>
+    <string name="home_action_new_video">New video</string>
+    <string name="home_action_ideas">Get ideas</string>
+    <string name="home_action_library">Open Library</string>
+    <string name="home_recent">Recent projects</string>
+    <string name="home_recent_empty">Projects you start show up here.</string>
+    <string name="home_recent_empty_action">Start a video</string>
+    <string name="home_coach_title">Need an idea?</string>
+    <string name="home_coach_body">Ask the AI Coach for video ideas, hooks and titles. It uses the API key you add in Settings.</string>
+    <string name="home_coach_action">Ask the AI Coach</string>
+    <string name="home_channel_title">Your channel</string>
+    <string name="home_channel_body">Connect your YouTube channel to see how it is doing here.</string>
+    <string name="home_channel_action">Connect your channel</string>
     <string name="home_continue_action">Continue</string>
 
     <!-- AI -->
@@ -312,4 +327,52 @@
     <string name="theme_mode_system">System</string>
     <string name="theme_mode_light">Light</string>
     <string name="theme_mode_dark">Dark</string>
+
+    <!-- Research and Grow sections -->
+    <string name="research_action_key">Add your YouTube API key</string>
+    <string name="research_keywords">Keywords</string>
+    <string name="research_keywords_body">Search a topic and see how crowded it is, so you can pick one you can win.</string>
+    <string name="research_outliers">Outliers</string>
+    <string name="research_outliers_body">Find videos that did far better than their channel usually does, and learn why.</string>
+    <string name="research_competitors">Competitors</string>
+    <string name="research_competitors_body">Follow channels like yours and watch what they upload and how it performs.</string>
+    <string name="research_trends">Trends</string>
+    <string name="research_trends_body">See what is popular right now in your region.</string>
+    <string name="grow_action_connect">Connect your channel</string>
+    <string name="grow_action_create">Make a video</string>
+    <string name="grow_analytics">Analytics</string>
+    <string name="grow_analytics_body">Your subscribers and views over time, once your channel is connected.</string>
+    <string name="grow_comments">Comments</string>
+    <string name="grow_comments_body">Draft replies to your comments and approve them before anything is sent.</string>
+    <string name="grow_tests">A/B tests</string>
+    <string name="grow_tests_body">Compare two titles or thumbnails and keep the one that works. Start from a video you made.</string>
+    <string name="grow_audit">Channel audit</string>
+    <string name="grow_audit_body">A checklist of what to fix on your channel, based on your own channel data.</string>
+
+    <!-- Profile, Settings, Help -->
+    <string name="profile_channel">YouTube channel</string>
+    <string name="profile_channel_not_connected">Not connected</string>
+    <string name="profile_about">About Creatora</string>
+    <string name="profile_version_unknown">Unknown</string>
+    <string name="profile_name_empty">Add your name</string>
+    <string name="profile_name_hint">Tap to change</string>
+    <string name="profile_name_title">Your name</string>
+    <string name="profile_name_label">Name</string>
+    <string name="profile_edit_name">Edit name</string>
+    <string name="settings_ai">AI providers</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_row">App language</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_notifications_row">Notification settings</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="help_title">Help</string>
+    <string name="help_keys_title">Adding API keys</string>
+    <string name="help_keys_body">AI features use your own key from Google AI Studio, Groq or OpenRouter. Add it in Settings under AI providers. Keys stay on this phone.</string>
+    <string name="help_create_title">Making a video</string>
+    <string name="help_create_body">Pick a format on Create, write a brief, then move through the steps. You can leave and come back; your draft is saved.</string>
+    <string name="help_files_title">Your files</string>
+    <string name="help_files_body">Photos, clips and music you add live in Library. Log where each file came from so you know it is safe to use.</string>
+    <string name="help_privacy_title">Privacy</string>
+    <string name="help_privacy_body">Your projects and settings are stored on this phone. Creatora only sends text to the AI service you choose when you ask for a suggestion.</string>
 </resources>

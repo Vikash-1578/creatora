@@ -24,6 +24,8 @@ data class CreatoraSpacing(
     val md: Dp = 12.dp,
     val lg: Dp = 16.dp,
     val xl: Dp = 20.dp,
+    /** Gap between the sections of a screen. */
+    val xxl: Dp = 24.dp,
 )
 
 /** Fixed sizes. Read via CreatoraTheme.dimens.<name>. */
@@ -46,6 +48,10 @@ data class CreatoraDimens(
     val progressHeight: Dp = 4.dp,
     /** Tallest the logo preview in the brand kit gets. */
     val logoPreviewMaxHeight: Dp = 160.dp,
+    /** Diameter of the avatar on the Profile screen. */
+    val avatarSize: Dp = 56.dp,
+    /** Width of a recent-project card on Home. */
+    val recentCardWidth: Dp = 160.dp,
     /** Width of the background-coloured ring around the Create button. */
     val createButtonRing: Dp = 4.dp,
 )

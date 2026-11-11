@@ -62,7 +62,7 @@ private fun VideoFormat.subtitleRes(): Int = when (this) {
     VideoFormat.POST_CAROUSEL -> R.string.create_format_post_hint
 }
 
-private fun VideoFormat.icon(): ImageVector = when (this) {
+internal fun VideoFormat.icon(): ImageVector = when (this) {
     VideoFormat.LONG_VIDEO -> Icons.Outlined.Movie
     VideoFormat.SHORTS_REELS -> Icons.Outlined.PhoneAndroid
     VideoFormat.CARTOON_STORY -> Icons.Outlined.SentimentSatisfied
@@ -78,14 +78,16 @@ fun CreateScreen(
     modifier: Modifier = Modifier,
     viewModel: CreateViewModel = hiltViewModel(),
 ) {
-    var selected by rememberSaveable { mutableStateOf(VideoFormat.LONG_VIDEO) }
+    // Nothing is selected until the user taps a tile.
+    var selected by rememberSaveable { mutableStateOf<VideoFormat?>(null) }
     var showIdeas by rememberSaveable { mutableStateOf(false) }
     val ideas by viewModel.ideas.collectAsStateWithLifecycle()
-    val title = stringResource(R.string.create_default_title, stringResource(selected.titleRes()))
+    val chosen = selected ?: VideoFormat.LONG_VIDEO
+    val title = stringResource(R.string.create_default_title, stringResource(chosen.titleRes()))
     CreateContent(
         selected = selected,
         onSelect = { selected = it },
-        onStart = { viewModel.start(selected, title, onProjectStarted) },
+        onStart = { selected?.let { viewModel.start(it, title, onProjectStarted) } },
         onIdeas = { showIdeas = true },
         modifier = modifier,
     )
@@ -95,7 +97,7 @@ fun CreateScreen(
             onSuggest = viewModel::suggestIdeas,
             onUse = { idea ->
                 showIdeas = false
-                viewModel.start(selected, idea, onProjectStarted, brief = idea)
+                viewModel.start(chosen, idea, onProjectStarted, brief = idea)
                 viewModel.clearIdeas()
             },
             onOpenProviders = {
@@ -109,7 +111,7 @@ fun CreateScreen(
 
 @Composable
 fun CreateContent(
-    selected: VideoFormat,
+    selected: VideoFormat?,
     onSelect: (VideoFormat) -> Unit,
     onStart: () -> Unit,
     onIdeas: () -> Unit,
@@ -125,6 +127,9 @@ fun CreateContent(
             modifier = Modifier.padding(horizontal = spacing.lg),
             verticalArrangement = Arrangement.spacedBy(spacing.md),
         ) {
+            if (selected == null) {
+                Text(stringResource(R.string.create_pick_format), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
+            }
             Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(spacing.md)) {
                 VideoFormat.entries.chunked(2).forEach { pair ->
                     Row(horizontalArrangement = Arrangement.spacedBy(spacing.md)) {
@@ -143,9 +148,8 @@ fun CreateContent(
             PrimaryButton(
                 text = stringResource(R.string.create_start),
                 onClick = onStart,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = spacing.lg),
+                modifier = Modifier.fillMaxWidth(),
+                enabled = selected != null,
             )
         }
     }
@@ -212,7 +216,7 @@ private fun StepsCard() {
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun CreateLightPreview() {
-    CreatoraTheme(darkTheme = false) { CreateContent(VideoFormat.LONG_VIDEO, {}, {}, {}) }
+    CreatoraTheme(darkTheme = false) { CreateContent(null, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)

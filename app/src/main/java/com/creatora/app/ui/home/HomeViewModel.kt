@@ -18,4 +18,13 @@ class HomeViewModel @Inject constructor(projects: ProjectRepository) : ViewModel
     val continueProject: StateFlow<Project?> = projects.observeAll()
         .map { list -> list.filter { it.isInProgress }.maxByOrNull { it.updatedAt } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** The last few projects touched, newest first, templates left out. */
+    val recentProjects: StateFlow<List<Project>> = projects.observeAll()
+        .map { list -> list.filterNot { it.isTemplate }.sortedByDescending { it.updatedAt }.take(MAX_RECENT) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    companion object {
+        const val MAX_RECENT = 5
+    }
 }

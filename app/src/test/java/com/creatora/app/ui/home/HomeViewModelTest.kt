@@ -30,4 +30,16 @@ class HomeViewModelTest {
 
         assertEquals("Latest", viewModel.continueProject.value?.title)
     }
+
+    @Test
+    fun recentProjects_areTheLatestFive_withoutTemplates() = runTest {
+        val viewModel = HomeViewModel(projects)
+        keepActive(viewModel.recentProjects)
+        assertEquals(emptyList<Project>(), viewModel.recentProjects.value)
+
+        (1..7).forEach { projects.save(Project(title = "P$it", updatedAt = it.toLong())) }
+        projects.save(Project(title = "Template", updatedAt = 99, isTemplate = true))
+
+        assertEquals(listOf("P7", "P6", "P5", "P4", "P3"), viewModel.recentProjects.value.map { it.title })
+    }
 }

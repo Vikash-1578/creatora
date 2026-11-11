@@ -9,4 +9,9 @@ class FakeSettingsRepository(initial: ThemeMode = ThemeMode.Default) : SettingsR
     override suspend fun setThemeMode(mode: ThemeMode) {
         themeMode.value = mode
     }
+
+    override val displayName = MutableStateFlow("")
+    override suspend fun setDisplayName(name: String) {
+        displayName.value = name.trim()
+    }
 }
