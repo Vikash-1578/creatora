@@ -17,7 +17,7 @@ import org.json.JSONObject
  * Trending videos, cached in Firestore for 24 hours. The most popular chart costs 1 quota unit, a search 100, so the
  * search runs only when the niche has no matching category (or the category chart is nearly empty).
  */
-class CachedTrendingRepository @Inject constructor(
+class CachedTrendingRepository(
     private val registry: PlatformRegistry,
     private val cache: CacheRepository,
     private val now: () -> Long,
