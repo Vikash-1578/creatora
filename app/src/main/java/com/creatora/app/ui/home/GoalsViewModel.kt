@@ -174,7 +174,7 @@ class GoalsViewModel @Inject constructor(
             else -> {
                 val current = overviews.map { it.current }
                 if (current.any { it == null }) null else when (metric) {
-                    GoalMetric.SUBSCRIBERS -> current.sumOf { it!!.netSubscribers }
+                    GoalMetric.SUBSCRIBERS -> current.sumOf { it!!.netSubscribers ?: 0L }
                     GoalMetric.VIEWS -> current.sumOf { it!!.views }
                     else -> if (current.all { it!!.revenueUsd != null }) current.sumOf { it!!.revenueUsd!! }.toLong() else null
                 }

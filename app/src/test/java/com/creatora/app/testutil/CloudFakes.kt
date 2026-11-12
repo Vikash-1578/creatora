@@ -427,3 +427,12 @@ class FakeErrorReporter : com.creatora.app.domain.repository.ErrorReporter {
     val recorded = mutableListOf<Throwable>()
     override fun record(error: Throwable) { recorded += error }
 }
+
+/** A platform sign-in that answers with [outcome] and counts how often it was asked. */
+class FakePlatformLogin(
+    override val platform: ConnectPlatform,
+    var outcome: com.creatora.app.domain.platform.LoginOutcome = com.creatora.app.domain.platform.LoginOutcome.Cancelled,
+) : com.creatora.app.domain.platform.PlatformLogin {
+    var calls = 0
+    override suspend fun signIn(): com.creatora.app.domain.platform.LoginOutcome { calls++; return outcome }
+}

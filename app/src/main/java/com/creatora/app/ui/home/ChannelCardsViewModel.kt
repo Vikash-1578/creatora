@@ -130,7 +130,7 @@ class ChannelCardsViewModel @Inject constructor(
         val readable = accounts.filter { it.platform.support == PlatformSupport.FULL }
         if (readable.isEmpty()) {
             videos = emptyList()
-            val error = if (accounts.first().platform.support == PlatformSupport.LINK_ONLY) AdapterError.NotAvailable("link only") else AdapterError.ComingSoon
+            val error = AdapterError.NotAvailable("Only the link is saved for this platform")
             _state.update { it.copy(phase = CardsPhase.UNSUPPORTED, error = error, accountCount = accounts.size, snapshot = null, uploads = emptyList(), streak = null) }
             return
         }

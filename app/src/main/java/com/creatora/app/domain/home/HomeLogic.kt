@@ -56,9 +56,9 @@ fun sumMetrics(list: List<PeriodMetrics>): PeriodMetrics? {
     if (list.isEmpty()) return null
     return PeriodMetrics(
         views = list.sumOf { it.views },
-        watchMinutes = list.sumOf { it.watchMinutes },
-        subscribersGained = list.sumOf { it.subscribersGained },
-        subscribersLost = list.sumOf { it.subscribersLost },
+        watchMinutes = list.mapNotNull { it.watchMinutes }.takeIf { it.isNotEmpty() }?.sum(),
+        subscribersGained = list.mapNotNull { it.subscribersGained }.takeIf { it.isNotEmpty() }?.sum(),
+        subscribersLost = list.mapNotNull { it.subscribersLost }.takeIf { it.isNotEmpty() }?.sum(),
         revenueUsd = if (list.all { it.revenueUsd != null }) list.sumOf { it.revenueUsd ?: 0.0 } else null,
     )
 }
@@ -75,8 +75,8 @@ data class Snapshot(
 fun buildSnapshot(subscribers: Long?, current: PeriodMetrics?, previous: PeriodMetrics?): Snapshot = Snapshot(
     subscribers = subscribers,
     views = current?.let { Change(it.views.toDouble(), previous?.views?.toDouble()) },
-    watchHours = current?.let { Change(it.watchMinutes / 60.0, previous?.let { p -> p.watchMinutes / 60.0 }) },
-    subscribersNet = current?.let { Change(it.netSubscribers.toDouble(), previous?.netSubscribers?.toDouble()) },
+    watchHours = current?.watchMinutes?.let { Change(it / 60.0, previous?.watchMinutes?.let { p -> p / 60.0 }) },
+    subscribersNet = current?.netSubscribers?.let { Change(it.toDouble(), previous?.netSubscribers?.toDouble()) },
     earningsUsd = current?.revenueUsd?.let { Change(it, previous?.revenueUsd) },
 )
 

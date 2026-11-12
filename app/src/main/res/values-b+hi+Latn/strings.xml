@@ -28,10 +28,10 @@
     <string name="connect_input_label">Link, ID ya @handle paste karo</string>
     <string name="connect_button">Dhoondho aur jodo</string>
     <string name="connect_hint_full">Google tumhare account ke YouTube channels khud dhoondh leta hai. Link ya ID bhi paste kar sakte ho.</string>
-    <string name="connect_hint_instagram">Instagram ke liye professional (Business ya Creator) account chahiye. Badalne ke liye: Instagram, Settings, Account type and tools, Switch to professional account. Connect karna jaldi aa raha hai.</string>
-    <string name="connect_hint_coming_soon">Ye platform jaldi aa raha hai. Abhi kuch fetch nahi hota.</string>
+    <string name="connect_hint_instagram">Instagram ke liye professional (Business ya Creator) account chahiye; personal account nahi jud sakta. Badalne ke liye: Instagram, Settings, Account type and tools, Switch to professional account.</string>
+    <string name="connect_hint_facebook">Facebook se aapke Pages jude hote hain, personal profile nahi. Login par wo Pages chuniye jo Creatora ko dikhane hain.</string>
+    <string name="connect_hint_tiktok">TikTok login se aapki profile, followers aur har video ke numbers aate hain. TikTok time ke saath account ke numbers nahi deta.</string>
     <string name="connect_hint_link_only">Sirf link save hota hai. Is platform se kuch fetch nahi hota.</string>
-    <string name="connect_coming_soon">%1$s jaldi aa raha hai. Kuch save ya fetch nahi hua.</string>
     <string name="connect_link_saved">Link save ho gaya.</string>
     <string name="connect_plan_limit">Tumhare plan mein %1$d account jod sakte ho. Aur jodne ke liye upgrade karo.</string>
     <string name="connect_problem_not_authorized">YouTube ki permission nahi mili. Baad mein Settings mein de sakte ho.</string>
@@ -219,7 +219,6 @@
     <string name="home_error_network">Internet nahi hai. Phir try karo.</string>
     <string name="home_error_quota">YouTube abhi requests limit kar raha hai. Baad mein try karo.</string>
     <string name="home_error_not_found">Kuch nahi mila.</string>
-    <string name="home_error_coming_soon">Ye platform jaldi aa raha hai. Abhi kuch fetch nahi hota.</string>
     <string name="home_error_not_available">Ye is account ke liye abhi available nahi hai.</string>
     <string name="home_focus_title">Aaj ka focus</string>
     <string name="home_focus_fix">Fix karo</string>
@@ -287,7 +286,6 @@
     <string name="home_trending_stale">Refresh nahi ho saka. %1$s ka data dikha rahe hain.</string>
     <string name="home_action_keywords">Keyword search</string>
     <string name="home_action_thumbnail">Thumbnail</string>
-    <string name="home_keyword_soon">Keyword search baad ke update mein aayegi.</string>
     <string name="home_thumbnail_needs_project">Pehle ek video shuru karo ya continue karo, phir uska thumbnail banao.</string>
     <string name="home_connect_title">Apna channel jodo</string>
     <string name="home_connect_body">Apne numbers, aaj ka focus aur daily ideas dekhne ke liye account jodo. Tab tak dekho kya trend kar raha hai.</string>
@@ -311,7 +309,7 @@
     <string name="research_loading">Load ho raha hai…</string>
     <string name="research_thinking">Soch raha hai…</string>
     <string name="research_pick_one">Upar se ek account chuno. Outlier score ek baar mein ek channel ke liye nikalta hai.</string>
-    <string name="research_unsupported">Is platform ke liye research abhi available nahi hai. Abhi sirf YouTube chalta hai.</string>
+    <string name="research_unsupported">Research YouTube channels ke liye hai. Instagram, Facebook aur TikTok apne API se public search ya dusron ke numbers nahi dete.</string>
     <string name="research_not_enough">Tulna ke liye Creatora ko 2 din se purane kam se kam 5 videos chahiye. Tumhare channel se kul %1$d videos mile.</string>
     <string name="research_outlier_title">Outlier score</string>
     <string name="research_estimate">Estimate</string>
@@ -443,4 +441,6 @@
     <string name="goal_advice_suggested">Suggested target: %1$s</string>
     <string name="goal_advice_use">Suggested target rakho</string>
     <string name="goal_advice_keep">Mera target rakho</string>
+    <string name="connect_problem_not_configured">Is build mein %1$s login set nahi hai. Ye build settings khali hain: %2$s.</string>
+    <string name="connect_problem_login_failed">%1$s login poora nahi hua: %2$s</string>
 </resources>

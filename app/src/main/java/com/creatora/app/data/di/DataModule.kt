@@ -76,8 +76,6 @@ import com.creatora.app.data.cloud.FirestoreUserRepository
 import com.creatora.app.data.cloud.GoogleYouTubeAuthorizer
 import com.creatora.app.data.cloud.PlayBillingRepository
 import com.creatora.app.data.notify.DataStoreNotificationPrefs
-import com.creatora.app.data.youtube.YouTubeAdapter
-import com.creatora.app.domain.account.PlatformRegistry
 import com.creatora.app.domain.ai.MeteredAiService
 import com.creatora.app.domain.repository.AiHistoryRepository
 import com.creatora.app.domain.repository.AuthService
@@ -141,10 +139,6 @@ object CloudModule {
         goals: GoalRepository,
     ): AiService =
         if (BuildConfig.DEV_AI_KEYS) failover else MeteredAiService(firebase, auth, users, usage, history, settings, billing, goals)
-
-    @Provides
-    @Singleton
-    fun platformRegistry(youtube: YouTubeAdapter): PlatformRegistry = PlatformRegistry(listOf(youtube))
 }
 
 @Module

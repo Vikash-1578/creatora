@@ -16,6 +16,7 @@ reviewer merges PRs.
 | Phase A | Onboarding, accounts, settings, Firebase, Creatora AI, plans and usage | Merged (#15) |
 | Phase B | Home: account switcher, snapshot, focus, daily ideas, uploads, goals, streak, trending | Merged (#16) |
 | **Phase C** | Research: My channel, Competitors, Trends, Keywords, Idea bank | In progress: spec in `docs/spec/03-research.md` |
+| Phase QA | Device-test fixes, emulator smoke test, Instagram / Facebook Pages / TikTok sign-in, data and publishers | In progress: see `docs/platform-setup.md` |
 | Phase D+ | Next screens, from the manager's approved specs | Not started |
 | Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
 

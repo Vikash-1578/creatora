@@ -48,8 +48,10 @@ fun ConnectPlatform.labelRes(): Int = when (this) {
 }
 
 @Composable
-fun ConnectProblem.message(): String = stringResource(
+fun ConnectProblem.message(platformName: String = "", detail: String = ""): String = stringResource(
     when (this) {
+        ConnectProblem.NOT_CONFIGURED -> R.string.connect_problem_not_configured
+        ConnectProblem.LOGIN_FAILED -> R.string.connect_problem_login_failed
         ConnectProblem.NOT_AUTHORIZED -> R.string.connect_problem_not_authorized
         ConnectProblem.NETWORK -> R.string.connect_problem_network
         ConnectProblem.QUOTA -> R.string.connect_problem_quota
@@ -58,6 +60,7 @@ fun ConnectProblem.message(): String = stringResource(
         ConnectProblem.UNRECOGNISED -> R.string.connect_problem_unrecognised
         ConnectProblem.SAVE_FAILED -> R.string.connect_problem_save_failed
     },
+    platformName, detail,
 )
 
 /** Round picture with the first letter as a stand-in. */
@@ -117,8 +120,8 @@ fun ChannelCard(preview: ChannelPreview, confirmLabel: String, onConfirm: () -> 
 
 /**
  * Connect a platform. YouTube: "Login with Google" finds the channels on the Google account (a pasted link also
- * works). Platforms with a login but no connection yet: their own "Login with …" button, which says it is coming
- * soon. Platforms without an API: paste the link and only the link is saved. Shared by onboarding and Settings.
+ * works). Instagram, Facebook Pages and TikTok: their own "Login with …" screen, then "Is this you?". Platforms
+ * without an API: paste the link and only the link is saved. Shared by onboarding and Settings.
  */
 @Composable
 fun AddAccountPanel(
@@ -139,10 +142,12 @@ fun AddAccountPanel(
                 com.creatora.app.ui.components.ChoiceChip(stringResource(entry.labelRes()), entry == platform, { platform = entry; onDismiss() })
             }
         }
-        val hint = when (platform.support) {
-            PlatformSupport.FULL -> R.string.connect_hint_full
-            PlatformSupport.COMING_SOON -> if (platform == ConnectPlatform.INSTAGRAM) R.string.connect_hint_instagram else R.string.connect_hint_coming_soon
-            PlatformSupport.LINK_ONLY -> R.string.connect_hint_link_only
+        val hint = when (platform) {
+            ConnectPlatform.YOUTUBE -> R.string.connect_hint_full
+            ConnectPlatform.INSTAGRAM -> R.string.connect_hint_instagram
+            ConnectPlatform.FACEBOOK -> R.string.connect_hint_facebook
+            ConnectPlatform.TIKTOK -> R.string.connect_hint_tiktok
+            else -> R.string.connect_hint_link_only
         }
         Text(stringResource(hint), style = CreatoraTheme.typography.caption, color = colors.textMuted)
         if (platform.support != PlatformSupport.LINK_ONLY) {
@@ -157,7 +162,7 @@ fun AddAccountPanel(
                 enabled = !lookup.busy,
             )
         }
-        if (platform.support != PlatformSupport.COMING_SOON) {
+        if (platform == ConnectPlatform.YOUTUBE || platform.support == PlatformSupport.LINK_ONLY) {
             OutlinedTextField(
                 value = input,
                 onValueChange = { input = it },
@@ -173,10 +178,7 @@ fun AddAccountPanel(
             )
         }
         if (lookup.busy) CircularProgressIndicator(Modifier.size(CreatoraTheme.dimens.icon))
-        lookup.problem?.let { Text(it.message(), style = CreatoraTheme.typography.body, color = colors.danger) }
-        lookup.comingSoon?.let {
-            Text(stringResource(R.string.connect_coming_soon, stringResource(it.labelRes())), style = CreatoraTheme.typography.body, color = colors.textMuted)
-        }
+        lookup.problem?.let { Text(it.message(stringResource(platform.labelRes()), lookup.detail.orEmpty()), style = CreatoraTheme.typography.body, color = colors.danger) }
         if (lookup.linkSaved) Text(stringResource(R.string.connect_link_saved), style = CreatoraTheme.typography.body, color = colors.success)
         lookup.planLimitMax?.let {
             Text(stringResource(R.string.connect_plan_limit, it), style = CreatoraTheme.typography.body, color = colors.warning)

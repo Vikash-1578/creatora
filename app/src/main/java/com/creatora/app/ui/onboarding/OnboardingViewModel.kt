@@ -31,6 +31,7 @@ import com.creatora.app.domain.repository.UserRepository
 import com.creatora.app.ui.accounts.ConnectProblem
 import com.creatora.app.ui.accounts.LookupUi
 import com.creatora.app.ui.accounts.lookupForPanel
+import com.creatora.app.ui.accounts.toLookup
 import com.creatora.app.ui.accounts.toProblem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -205,9 +206,16 @@ class OnboardingViewModel @Inject constructor(
 
     fun dismissPasted() = _state.update { it.copy(lookup = LookupUi()) }
 
-    /** "Login with …": Google finds the YouTube channels again; other platforms are not connectable yet. */
+    /** "Login with …": Google finds the YouTube channels again; the other platforms show their own sign-in. */
     fun login(platform: ConnectPlatform) {
-        if (platform == ConnectPlatform.YOUTUBE) loadChannels() else _state.update { it.copy(lookup = LookupUi(comingSoon = platform)) }
+        if (platform == ConnectPlatform.YOUTUBE) return loadChannels()
+        _state.update { it.copy(lookup = LookupUi(busy = true)) }
+        safely(onError = { _state.update { it.copy(lookup = LookupUi(problem = ConnectProblem.NETWORK)) } }) {
+            val outcome = connector.login(platform)
+            _state.update {
+                it.copy(lookup = outcome.toLookup(), channels = it.channels + ((outcome as? com.creatora.app.domain.platform.LoginOutcome.Signed)?.accounts.orEmpty()))
+            }
+        }
     }
 
     /** Leaves the connect step. The one question is only asked when nothing is connected. */

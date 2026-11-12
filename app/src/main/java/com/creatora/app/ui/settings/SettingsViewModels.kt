@@ -34,6 +34,7 @@ import com.creatora.app.domain.repository.UserDoc
 import com.creatora.app.domain.repository.UserRepository
 import com.creatora.app.ui.accounts.LookupUi
 import com.creatora.app.ui.accounts.lookupForPanel
+import com.creatora.app.ui.accounts.toLookup
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -167,9 +168,20 @@ class ConnectedAccountsViewModel @Inject constructor(
 
     fun dismissPasted() = local.update { it.copy(lookup = LookupUi()) }
 
-    /** "Login with …": Google finds the YouTube channels again; other platforms are not connectable yet. */
+    /** "Login with …": Google finds the YouTube channels again; the other platforms show their own sign-in. */
     fun login(platform: ConnectPlatform) {
-        if (platform == ConnectPlatform.YOUTUBE) loadOwn() else local.update { it.copy(lookup = LookupUi(comingSoon = platform)) }
+        if (platform == ConnectPlatform.YOUTUBE) return loadOwn()
+        local.update { it.copy(lookup = LookupUi(busy = true)) }
+        viewModelScope.launch {
+            val outcome = try {
+                connector.login(platform)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                com.creatora.app.domain.platform.LoginOutcome.Failed(e.message ?: "Sign-in failed")
+            }
+            local.update { it.copy(lookup = outcome.toLookup(), ownChannels = it.ownChannels + ((outcome as? com.creatora.app.domain.platform.LoginOutcome.Signed)?.accounts.orEmpty())) }
+        }
     }
 
     fun remove(account: ConnectedAccount) {
