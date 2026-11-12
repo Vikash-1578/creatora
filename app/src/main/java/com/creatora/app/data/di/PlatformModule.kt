@@ -14,6 +14,7 @@ import com.creatora.app.data.tiktok.TikTokAdapter
 import com.creatora.app.data.tiktok.TikTokLogin
 import com.creatora.app.data.tiktok.TikTokPublisher
 import com.creatora.app.data.youtube.YouTubeAdapter
+import com.creatora.app.data.youtube.YouTubeUploader
 import com.creatora.app.domain.account.PlatformRegistry
 import com.creatora.app.domain.platform.LoginRegistry
 import com.creatora.app.domain.platform.OAuthBrowser
@@ -21,6 +22,7 @@ import com.creatora.app.domain.platform.PlatformKeyProvider
 import com.creatora.app.domain.platform.PublisherRegistry
 import com.creatora.app.domain.platform.TokenStore
 import com.creatora.app.domain.repository.ErrorReporter
+import com.creatora.app.domain.repository.YouTubeAuthorizer
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -55,6 +57,9 @@ object PlatformModule {
         )
 
     @Provides @Singleton
-    fun publisherRegistry(http: HttpTransport, errors: ErrorReporter, tokens: TokenStore, keys: PlatformKeyProvider): PublisherRegistry =
-        PublisherRegistry(listOf(InstagramPublisher(http, errors, tokens), FacebookPublisher(http, errors, tokens), TikTokPublisher(http, errors, tokens, keys)))
+    fun youTubeUploader(http: HttpTransport, authorizer: YouTubeAuthorizer, errors: ErrorReporter): YouTubeUploader = YouTubeUploader(http, authorizer, errors)
+
+    @Provides @Singleton
+    fun publisherRegistry(youtube: YouTubeUploader, http: HttpTransport, errors: ErrorReporter, tokens: TokenStore, keys: PlatformKeyProvider): PublisherRegistry =
+        PublisherRegistry(listOf(youtube, InstagramPublisher(http, errors, tokens), FacebookPublisher(http, errors, tokens), TikTokPublisher(http, errors, tokens, keys)))
 }

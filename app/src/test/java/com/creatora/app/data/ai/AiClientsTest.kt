@@ -39,6 +39,26 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
         return postResponses.entries.firstOrNull { url.contains(it.key) }?.value ?: response
     }
 
+    val postBytesUrls = mutableListOf<String>()
+    var postBytesResponse = HttpResponse(200, "")
+
+    override suspend fun postBytes(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse {
+        if (offline) throw IOException("offline")
+        postBytesUrls += url
+        return postBytesResponse
+    }
+
+    val putFileUrls = mutableListOf<String>()
+    val putFileHeaders = mutableListOf<Map<String, String>>()
+    var putFileResponse = HttpResponse(200, "")
+
+    override suspend fun putFile(url: String, headers: Map<String, String>, file: java.io.File): HttpResponse {
+        if (offline) throw IOException("offline")
+        putFileUrls += url
+        putFileHeaders += headers
+        return putFileResponse
+    }
+
     val putUrls = mutableListOf<String>()
     val putHeaders = mutableListOf<Map<String, String>>()
     var putResponse = HttpResponse(200, "")

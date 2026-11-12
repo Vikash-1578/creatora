@@ -44,6 +44,18 @@ data class Project(
     val stepStates: Map<WizardStep, StepState> = emptyMap(),
     /** True once this project's render was counted against the plan's videos-a-day limit. */
     val counted: Boolean = false,
+    // Phase E: what is posted. Null answers are unanswered, never defaulted.
+    val publishTitle: String = "",
+    val publishDescription: String = "",
+    val publishHashtags: List<String> = emptyList(),
+    val publishTags: List<String> = emptyList(),
+    /** file:// URI of the thumbnail made in the thumbnail maker. */
+    val thumbnailUri: String? = null,
+    /** YouTube's "contains AI-generated or altered content" answer. */
+    val aiContent: Boolean? = null,
+    val madeForKids: Boolean? = null,
+    /** A caption written for one platform, by platform name; platforms without one use the description. */
+    val captions: Map<String, String> = emptyMap(),
 ) {
     /** The whole script in reading order. */
     val script: String get() = listOf(hook, structure, callToAction).filter { it.isNotBlank() }.joinToString("\n\n")

@@ -38,6 +38,9 @@ import com.creatora.app.ui.settings.NotificationSettingsScreen
 import com.creatora.app.ui.settings.PrivacyScreen
 import com.creatora.app.ui.settings.SettingsDestinations
 import com.creatora.app.ui.settings.SettingsScreen
+import com.creatora.app.ui.calendar.CalendarScreen
+import com.creatora.app.ui.publish.PublishScreen
+import com.creatora.app.ui.publish.PublishViewModel
 import com.creatora.app.ui.thumbnail.ThumbnailScreen
 import com.creatora.app.ui.thumbnail.ThumbnailViewModel
 
@@ -65,6 +68,8 @@ object Routes {
     const val WIZARD = "wizard/{projectId}"
     const val AI_PROVIDERS = "ai_providers"
     const val THUMBNAIL = "thumbnail/{projectId}"
+    const val PUBLISH = "publish/{projectId}"
+    const val CALENDAR = "calendar"
     const val COACH = "coach"
     const val NOTIFICATIONS = "notifications"
     const val COMPETITOR = "research/competitor/{channelId}"
@@ -75,6 +80,8 @@ object Routes {
     fun competitor(channelId: String) = "research/competitor/$channelId"
 
     fun thumbnail(projectId: Long) = "thumbnail/$projectId"
+
+    fun publish(projectId: Long) = "publish/$projectId"
 
     fun licences(assetId: Long?) = "licences?assetId=${assetId ?: LicencesViewModel.ALL}"
 }
@@ -111,6 +118,7 @@ fun CreatoraNavHost(
                     onProjectOpened = { id -> navController.navigate(Routes.wizard(id)) },
                     onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
                     onOpenResearch = { navController.navigateToTab(TopLevelTab.RESEARCH) },
+                    onOpenCalendar = { navController.navigate(Routes.CALENDAR) },
                     onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
                     onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                 )
@@ -170,8 +178,20 @@ fun CreatoraNavHost(
                 onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
                 onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
                 onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
+                onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
             )
         }
+        composable(
+            route = Routes.PUBLISH,
+            arguments = listOf(navArgument(PublishViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),
+        ) {
+            PublishScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
+                onOpenCalendar = dropUnlessResumed { navController.navigate(Routes.CALENDAR) },
+            )
+        }
+        composable(Routes.CALENDAR) { CalendarScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(
             route = Routes.THUMBNAIL,
             arguments = listOf(navArgument(ThumbnailViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),
