@@ -446,7 +446,6 @@ class FakePlatformLogin(
     var calls = 0
     override suspend fun signIn(): com.creatora.app.domain.platform.LoginOutcome { calls++; return outcome }
 }
-<<<<<<< HEAD
 
 class FakeScheduledPosts : com.creatora.app.domain.repository.PostRepository {
     val posts = MutableStateFlow<Map<String, com.creatora.app.domain.publish.ScheduledPost>>(emptyMap())
@@ -459,5 +458,3 @@ class FakeScheduledPosts : com.creatora.app.domain.repository.PostRepository {
     }
     override suspend fun delete(uid: String, id: String) { posts.value = posts.value - id }
 }
-=======
->>>>>>> origin/main

@@ -20,20 +20,16 @@ interface HttpTransport {
     suspend fun post(url: String, headers: Map<String, String>, body: String): HttpResponse
     suspend fun get(url: String, headers: Map<String, String>): HttpResponse
     suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse
-<<<<<<< HEAD
 
     /** POST with a binary body (an image upload). */
     suspend fun postBytes(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse
 
     /** PUT of a whole file, streamed so a large video is never held in memory. */
     suspend fun putFile(url: String, headers: Map<String, String>, file: File): HttpResponse
-=======
->>>>>>> origin/main
 }
 
 class UrlConnectionTransport @Inject constructor() : HttpTransport {
 
-<<<<<<< HEAD
     private suspend fun execute(
         url: String,
         method: String,
@@ -52,40 +48,6 @@ class UrlConnectionTransport @Inject constructor() : HttpTransport {
                 connection.doOutput = true
                 if (length != null) connection.setFixedLengthStreamingMode(length)
                 connection.outputStream.use(write)
-=======
-    override suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse =
-        withContext(Dispatchers.IO) {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            try {
-                connection.requestMethod = "PUT"
-                connection.connectTimeout = TIMEOUT_MS
-                connection.readTimeout = UPLOAD_TIMEOUT_MS
-                connection.doOutput = true
-                connection.setFixedLengthStreamingMode(body.size)
-                headers.forEach { (name, value) -> connection.setRequestProperty(name, value) }
-                connection.outputStream.use { it.write(body) }
-                val code = connection.responseCode
-                val stream = if (code in 200..299) connection.inputStream else connection.errorStream
-                HttpResponse(code, stream?.bufferedReader()?.use { it.readText() }.orEmpty())
-            } finally {
-                connection.disconnect()
-            }
-        }
-
-    override suspend fun get(url: String, headers: Map<String, String>): HttpResponse =
-        withContext(Dispatchers.IO) {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            try {
-                connection.requestMethod = "GET"
-                connection.connectTimeout = TIMEOUT_MS
-                connection.readTimeout = TIMEOUT_MS
-                headers.forEach { (name, value) -> connection.setRequestProperty(name, value) }
-                val code = connection.responseCode
-                val stream = if (code in 200..299) connection.inputStream else connection.errorStream
-                HttpResponse(code, stream?.bufferedReader()?.use { it.readText() }.orEmpty())
-            } finally {
-                connection.disconnect()
->>>>>>> origin/main
             }
             val code = connection.responseCode
             val stream = if (code in 200..299) connection.inputStream else connection.errorStream

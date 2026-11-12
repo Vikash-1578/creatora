@@ -961,7 +961,6 @@
     <string name="goal_advice_keep">Keep my target</string>
     <string name="connect_problem_not_configured">Login for %1$s is not set up in this build. These build settings are empty: %2$s.</string>
     <string name="connect_problem_login_failed">%1$s login did not finish: %2$s</string>
-<<<<<<< HEAD
     <string name="see_all">See all</string>
     <string name="info_toggle">More about %1$s</string>
     <string name="home_upload_views_only">%1$s views</string>
@@ -1119,6 +1118,4 @@
         <item quantity="one">%1$d post started. Check its progress in the calendar.</item>
         <item quantity="other">%1$d posts started. Check their progress in the calendar.</item>
     </plurals>
-=======
->>>>>>> origin/main
 </resources>
