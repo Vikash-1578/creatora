@@ -58,6 +58,7 @@ class MyChannelViewModelTest {
     fun withSeveralAccountsSelected_oneMustBePicked_andOtherPlatformsAreNotAvailable() = runTest {
         kit.connect("UC1")
         kit.connect("UC2", "Second")
+        kit.prefs.selectedKey.value = "all" // by default the first account is selected; "All accounts" has to be chosen
         assertEquals(MyChannelState.PickOne, open().state.value)
 
         val other = HomeKit()

@@ -24,8 +24,10 @@ class ResearchViewModelTest {
         kit.connect("UC1")
         kit.connect("UC2", "Second")
         assertEquals(2, vm.header.value!!.accounts.size)
-        assertEquals(AccountSelection.All, vm.header.value!!.selection)
+        assertEquals(AccountSelection.One("YOUTUBE_UC1"), vm.header.value!!.selection) // the first account until another is chosen
 
+        vm.select(AccountSelection.All)
+        assertEquals(AccountSelection.All, vm.header.value!!.selection)
         vm.select(AccountSelection.One("YOUTUBE_UC2"))
 
         assertEquals(AccountSelection.One("YOUTUBE_UC2"), vm.header.value!!.selection)
