@@ -541,4 +541,5 @@
         <item quantity="one">%1$d credit lagta hai</item>
         <item quantity="other">%1$d credits lagte hain</item>
     </plurals>
+    <string name="connect_problem_save_failed">Tumhara channel save nahi ho saka. Connection check karo aur phir koshish karo.</string>
 </resources>

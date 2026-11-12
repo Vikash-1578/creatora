@@ -66,6 +66,15 @@ class DataStoreSettingsRepository @Inject constructor(
         dataStore.edit { prefs -> prefs[KEY_ONBOARDING_DONE] = done }
     }
 
+    override val onboardingStep: Flow<String?> = dataStore.data
+        .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
+        .map { prefs -> prefs[KEY_ONBOARDING_STEP] }
+        .distinctUntilChanged()
+
+    override suspend fun setOnboardingStep(step: String) {
+        dataStore.edit { prefs -> prefs[KEY_ONBOARDING_STEP] = step }
+    }
+
     override val aiTone: Flow<AiTone> = dataStore.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }
         .map { prefs -> AiTone.entries.firstOrNull { it.name == prefs[KEY_AI_TONE] } ?: AiTone.FRIENDLY }
@@ -96,6 +105,7 @@ class DataStoreSettingsRepository @Inject constructor(
     private companion object {
         val KEY_LANGUAGE = stringPreferencesKey("language")
         val KEY_ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
+        val KEY_ONBOARDING_STEP = stringPreferencesKey("onboarding_step")
         val KEY_AI_TONE = stringPreferencesKey("ai_tone")
         val KEY_PERSONALIZATION = booleanPreferencesKey("ai_personalization")
         val KEY_USAGE_DIALOG_MONTH = stringPreferencesKey("usage_dialog_month")

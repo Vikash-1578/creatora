@@ -56,6 +56,7 @@ fun ConnectProblem.message(): String = stringResource(
         ConnectProblem.NOT_FOUND -> R.string.connect_problem_not_found
         ConnectProblem.NOT_AVAILABLE -> R.string.connect_problem_not_available
         ConnectProblem.UNRECOGNISED -> R.string.connect_problem_unrecognised
+        ConnectProblem.SAVE_FAILED -> R.string.connect_problem_save_failed
     },
 )
 

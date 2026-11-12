@@ -541,4 +541,5 @@
         <item quantity="one">%1$d क्रेडिट लगता है</item>
         <item quantity="other">%1$d क्रेडिट लगते हैं</item>
     </plurals>
+    <string name="connect_problem_save_failed">आपका चैनल सेव नहीं हो सका। कनेक्शन जाँचें और फिर कोशिश करें।</string>
 </resources>

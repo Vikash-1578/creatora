@@ -948,4 +948,5 @@
         <item quantity="one">Uses %1$d credit</item>
         <item quantity="other">Uses %1$d credits</item>
     </plurals>
+    <string name="connect_problem_save_failed">Your channel could not be saved. Check your connection and try again.</string>
 </resources>
