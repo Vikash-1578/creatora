@@ -100,8 +100,11 @@ class FakeUsageRepository : UsageRepository {
 
 class FakeConnectedAccountRepository : ConnectedAccountRepository {
     val byUser = MutableStateFlow<Map<String, List<ConnectedAccount>>>(emptyMap())
+    /** Makes saving fail like Firestore does when the rules refuse the write. */
+    var failSave = false
     override fun observe(uid: String): Flow<List<ConnectedAccount>> = byUser.map { it[uid].orEmpty() }
     override suspend fun save(uid: String, account: ConnectedAccount) {
+        if (failSave) throw IllegalStateException("PERMISSION_DENIED")
         byUser.value = byUser.value + (uid to (byUser.value[uid].orEmpty().filterNot { it.key == account.key } + account))
     }
 
@@ -416,4 +419,9 @@ class FakeCompetitorRepository : com.creatora.app.domain.repository.CompetitorRe
 class FakeSearchLog : com.creatora.app.domain.repository.SearchLogRepository {
     val queries = mutableListOf<String>()
     override suspend fun record(uid: String, query: String, at: Long) { queries += query }
+}
+
+class FakeErrorReporter : com.creatora.app.domain.repository.ErrorReporter {
+    val recorded = mutableListOf<Throwable>()
+    override fun record(error: Throwable) { recorded += error }
 }

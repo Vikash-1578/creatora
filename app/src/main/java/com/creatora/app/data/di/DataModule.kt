@@ -55,6 +55,8 @@ import com.creatora.app.BuildConfig
 import com.creatora.app.data.cloud.FirebaseAiService
 import com.creatora.app.data.cloud.FirebaseAuthService
 import com.creatora.app.data.cloud.FirestoreAiHistoryRepository
+import com.creatora.app.data.cloud.CrashlyticsErrorReporter
+import com.creatora.app.domain.repository.ErrorReporter
 import com.creatora.app.data.cloud.FirestoreCacheRepository
 import com.creatora.app.data.cloud.FirestoreCompetitorRepository
 import com.creatora.app.data.cloud.FirestoreSearchLogRepository
@@ -163,6 +165,7 @@ abstract class CloudBindingsModule {
     @Binds abstract fun competitors(impl: FirestoreCompetitorRepository): CompetitorRepository
     @Binds abstract fun searchLog(impl: FirestoreSearchLogRepository): SearchLogRepository
     @Binds abstract fun aiHistory(impl: FirestoreAiHistoryRepository): AiHistoryRepository
+    @Binds abstract fun errorReporter(impl: CrashlyticsErrorReporter): ErrorReporter
     @Binds abstract fun youTubeAuthorizer(impl: GoogleYouTubeAuthorizer): YouTubeAuthorizer
     @Binds abstract fun billing(impl: PlayBillingRepository): BillingRepository
     @Binds abstract fun notificationPrefs(impl: DataStoreNotificationPrefs): NotificationPrefsRepository

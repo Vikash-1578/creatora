@@ -20,6 +20,7 @@ import com.creatora.app.domain.account.toAccount
 import com.creatora.app.domain.repository.AuthService
 import com.creatora.app.domain.repository.AuthUser
 import com.creatora.app.domain.repository.BillingRepository
+import com.creatora.app.domain.repository.ErrorReporter
 import com.creatora.app.domain.repository.ConnectedAccountRepository
 import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.LaunchOutcome
@@ -33,6 +34,7 @@ import com.creatora.app.ui.accounts.lookupForPanel
 import com.creatora.app.ui.accounts.toProblem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,6 +45,8 @@ import kotlinx.coroutines.launch
 enum class OnboardingStep { LANGUAGE, WELCOME, CONNECT, ASK, GOAL, NOTIFICATIONS, PLAN }
 
 data class OnboardingUiState(
+    /** False until the saved language, step and sign-in have been read, so the screen never flashes the wrong step. */
+    val loaded: Boolean = false,
     val step: OnboardingStep = OnboardingStep.LANGUAGE,
     val language: AppLanguage = AppLanguage.ENGLISH,
     val signingIn: Boolean = false,
@@ -56,6 +60,8 @@ data class OnboardingUiState(
     val connectedTitles: List<String> = emptyList(),
     /** Why fetching the account's own channels failed. */
     val channelsProblem: ConnectProblem? = null,
+    /** The channel whose "Is this you? Yes" could not be saved; the card offers Try again. */
+    val saveFailed: ChannelPreview? = null,
     /** The "paste a link or id" panel. */
     val lookup: LookupUi = LookupUi(),
     val notificationPrefs: NotificationPrefs = NotificationPrefs(),
@@ -73,6 +79,7 @@ class OnboardingViewModel @Inject constructor(
     private val billing: BillingRepository,
     private val goals: GoalRepository,
     private val accounts: ConnectedAccountRepository,
+    private val errors: ErrorReporter,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(OnboardingUiState())
@@ -80,36 +87,61 @@ class OnboardingViewModel @Inject constructor(
 
     private var user: AuthUser? = null
 
-    init {
+    /**
+     * Runs [block] so that nothing it calls (Firestore, YouTube, the AI, Play) can crash the app. A failure is reported to
+     * Crashlytics and handed to [onError] so the screen can show a message with Try again; cancellation is left alone.
+     */
+    private fun safely(onError: (Throwable) -> Unit = {}, block: suspend () -> Unit) {
         viewModelScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                errors.record(e)
+                onError(e)
+            }
+        }
+    }
+
+    init {
+        safely(onError = { _state.update { it.copy(loaded = true) } }) {
             // The saved choice wins; otherwise the device's language is preselected (and applied at once).
             val saved = settings.language.first()
             val language = saved ?: AppLanguage.deviceDefault()
-            _state.update { it.copy(language = language) }
             if (saved == null) settings.setLanguage(language)
-            // Already signed in (for example the app was closed mid-onboarding): carry on from the connect step.
             user = auth.user.first()
-            if (user != null) {
-                _state.update { it.copy(step = OnboardingStep.CONNECT, loadingChannels = true) }
-                loadChannels()
+            // Resume where the user left off: signed in never goes back to Language or Welcome; signed out never skips sign-in.
+            val savedStep = settings.onboardingStep.first()?.let { name -> OnboardingStep.entries.firstOrNull { it.name == name } }
+            val step = when {
+                user != null -> maxOf(savedStep?.ordinal ?: 0, OnboardingStep.CONNECT.ordinal).let { OnboardingStep.entries[it] }
+                savedStep != null && savedStep.ordinal <= OnboardingStep.WELCOME.ordinal -> savedStep
+                saved != null -> OnboardingStep.WELCOME
+                else -> OnboardingStep.LANGUAGE
             }
+            _state.update { it.copy(loaded = true, language = language, step = step, loadingChannels = user != null && step == OnboardingStep.CONNECT) }
+            if (user != null && step == OnboardingStep.CONNECT) loadChannels()
         }
-        viewModelScope.launch { notifications.prefs.collect { prefs -> _state.update { it.copy(notificationPrefs = prefs) } } }
+        safely { notifications.prefs.collect { prefs -> _state.update { it.copy(notificationPrefs = prefs) } } }
     }
 
     fun chooseLanguage(language: AppLanguage) {
         _state.update { it.copy(language = language) }
-        viewModelScope.launch { settings.setLanguage(language) }
+        safely { settings.setLanguage(language) }
     }
 
-    fun next() = _state.update { it.copy(step = OnboardingStep.entries[(it.step.ordinal + 1).coerceAtMost(OnboardingStep.entries.lastIndex)]) }
+    fun next() = goTo(OnboardingStep.entries[(_state.value.step.ordinal + 1).coerceAtMost(OnboardingStep.entries.lastIndex)])
 
-    private fun goTo(step: OnboardingStep) = _state.update { it.copy(step = step) }
+    /** Moves to [step] and remembers it, so closing the app (or a crash) resumes here. */
+    private fun goTo(step: OnboardingStep) {
+        _state.update { it.copy(step = step) }
+        safely { settings.setOnboardingStep(step.name) }
+    }
 
     fun signIn() {
         if (_state.value.signingIn) return
         _state.update { it.copy(signingIn = true, signInNotConfigured = false, signInFailed = false) }
-        viewModelScope.launch {
+        safely(onError = { _state.update { it.copy(signingIn = false, signInFailed = true) } }) {
             when (val outcome = auth.signInWithGoogle()) {
                 is SignInOutcome.Ok -> {
                     user = outcome.user
@@ -117,8 +149,9 @@ class OnboardingViewModel @Inject constructor(
                     runCatching {
                         users.createIfMissing(outcome.user, language)
                         users.setLanguage(outcome.user.uid, language)
-                    }
-                    _state.update { it.copy(signingIn = false, step = OnboardingStep.CONNECT, loadingChannels = true) }
+                    }.onFailure { errors.record(it) }
+                    _state.update { it.copy(signingIn = false, loadingChannels = true) }
+                    goTo(OnboardingStep.CONNECT)
                     loadChannels()
                 }
                 SignInOutcome.NotConfigured -> _state.update { it.copy(signingIn = false, signInNotConfigured = true) }
@@ -131,7 +164,7 @@ class OnboardingViewModel @Inject constructor(
     /** Asks Google for YouTube access and fetches every channel on the account. */
     fun loadChannels() {
         _state.update { it.copy(loadingChannels = true, channelsProblem = null) }
-        viewModelScope.launch {
+        safely(onError = { _state.update { it.copy(loadingChannels = false, channelsProblem = ConnectProblem.NETWORK) } }) {
             when (val result = connector.ownChannels()) {
                 is AdapterOutcome.Ok -> _state.update { it.copy(loadingChannels = false, channels = result.value) }
                 is AdapterOutcome.Failed -> _state.update { it.copy(loadingChannels = false, channelsProblem = result.error.toProblem()) }
@@ -139,10 +172,11 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    /** "Is this you? ✓" for one of the account's channels. */
+    /** "Is this you? ✓" for one of the account's channels. A save that fails (for example no permission) shows Try again, never a crash. */
     fun confirmChannel(preview: ChannelPreview) {
         val uid = user?.uid ?: return
-        viewModelScope.launch {
+        _state.update { it.copy(saveFailed = null) }
+        safely(onError = { _state.update { it.copy(saveFailed = preview) } }) {
             when (val outcome = connector.connect(uid, preview.toAccount())) {
                 ConnectOutcome.Connected, ConnectOutcome.AlreadyConnected -> {
                     _state.update {
@@ -152,8 +186,8 @@ class OnboardingViewModel @Inject constructor(
                             connectedTitles = it.connectedTitles + preview.title,
                         )
                     }
-                    // Niche, formats and language are worked out from the channel itself, with no questions.
-                    viewModelScope.launch { profiles.deriveFor(uid) }
+                    // Niche, formats and language are worked out from the channel itself, with no questions. A failure here is not shown.
+                    safely { profiles.deriveFor(uid) }
                 }
                 is ConnectOutcome.PlanLimit -> _state.update { it.copy(lookup = LookupUi(planLimitMax = outcome.max)) }
             }
@@ -163,7 +197,7 @@ class OnboardingViewModel @Inject constructor(
     /** Looks up a pasted link, id or handle for the picked platform. */
     fun lookUp(input: String, platform: ConnectPlatform?) {
         _state.update { it.copy(lookup = LookupUi(busy = true)) }
-        viewModelScope.launch {
+        safely(onError = { _state.update { it.copy(lookup = LookupUi(problem = ConnectProblem.NETWORK)) } }) {
             val (result, saved) = connector.lookupForPanel(user?.uid, input, platform)
             _state.update { it.copy(lookup = result, connectedTitles = it.connectedTitles + listOfNotNull(saved?.title)) }
         }
@@ -185,9 +219,7 @@ class OnboardingViewModel @Inject constructor(
         val text = answer.trim()
         val uid = user?.uid
         if (text.isNotEmpty() && uid != null) {
-            viewModelScope.launch {
-                runCatching { users.setCreatorProfile(uid, CreatorProfile(niche = text, source = ProfileSource.ASKED)) }
-            }
+            safely { users.setCreatorProfile(uid, CreatorProfile(niche = text, source = ProfileSource.ASKED)) }
         }
         goTo(OnboardingStep.GOAL)
     }
@@ -199,9 +231,9 @@ class OnboardingViewModel @Inject constructor(
             goTo(OnboardingStep.NOTIFICATIONS)
             return
         }
-        viewModelScope.launch {
+        safely(onError = { goTo(OnboardingStep.NOTIFICATIONS) }) {
             val goal = newGoal(metric, target, desire, uploadsPerWeek, accounts.observe(uid).first(), System.currentTimeMillis())
-            if (goal != null) runCatching { goals.save(uid, goal) }
+            if (goal != null) goals.save(uid, goal)
             goTo(OnboardingStep.NOTIFICATIONS)
         }
     }
@@ -209,20 +241,20 @@ class OnboardingViewModel @Inject constructor(
     fun skipGoal() = goTo(OnboardingStep.NOTIFICATIONS)
 
     fun setNotification(category: NotificationCategory, on: Boolean) {
-        viewModelScope.launch { notifications.setEnabled(category, on) }
+        safely { notifications.setEnabled(category, on) }
     }
 
     fun setMilestone(views: Long) {
-        viewModelScope.launch { notifications.setMilestone(views) }
+        safely { notifications.setMilestone(views) }
     }
 
     /** "Free mein continue karo": finishes onboarding on the Free plan. */
     fun continueFree() {
-        viewModelScope.launch { settings.setOnboardingDone(true) }
+        safely { settings.setOnboardingDone(true) }
     }
 
     fun tryPro() {
-        viewModelScope.launch {
+        safely(onError = { _state.update { it.copy(proUnavailable = true) } }) {
             billing.refresh()
             if (billing.launchUpgrade() == LaunchOutcome.UNAVAILABLE) _state.update { it.copy(proUnavailable = true) }
         }

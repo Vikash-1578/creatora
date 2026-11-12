@@ -61,6 +61,7 @@ import com.creatora.app.domain.account.NotificationPrefs
 import com.creatora.app.domain.account.Plan
 import com.creatora.app.ui.accounts.AddAccountPanel
 import com.creatora.app.ui.accounts.ChannelCard
+import com.creatora.app.ui.accounts.ConnectProblem
 import com.creatora.app.ui.accounts.LookupUi
 import com.creatora.app.ui.accounts.message
 import com.creatora.app.ui.components.PrimaryButton
@@ -74,6 +75,11 @@ import kotlinx.coroutines.launch
 fun OnboardingScreen(modifier: Modifier = Modifier, viewModel: OnboardingViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val askPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    // Nothing is drawn until the saved step is known, so the screen never flashes the wrong one.
+    if (!state.loaded) {
+        Box(modifier.fillMaxSize().background(CreatoraTheme.colors.background))
+        return
+    }
     OnboardingContent(
         state = state,
         actions = OnboardingActions(
@@ -275,6 +281,10 @@ private fun ConnectStep(state: OnboardingUiState, actions: OnboardingActions) {
             Text(stringResource(R.string.connect_choose), style = CreatoraTheme.typography.cardTitle, color = colors.text)
         }
         state.channels.forEach { ChannelCard(it, stringResource(R.string.connect_is_this_you), { actions.confirmChannel(it) }) }
+        state.saveFailed?.let { failed ->
+            Text(ConnectProblem.SAVE_FAILED.message(), style = CreatoraTheme.typography.body, color = colors.danger)
+            SecondaryButton(stringResource(R.string.action_try_again), { actions.confirmChannel(failed) }, Modifier.fillMaxWidth())
+        }
         state.connectedTitles.forEach {
             Text(stringResource(R.string.connect_connected, it), style = CreatoraTheme.typography.bodySemiBold, color = colors.success)
         }

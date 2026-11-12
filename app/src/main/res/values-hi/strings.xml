@@ -429,4 +429,5 @@
     <string name="tab_research">रिसर्च</string>
     <string name="research_subtitle">कीवर्ड, आउटलायर, प्रतिस्पर्धी और ट्रेंड</string>
     <string name="research_action_key">अपना चैनल जोड़ें</string>
+    <string name="connect_problem_save_failed">आपका चैनल सेव नहीं हो सका। कनेक्शन जाँचें और फिर कोशिश करें।</string>
 </resources>

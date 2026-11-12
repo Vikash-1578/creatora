@@ -112,6 +112,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.coil.compose)
+    // Coil 3 loads http images only with a network module; without it channel pictures stay empty circles.
+    implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.media3.transformer)
     implementation(libs.androidx.media3.effect)
     implementation(libs.androidx.media3.common)

@@ -190,3 +190,8 @@ interface TrendingRepository {
     /** The most popular videos for [region] (and the category that fits [niche]), cached for a day. */
     suspend fun trending(uid: String, region: String, niche: String?, force: Boolean = false): TrendingResult
 }
+
+/** Reports an error that was handled (the screen shows a message instead of crashing) so it still reaches the developers. */
+fun interface ErrorReporter {
+    fun record(error: Throwable)
+}
