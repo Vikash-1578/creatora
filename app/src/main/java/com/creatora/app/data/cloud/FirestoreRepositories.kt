@@ -41,7 +41,7 @@ import kotlinx.coroutines.tasks.await
 
 private fun db() = FirebaseFirestore.getInstance()
 
-private fun userDoc(uid: String) = db().collection("users").document(uid)
+internal fun userDoc(uid: String) = db().collection("users").document(uid)
 
 /** Emits the document each time it changes; null while it does not exist or cannot be read. */
 private fun <T> DocumentReference.flow(map: (DocumentSnapshot) -> T?): Flow<T?> = callbackFlow {
@@ -51,7 +51,7 @@ private fun <T> DocumentReference.flow(map: (DocumentSnapshot) -> T?): Flow<T?> 
     awaitClose { registration.remove() }
 }
 
-private fun <T> Query.listFlow(map: (DocumentSnapshot) -> T?): Flow<List<T>> = callbackFlow {
+internal fun <T> Query.listFlow(map: (DocumentSnapshot) -> T?): Flow<List<T>> = callbackFlow {
     val registration = addSnapshotListener { snapshot, error ->
         trySend(if (error != null || snapshot == null) emptyList() else snapshot.documents.mapNotNull(map))
     }

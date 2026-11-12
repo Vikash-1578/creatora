@@ -168,6 +168,40 @@ class YouTubeAdapter @Inject constructor(
         return get("$DATA/videos?part=snippet,statistics&id=${ids.joinToString(",")}", ::parseVideos)
     }
 
+    override suspend fun keywordSearch(query: String, limit: Int): AdapterOutcome<List<VideoStats>> {
+        val ids = when (val result = get(
+            "$DATA/search?part=id&type=video&order=relevance&q=${encode(query)}&maxResults=${limit.coerceIn(1, 50)}",
+            ::parseSearchVideoIds,
+        )) {
+            is AdapterOutcome.Ok -> result.value
+            is AdapterOutcome.Failed -> return result
+        }
+        if (ids.isEmpty()) return AdapterOutcome.Ok(emptyList())
+        return get("$DATA/videos?part=snippet,statistics&id=${ids.joinToString(",")}", ::parseVideos)
+    }
+
+    override suspend fun channels(ids: List<String>): AdapterOutcome<List<ChannelPreview>> {
+        if (ids.isEmpty()) return AdapterOutcome.Ok(emptyList())
+        return get("$DATA/channels?part=snippet,statistics&id=${ids.take(50).joinToString(",")}&maxResults=50", ::parseChannels)
+    }
+
+    override suspend fun searchChannels(query: String, limit: Int): AdapterOutcome<List<ChannelPreview>> =
+        idsThenChannels("$DATA/search?part=snippet&type=channel&q=${encode(query)}&maxResults=${limit.coerceIn(1, 50)}", ::parseSearchChannelIds)
+
+    override suspend fun featuredChannels(channelId: String): AdapterOutcome<List<ChannelPreview>> =
+        idsThenChannels("$DATA/channelSections?part=contentDetails&channelId=$channelId", ::parseFeaturedChannelIds)
+
+    private suspend fun idsThenChannels(url: String, parseIds: (String) -> List<String>): AdapterOutcome<List<ChannelPreview>> {
+        val ids = when (val result = get(url, parseIds)) {
+            is AdapterOutcome.Ok -> result.value
+            is AdapterOutcome.Failed -> return result
+        }
+        return channels(ids)
+    }
+
+    override suspend fun topComments(videoId: String, limit: Int): AdapterOutcome<List<String>> =
+        get("$DATA/commentThreads?part=snippet&videoId=$videoId&order=relevance&textFormat=plainText&maxResults=${limit.coerceIn(1, 100)}", ::parseComments)
+
     private fun encode(value: String) = URLEncoder.encode(value, "UTF-8")
 
     private fun errorMessage(body: String): String? =

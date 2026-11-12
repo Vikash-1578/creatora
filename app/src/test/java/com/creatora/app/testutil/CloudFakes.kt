@@ -175,6 +175,17 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
     val metricCalls = mutableListOf<Pair<java.time.LocalDate, java.time.LocalDate>>()
     val trendingCalls = mutableListOf<Pair<String, String?>>()
     val searchCalls = mutableListOf<String>()
+    val videoCalls = mutableListOf<String>()
+    var keywordResult: AdapterOutcome<List<VideoStats>> = AdapterOutcome.Ok(emptyList())
+    var searchChannelsResult: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
+    var featuredResult: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
+    var channelsResult: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
+    var commentsResult: AdapterOutcome<List<String>> = AdapterOutcome.Ok(emptyList())
+    val keywordCalls = mutableListOf<String>()
+    val channelSearchCalls = mutableListOf<String>()
+    val featuredCalls = mutableListOf<String>()
+    val channelsCalls = mutableListOf<List<String>>()
+    val commentCalls = mutableListOf<String>()
 
     override suspend fun ownChannels() = own
     override suspend fun lookup(ref: PlatformRef): AdapterOutcome<ChannelPreview> {
@@ -182,7 +193,10 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
         return lookupResult
     }
 
-    override suspend fun recentVideos(channelId: String, limit: Int) = videos
+    override suspend fun recentVideos(channelId: String, limit: Int): AdapterOutcome<List<VideoStats>> {
+        videoCalls += channelId
+        return videos
+    }
     override suspend fun analytics(channelId: String, videoIds: List<String>) = analyticsResult
     override suspend fun channelMetrics(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<com.creatora.app.domain.account.PeriodMetrics> {
         metricCalls += startDate to endDate
@@ -199,6 +213,31 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
     override suspend fun searchVideos(query: String, limit: Int): AdapterOutcome<List<VideoStats>> {
         searchCalls += query
         return searchResult
+    }
+
+    override suspend fun keywordSearch(query: String, limit: Int): AdapterOutcome<List<VideoStats>> {
+        keywordCalls += query
+        return keywordResult
+    }
+
+    override suspend fun searchChannels(query: String, limit: Int): AdapterOutcome<List<ChannelPreview>> {
+        channelSearchCalls += query
+        return searchChannelsResult
+    }
+
+    override suspend fun featuredChannels(channelId: String): AdapterOutcome<List<ChannelPreview>> {
+        featuredCalls += channelId
+        return featuredResult
+    }
+
+    override suspend fun channels(ids: List<String>): AdapterOutcome<List<ChannelPreview>> {
+        channelsCalls += ids
+        return channelsResult
+    }
+
+    override suspend fun topComments(videoId: String, limit: Int): AdapterOutcome<List<String>> {
+        commentCalls += videoId
+        return commentsResult
     }
 }
 
@@ -306,4 +345,75 @@ fun sampleVideos(count: Int, topViews: Long = 5_000, step: Long = 200): List<Vid
         publishedAt = java.time.Instant.now().minus(java.time.Duration.ofDays(3L * (i + 1))).toString(),
         views = topViews - step * i, likes = 10, comments = 2,
     )
+}
+
+
+// ---------------------------------------------------------------- Research
+
+class FakeResearchRepository : com.creatora.app.domain.research.ResearchRepository {
+    private fun <T> failed() = com.creatora.app.domain.research.Fetched.Failed(AdapterError.NotFound) as com.creatora.app.domain.research.Fetched<T>
+    var videos: com.creatora.app.domain.research.Fetched<List<VideoStats>> = com.creatora.app.domain.research.Fetched.Ok(emptyList(), 0, false)
+    val videosByChannel = mutableMapOf<String, com.creatora.app.domain.research.Fetched<List<VideoStats>>>()
+    var info: com.creatora.app.domain.research.Fetched<ChannelPreview> = failed()
+    var discoverResult: com.creatora.app.domain.research.Fetched<List<ChannelPreview>> = com.creatora.app.domain.research.Fetched.Ok(emptyList(), 0, false)
+    var keywordResult: com.creatora.app.domain.research.Fetched<com.creatora.app.domain.research.KeywordSearch> = failed()
+    var commentsResult: com.creatora.app.domain.research.Fetched<List<String>> = failed()
+    var lookupResult: AdapterOutcome<ChannelPreview> = AdapterOutcome.Failed(AdapterError.NotFound)
+    var analytics: VideoAnalytics? = null
+    val peeked = mutableMapOf<String, List<VideoStats>>()
+    val calls = mutableListOf<String>()
+
+    override suspend fun channelVideos(uid: String, channelId: String, force: Boolean): com.creatora.app.domain.research.Fetched<List<VideoStats>> {
+        calls += "videos:$channelId:$force"
+        return videosByChannel[channelId] ?: videos
+    }
+
+    override suspend fun peekChannelVideos(uid: String, channelId: String): List<VideoStats>? = peeked[channelId]
+
+    override suspend fun channelInfo(uid: String, channelId: String, force: Boolean): com.creatora.app.domain.research.Fetched<ChannelPreview> {
+        calls += "info:$channelId:$force"
+        return info
+    }
+
+    override suspend fun discover(uid: String, niche: String, sources: List<String>, force: Boolean): com.creatora.app.domain.research.Fetched<List<ChannelPreview>> {
+        calls += "discover:$niche:${sources.joinToString(",")}:$force"
+        return discoverResult
+    }
+
+    override suspend fun keyword(uid: String, query: String, force: Boolean): com.creatora.app.domain.research.Fetched<com.creatora.app.domain.research.KeywordSearch> {
+        calls += "keyword:$query:$force"
+        return keywordResult
+    }
+
+    override suspend fun comments(uid: String, videoId: String, force: Boolean): com.creatora.app.domain.research.Fetched<List<String>> {
+        calls += "comments:$videoId"
+        return commentsResult
+    }
+
+    override suspend fun lookup(ref: PlatformRef): AdapterOutcome<ChannelPreview> {
+        calls += "lookup:${ref.handleOrId}"
+        return lookupResult
+    }
+
+    override suspend fun ownAnalytics(channelId: String, videoId: String): VideoAnalytics? = analytics
+}
+
+class FakeCompetitorRepository : com.creatora.app.domain.repository.CompetitorRepository {
+    val list = MutableStateFlow<List<com.creatora.app.domain.repository.Competitor>>(emptyList())
+    val snapshotsByChannel = mutableMapOf<String, List<com.creatora.app.domain.research.CompetitorSnapshot>>()
+    override fun observe(uid: String): Flow<List<com.creatora.app.domain.repository.Competitor>> = list
+    override suspend fun add(uid: String, competitor: com.creatora.app.domain.repository.Competitor) {
+        list.value = list.value.filterNot { it.channelId == competitor.channelId } + competitor
+    }
+
+    override suspend fun remove(uid: String, channelId: String) { list.value = list.value.filterNot { it.channelId == channelId } }
+    override suspend fun snapshots(uid: String, channelId: String) = snapshotsByChannel[channelId].orEmpty()
+    override suspend fun addSnapshot(uid: String, channelId: String, snapshot: com.creatora.app.domain.research.CompetitorSnapshot) {
+        snapshotsByChannel[channelId] = snapshotsByChannel[channelId].orEmpty().filterNot { it.day == snapshot.day } + snapshot
+    }
+}
+
+class FakeSearchLog : com.creatora.app.domain.repository.SearchLogRepository {
+    val queries = mutableListOf<String>()
+    override suspend fun record(uid: String, query: String, at: Long) { queries += query }
 }

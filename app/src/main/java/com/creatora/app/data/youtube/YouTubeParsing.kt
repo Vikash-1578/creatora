@@ -47,7 +47,32 @@ fun parseVideos(json: String): List<VideoStats> {
             comments = stats.longOrNull("commentCount"),
             channelTitle = snippet.optString("channelTitle"),
             thumbnailUrl = snippet.optJSONObject("thumbnails")?.let { (it.optJSONObject("medium") ?: it.optJSONObject("default"))?.optString("url") }?.ifEmpty { null },
+            channelId = snippet.optString("channelId"),
+            tags = snippet.optJSONArray("tags")?.let { tags -> (0 until tags.length()).map { tags.getString(it) } }.orEmpty(),
         )
+    }
+}
+
+/** search.list response with type=channel (part=snippet): the channel ids. */
+fun parseSearchChannelIds(json: String): List<String> {
+    val items = JSONObject(json).optJSONArray("items") ?: return emptyList()
+    return (0 until items.length()).mapNotNull { items.getJSONObject(it).optJSONObject("id")?.optString("channelId")?.ifEmpty { null } }
+}
+
+/** channelSections.list response (part=contentDetails): the channels listed in "featured channels" sections. */
+fun parseFeaturedChannelIds(json: String): List<String> {
+    val items = JSONObject(json).optJSONArray("items") ?: return emptyList()
+    return (0 until items.length()).flatMap { i ->
+        val ids = items.getJSONObject(i).optJSONObject("contentDetails")?.optJSONArray("channels")
+        if (ids == null) emptyList() else (0 until ids.length()).map { ids.getString(it) }
+    }.distinct()
+}
+
+/** commentThreads.list response (part=snippet): the top-level comment texts. */
+fun parseComments(json: String): List<String> {
+    val items = JSONObject(json).optJSONArray("items") ?: return emptyList()
+    return (0 until items.length()).mapNotNull {
+        items.getJSONObject(it).optJSONObject("snippet")?.optJSONObject("topLevelComment")?.optJSONObject("snippet")?.optString("textDisplay")?.takeIf { text -> text.isNotBlank() }
     }
 }
 

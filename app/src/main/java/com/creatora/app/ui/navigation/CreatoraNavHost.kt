@@ -26,6 +26,8 @@ import com.creatora.app.ui.library.LibraryScreen
 import com.creatora.app.ui.licences.LicencesScreen
 import com.creatora.app.ui.licences.LicencesViewModel
 import com.creatora.app.ui.profile.ProfileScreen
+import com.creatora.app.ui.research.CompetitorDetailScreen
+import com.creatora.app.ui.research.CompetitorDetailViewModel
 import com.creatora.app.ui.research.ResearchScreen
 import com.creatora.app.ui.settings.AccountSettingsScreen
 import com.creatora.app.ui.settings.AiSettingsScreen
@@ -65,9 +67,12 @@ object Routes {
     const val THUMBNAIL = "thumbnail/{projectId}"
     const val COACH = "coach"
     const val NOTIFICATIONS = "notifications"
+    const val COMPETITOR = "research/competitor/{channelId}"
     const val LICENCES = "licences?assetId={assetId}"
 
     fun wizard(projectId: Long) = "wizard/$projectId"
+
+    fun competitor(channelId: String) = "research/competitor/$channelId"
 
     fun thumbnail(projectId: Long) = "thumbnail/$projectId"
 
@@ -112,7 +117,20 @@ fun CreatoraNavHost(
         }
         navigation(route = TopLevelTab.RESEARCH.graphRoute, startDestination = Routes.RESEARCH) {
             composable(Routes.RESEARCH) {
-                ResearchScreen(onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) })
+                ResearchScreen(
+                    onOpenSettings = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
+                    onOpenCompetitor = { id -> navController.navigate(Routes.competitor(id)) },
+                    onOpenProject = { id -> navController.navigate(Routes.wizard(id)) },
+                )
+            }
+            composable(
+                route = Routes.COMPETITOR,
+                arguments = listOf(navArgument(CompetitorDetailViewModel.ARG_CHANNEL_ID) { type = NavType.StringType }),
+            ) {
+                CompetitorDetailScreen(
+                    onBack = dropUnlessResumed { navController.popBackStack() },
+                    onOpenProject = { id -> navController.navigate(Routes.wizard(id)) },
+                )
             }
         }
         navigation(route = TopLevelTab.CREATE.graphRoute, startDestination = Routes.CREATE) {

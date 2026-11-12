@@ -157,7 +157,7 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
             modifier = Modifier.padding(horizontal = spacing.lg),
             verticalArrangement = Arrangement.spacedBy(spacing.xxl),
         ) {
-            if (!hasAccounts) ConnectCard(actions.connect) else AccountSwitcher(model.home, actions.select)
+            if (!hasAccounts) ConnectCard(actions.connect) else AccountSwitcher(model.home.accounts, model.home.selection, actions.select)
             if (hasAccounts) SnapshotSection(model.cards, actions.hideAmounts, actions.retry)
             if (hasAccounts) FocusSection(model.focus, actions.fix, actions.later)
             if (hasAccounts) IdeasSection(model.ideas, actions.ideaCreate, actions.ideaSave, actions.ideaDismiss)

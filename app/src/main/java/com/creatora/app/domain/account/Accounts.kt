@@ -112,6 +112,9 @@ data class VideoStats(
     val comments: Long? = null,
     val channelTitle: String = "",
     val thumbnailUrl: String? = null,
+    val channelId: String = "",
+    /** The tags the uploader set; empty when none or not requested. */
+    val tags: List<String> = emptyList(),
 )
 
 /**
@@ -181,6 +184,21 @@ interface PlatformAdapter {
 
     /** Recent videos matching a search, most viewed first. A search is expensive in quota. */
     suspend fun searchVideos(query: String, limit: Int = 10): AdapterOutcome<List<VideoStats>>
+
+    /** The top results for a keyword by relevance, any age (what a viewer sees). A search costs 100 quota units. */
+    suspend fun keywordSearch(query: String, limit: Int = 25): AdapterOutcome<List<VideoStats>>
+
+    /** Channels that match a niche search (100 quota units), with their public numbers. */
+    suspend fun searchChannels(query: String, limit: Int = 10): AdapterOutcome<List<ChannelPreview>>
+
+    /** Channels a channel features on its page (its "featured channels" sections). */
+    suspend fun featuredChannels(channelId: String): AdapterOutcome<List<ChannelPreview>>
+
+    /** Public details for several channels at once. */
+    suspend fun channels(ids: List<String>): AdapterOutcome<List<ChannelPreview>>
+
+    /** The top comments of a video, plain text. Fails when the uploader turned comments off. */
+    suspend fun topComments(videoId: String, limit: Int = 50): AdapterOutcome<List<String>>
 }
 
 /** Adapter for a platform that is not built yet: every call says so. */
@@ -194,6 +212,11 @@ class ComingSoonAdapter(override val platform: ConnectPlatform) : PlatformAdapte
     override suspend fun videoMetrics(channelId: String, videoIds: List<String>) = soon
     override suspend fun trending(region: String, categoryId: String?, limit: Int) = soon
     override suspend fun searchVideos(query: String, limit: Int) = soon
+    override suspend fun keywordSearch(query: String, limit: Int) = soon
+    override suspend fun searchChannels(query: String, limit: Int) = soon
+    override suspend fun featuredChannels(channelId: String) = soon
+    override suspend fun channels(ids: List<String>) = soon
+    override suspend fun topComments(videoId: String, limit: Int) = soon
 }
 
 object YouTubeScopes {

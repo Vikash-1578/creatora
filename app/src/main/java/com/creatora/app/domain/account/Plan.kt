@@ -4,9 +4,9 @@ import java.util.Calendar
 import java.util.TimeZone
 
 /** The user's plan. The limits are placeholders for the manager to confirm. */
-enum class Plan(val aiLimit: Int, val maxAccounts: Int, val dailyIdeas: Int) {
-    FREE(aiLimit = 50, maxAccounts = 1, dailyIdeas = 3),
-    PRO(aiLimit = 1000, maxAccounts = 5, dailyIdeas = 10);
+enum class Plan(val aiLimit: Int, val maxAccounts: Int, val dailyIdeas: Int, val maxCompetitors: Int) {
+    FREE(aiLimit = 50, maxAccounts = 1, dailyIdeas = 3, maxCompetitors = 3),
+    PRO(aiLimit = 1000, maxAccounts = 5, dailyIdeas = 10, maxCompetitors = 20);
 
     companion object {
         fun fromName(name: String?): Plan = entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: FREE
