@@ -20,7 +20,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35], application = Application::class)
 class YouTubeResearchAdapterTest {
     private val transport = FakeTransport()
-    private val adapter = YouTubeAdapter(transport, FakeYouTubeAuthorizer())
+    private val adapter = YouTubeAdapter(transport, FakeYouTubeAuthorizer(), com.creatora.app.testutil.FakeErrorReporter())
 
     private val channels = """{"items":[
         {"id":"UC1","snippet":{"title":"One"},"statistics":{"subscriberCount":"10","videoCount":"2","viewCount":"30"}},

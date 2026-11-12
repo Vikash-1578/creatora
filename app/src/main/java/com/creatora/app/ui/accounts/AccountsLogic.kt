@@ -12,7 +12,7 @@ import com.creatora.app.domain.account.LookupResult
 enum class ConnectProblem { NOT_AUTHORIZED, NETWORK, QUOTA, NOT_FOUND, NOT_AVAILABLE, UNRECOGNISED, SAVE_FAILED }
 
 fun AdapterError.toProblem() = when (this) {
-    AdapterError.NotAuthorized -> ConnectProblem.NOT_AUTHORIZED
+    AdapterError.NotAuthorized, AdapterError.PermissionMissing -> ConnectProblem.NOT_AUTHORIZED
     AdapterError.Network -> ConnectProblem.NETWORK
     AdapterError.QuotaExceeded -> ConnectProblem.QUOTA
     AdapterError.NotFound -> ConnectProblem.NOT_FOUND

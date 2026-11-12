@@ -49,7 +49,7 @@ fun GoalsSection(state: GoalsState, canAdd: Boolean, onAdd: () -> Unit, onEdit: 
             val goal = item.goal
             HomeCard {
                 Text(
-                    stringResource(R.string.home_goal_line, stringResource(goal.metric.labelRes()), goal.target),
+                    stringResource(R.string.home_goal_line, stringResource(goal.metric.labelRes()), goalText(goal.target)),
                     style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text,
                 )
                 val daysLeft = ((goal.deadline - System.currentTimeMillis()) / DAY_MILLIS).coerceAtLeast(0)
@@ -60,7 +60,7 @@ fun GoalsSection(state: GoalsState, canAdd: Boolean, onAdd: () -> Unit, onEdit: 
                 val progress = item.progress
                 if (progress?.fraction != null) {
                     LinearProgressIndicator(progress = { progress.fraction }, modifier = Modifier.fillMaxWidth(), color = CreatoraTheme.colors.accent, trackColor = CreatoraTheme.colors.surfaceAlt)
-                    Text(stringResource(R.string.home_goal_progress, progress.current ?: 0, goal.target, (progress.fraction * 100).toInt()), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
+                    Text(stringResource(R.string.home_goal_progress, goalText(progress.current ?: 0), goalText(goal.target), (progress.fraction * 100).toInt()), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
                 } else if (progress?.missing != null) {
                     BodyText(stringResource(if (progress.missing == GoalMissing.NO_START_VALUE) R.string.home_goal_no_start else R.string.home_goal_no_data))
                 }
@@ -86,6 +86,31 @@ fun GoalsSection(state: GoalsState, canAdd: Boolean, onAdd: () -> Unit, onEdit: 
         if (canAdd) SecondaryButton(stringResource(R.string.home_goal_add), onAdd, Modifier.fillMaxWidth())
         BodyText(stringResource(R.string.home_goals_note))
     }
+}
+
+/** A goal number with grouping (and lakh or crore in Hindi and Hinglish), like "10,000,000 (1 crore)". */
+@Composable
+fun goalText(value: Long): String =
+    com.creatora.app.domain.home.goalNumber(value, java.util.Locale.getDefault(), stringResource(R.string.unit_lakh), stringResource(R.string.unit_crore))
+
+/** A goal that looks out of reach: a kind note and a target that fits, before anything is saved. */
+@Composable
+fun GoalAdviceDialog(advice: GoalAdvice?, onAnswer: (Boolean) -> Unit, onDismiss: () -> Unit) {
+    if (advice == null) return
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.goal_advice_title), style = CreatoraTheme.typography.sectionTitle) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
+                if (advice.loading) LoadingRow(R.string.home_loading)
+                BodyText(advice.message ?: stringResource(R.string.goal_advice_static, goalText(advice.target), goalText(advice.suggested)), muted = false)
+                Text(stringResource(R.string.goal_advice_suggested, goalText(advice.suggested)), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.accentText)
+            }
+        },
+        confirmButton = { TextButton(onClick = { onAnswer(true) }, enabled = !advice.loading) { Text(stringResource(R.string.goal_advice_use)) } },
+        dismissButton = { TextButton(onClick = { onAnswer(false) }, enabled = !advice.loading) { Text(stringResource(R.string.goal_advice_keep)) } },
+        containerColor = CreatoraTheme.colors.surface,
+    )
 }
 
 /** Add or edit a goal: what to measure, the target and how many days it runs. */
@@ -128,7 +153,7 @@ fun CelebrationDialog(goal: Goal?, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("🎉 " + stringResource(R.string.home_goal_celebrate_title), style = CreatoraTheme.typography.sectionTitle) },
-        text = { BodyText(stringResource(R.string.home_goal_celebrate_body, stringResource(goal.metric.labelRes()), goal.target), muted = false) },
+        text = { BodyText(stringResource(R.string.home_goal_celebrate_body, stringResource(goal.metric.labelRes()), goalText(goal.target)), muted = false) },
         confirmButton = { PrimaryButton(stringResource(R.string.action_close), onDismiss) },
         containerColor = CreatoraTheme.colors.surface,
     )

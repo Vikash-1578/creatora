@@ -3,6 +3,14 @@ package com.creatora.app.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.creatora.app.domain.account.AdapterError
+import com.creatora.app.domain.account.AppLanguage
+import com.creatora.app.domain.account.ConnectPlatform
+import com.creatora.app.domain.home.AccountContext
+import com.creatora.app.domain.home.ChannelOverviewLoader
+import com.creatora.app.domain.home.nicheFromVideos
+import com.creatora.app.domain.repository.ErrorReporter
+import com.creatora.app.domain.repository.SettingsRepository
+import kotlinx.coroutines.CancellationException
 import com.creatora.app.domain.account.VideoStats
 import com.creatora.app.domain.home.CreatorIdea
 import com.creatora.app.domain.home.IdeaStatus
@@ -39,6 +47,10 @@ class TrendingViewModel @Inject constructor(
     private val users: UserRepository,
     private val prefs: HomePrefsRepository,
     private val ideas: CreatorIdeaRepository,
+    private val context: AccountContext,
+    private val loader: ChannelOverviewLoader,
+    private val settings: SettingsRepository,
+    private val errors: ErrorReporter,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<TrendingState>(TrendingState.Loading)
@@ -54,12 +66,25 @@ class TrendingViewModel @Inject constructor(
     private fun load(force: Boolean) {
         _state.value = TrendingState.Loading
         viewModelScope.launch {
-            val user = auth.user.first() ?: return@launch
-            val niche = users.observe(user.uid).first()?.creatorProfile?.niche
-            val region = prefs.region.first() ?: Locale.getDefault().country.ifEmpty { "US" }
-            _state.value = when (val result = trending.trending(user.uid, region, niche, force)) {
-                is TrendingResult.Ok -> TrendingState.Ready(result.items, region, niche, result.cachedAt, result.fromCache, result.stale)
-                is TrendingResult.Failed -> TrendingState.Failed(result.error)
+            try {
+                val user = auth.user.first() ?: return@launch
+                // The channel itself tells where it is and what it is about, so the list is not a generic worldwide chart.
+                val account = context.accounts.first().firstOrNull { it.platform == ConnectPlatform.YOUTUBE }
+                val overview = account?.let { loader.overview(it) }
+                val niche = users.observe(user.uid).first()?.creatorProfile?.niche?.takeIf { it.isNotBlank() } ?: overview?.videos?.let(::nicheFromVideos)
+                val language = settings.language.first()
+                val languageRegion = if (language != null && language != AppLanguage.ENGLISH) "IN" else null
+                val region = prefs.region.first() ?: overview?.channel?.country?.takeIf { it.length == 2 } ?: languageRegion
+                    ?: Locale.getDefault().country.ifEmpty { "US" }
+                _state.value = when (val result = trending.trending(user.uid, region, niche, force)) {
+                    is TrendingResult.Ok -> TrendingState.Ready(result.items, region, niche, result.cachedAt, result.fromCache, result.stale)
+                    is TrendingResult.Failed -> TrendingState.Failed(result.error)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                errors.record(e)
+                _state.value = TrendingState.Failed(AdapterError.Network)
             }
         }
     }

@@ -12,10 +12,12 @@ import com.creatora.app.domain.account.VideoAnalytics
 import com.creatora.app.domain.account.VideoStats
 import com.creatora.app.domain.account.YouTubeScopes
 import com.creatora.app.domain.repository.AuthorizationOutcome
+import com.creatora.app.domain.repository.ErrorReporter
 import com.creatora.app.domain.repository.YouTubeAuthorizer
 import java.io.IOException
 import java.net.URLEncoder
 import java.time.LocalDate
+import java.time.ZoneOffset
 import javax.inject.Inject
 import javax.inject.Singleton
 import org.json.JSONObject
@@ -29,28 +31,40 @@ import org.json.JSONObject
 class YouTubeAdapter @Inject constructor(
     private val http: HttpTransport,
     private val authorizer: YouTubeAuthorizer,
+    private val errors: ErrorReporter,
 ) : PlatformAdapter {
 
     override val platform = ConnectPlatform.YOUTUBE
 
     private var token: String? = null
     private var tokenAt = 0L
+    private var grantedScopes: Set<String> = emptySet()
 
     private suspend fun accessToken(): String? {
         token?.takeIf { System.currentTimeMillis() - tokenAt < TOKEN_MILLIS }?.let { return it }
         return when (val outcome = authorizer.authorize(YouTubeScopes.SIGN_IN)) {
-            is AuthorizationOutcome.Granted -> outcome.accessToken.also { token = it; tokenAt = System.currentTimeMillis() }
+            is AuthorizationOutcome.Granted -> outcome.accessToken.also {
+                token = it
+                tokenAt = System.currentTimeMillis()
+                grantedScopes = outcome.grantedScopes
+            }
             else -> null
         }
     }
 
     private suspend fun <T> get(url: String, parse: (String) -> T): AdapterOutcome<T> {
         val bearer = accessToken() ?: return AdapterOutcome.Failed(AdapterError.NotAuthorized)
+        // Google lets people untick single permissions; without the Analytics one every report would fail with a 403.
+        if (url.startsWith(ANALYTICS) && grantedScopes.isNotEmpty() && YouTubeScopes.ANALYTICS !in grantedScopes) {
+            token = null // the next try asks Google again
+            return AdapterOutcome.Failed(AdapterError.PermissionMissing)
+        }
         val response = try {
             http.get(url, mapOf("Authorization" to "Bearer $bearer", "Accept" to "application/json"))
         } catch (e: IOException) {
             return AdapterOutcome.Failed(AdapterError.Network)
         }
+        if (response.code !in 200..299) errors.record(YouTubeApiException(response.code, url.substringBefore('?').removePrefix("https://"), response.body))
         return when {
             response.code in 200..299 -> runCatching { AdapterOutcome.Ok(parse(response.body)) }
                 .getOrElse { AdapterOutcome.Failed(AdapterError.NotAvailable("The reply could not be read")) }
@@ -88,21 +102,38 @@ class YouTubeAdapter @Inject constructor(
         return get("$DATA/videos?part=snippet,statistics&id=${ids.joinToString(",")}", ::parseVideos)
     }
 
-    private fun reportRange(): String = "startDate=${LocalDate.now().minusDays(RANGE_DAYS)}&endDate=${LocalDate.now()}"
+    /** Analytics data is a day or two behind and Google counts days in Pacific time, so "today" on a phone ahead of it can be in the future. */
+    private fun lastReportDay(): LocalDate = LocalDate.now(ZoneOffset.UTC).minusDays(1)
+
+    private fun reportRange(): String = "startDate=${lastReportDay().minusDays(RANGE_DAYS)}&endDate=${lastReportDay()}"
 
     private suspend fun coreReport(channelId: String, videoIds: List<String>): AdapterOutcome<List<Map<String, Any?>>> {
         val filter = "filters=${encode("video==" + videoIds.joinToString(","))}"
         return get(
             "$ANALYTICS/reports?ids=channel==$channelId&${reportRange()}&dimensions=video&$filter&maxResults=${videoIds.size}&sort=-views" +
-                "&metrics=views,averageViewDuration,averageViewPercentage,videoThumbnailImpressions,videoThumbnailImpressionsClickRate",
+                "&metrics=views,averageViewDuration,averageViewPercentage",
             ::parseReport,
         )
+    }
+
+    /** Thumbnail click-through is asked for apart from the rest: if YouTube refuses it, views and retention still come back. */
+    private suspend fun ctrByVideo(channelId: String, videoIds: List<String>): Map<Any?, Map<String, Any?>> {
+        val filter = "filters=${encode("video==" + videoIds.joinToString(","))}"
+        val rows = (get(
+            "$ANALYTICS/reports?ids=channel==$channelId&${reportRange()}&dimensions=video&$filter&maxResults=${videoIds.size}" +
+                "&metrics=videoThumbnailImpressions,videoThumbnailImpressionsClickRate",
+            ::parseReport,
+        ) as? AdapterOutcome.Ok)?.value.orEmpty()
+        return rows.associateBy { it["video"] }
     }
 
     override suspend fun videoMetrics(channelId: String, videoIds: List<String>): AdapterOutcome<List<VideoAnalytics>> {
         if (videoIds.isEmpty()) return AdapterOutcome.Ok(emptyList())
         return when (val core = coreReport(channelId, videoIds)) {
-            is AdapterOutcome.Ok -> AdapterOutcome.Ok(reportToAnalytics(core.value, emptyList()))
+            is AdapterOutcome.Ok -> {
+                val ctr = ctrByVideo(channelId, videoIds)
+                AdapterOutcome.Ok(reportToAnalytics(core.value.map { row -> row + (ctr[row["video"]] ?: emptyMap()) }, emptyList()))
+            }
             is AdapterOutcome.Failed -> core
         }
     }
@@ -123,7 +154,8 @@ class YouTubeAdapter @Inject constructor(
             is AdapterOutcome.Ok -> revenue.value
             is AdapterOutcome.Failed -> emptyList()
         }
-        val merged = reportToAnalytics(coreRows, revenueRows)
+        val ctr = ctrByVideo(channelId, videoIds)
+        val merged = reportToAnalytics(coreRows.map { row -> row + (ctr[row["video"]] ?: emptyMap()) }, revenueRows)
         val withTraffic = merged.map { analytics ->
             val traffic = get(
                 "$ANALYTICS/reports?ids=channel==$channelId&${reportRange()}&dimensions=insightTrafficSourceType&metrics=views" +
@@ -136,7 +168,8 @@ class YouTubeAdapter @Inject constructor(
     }
 
     override suspend fun channelMetrics(channelId: String, startDate: LocalDate, endDate: LocalDate): AdapterOutcome<PeriodMetrics> {
-        val range = "startDate=$startDate&endDate=$endDate"
+        val end = minOf(endDate, lastReportDay())
+        val range = "startDate=${minOf(startDate, end)}&endDate=$end"
         val core = when (val result = get(
             "$ANALYTICS/reports?ids=channel==$channelId&$range&metrics=views,estimatedMinutesWatched,subscribersGained,subscribersLost",
             ::parseReport,
@@ -155,10 +188,10 @@ class YouTubeAdapter @Inject constructor(
         return get("$DATA/videos?part=snippet,statistics&chart=mostPopular&regionCode=${encode(region)}$category&maxResults=${limit.coerceIn(1, 50)}", ::parseVideos)
     }
 
-    override suspend fun searchVideos(query: String, limit: Int): AdapterOutcome<List<VideoStats>> {
+    override suspend fun searchVideos(query: String, limit: Int, region: String?): AdapterOutcome<List<VideoStats>> {
         val since = java.time.Instant.now().minus(java.time.Duration.ofDays(SEARCH_DAYS)).toString()
         val ids = when (val result = get(
-            "$DATA/search?part=id&type=video&order=viewCount&q=${encode(query)}&publishedAfter=${encode(since)}&maxResults=${limit.coerceIn(1, 50)}",
+            "$DATA/search?part=id&type=video&order=viewCount&q=${encode(query)}&publishedAfter=${encode(since)}&maxResults=${limit.coerceIn(1, 50)}${region?.let { "&regionCode=${encode(it)}" }.orEmpty()}",
             ::parseSearchVideoIds,
         )) {
             is AdapterOutcome.Ok -> result.value
@@ -215,3 +248,6 @@ class YouTubeAdapter @Inject constructor(
         const val TOKEN_MILLIS = 50 * 60 * 1000L
     }
 }
+
+/** A non-success answer from YouTube, kept as an exception so Crashlytics shows the real status and reason. */
+class YouTubeApiException(val code: Int, val path: String, body: String) : Exception("YouTube API $code at $path: ${body.take(400)}")

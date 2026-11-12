@@ -61,16 +61,21 @@ fun LoadingRow(textRes: Int) {
 
 /** Why data is missing, in plain words. */
 @Composable
-fun AdapterError.message(): String = stringResource(
+fun AdapterError.message(): String {
+    // When the platform gave a reason, say it: "not available" alone does not help anyone fix it.
+    if (this is AdapterError.NotAvailable && reason.isNotBlank()) return stringResource(R.string.home_error_platform_said, reason)
+    return stringResource(
     when (this) {
         AdapterError.NotAuthorized -> R.string.home_error_not_authorized
         AdapterError.Network -> R.string.home_error_network
         AdapterError.QuotaExceeded -> R.string.home_error_quota
         AdapterError.NotFound -> R.string.home_error_not_found
+        AdapterError.PermissionMissing -> R.string.home_error_permission
         AdapterError.ComingSoon -> R.string.home_error_coming_soon
         is AdapterError.NotAvailable -> R.string.home_error_not_available
     },
-)
+    )
+}
 
 /** "↑ 1.2K (+12%) vs the previous 28 days", coloured by direction; or that there is no previous period. */
 @Composable

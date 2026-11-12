@@ -40,7 +40,7 @@ class GoalTest {
     @Test
     fun aimText_isWordedAsAnAim() {
         val goal = Goal(metric = GoalMetric.SUBSCRIBERS, target = 1_000, startedAt = 0, deadline = 1, startValue = 400)
-        assertEquals("gain 1000 subscribers (starting from 400)", goal.aimText())
+        assertEquals("reach 1000 subscribers in total (starting from 400)", goal.aimText())
         assertEquals("publish 8 videos", Goal(metric = GoalMetric.UPLOADS, target = 8, startedAt = 0, deadline = 1).aimText())
     }
 }

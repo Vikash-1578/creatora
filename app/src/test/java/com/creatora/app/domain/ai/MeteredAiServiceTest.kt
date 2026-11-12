@@ -128,7 +128,7 @@ class MeteredAiServiceTest {
         service().complete(request)
 
         val system = delegate.requests.single().system
-        assertTrue("gain 1000 subscribers (starting from 400)" in system)
+        assertTrue("reach 1000 subscribers in total (starting from 400)" in system)
         assertTrue("quit my job and make videos" in system && "3 times a week" in system)
         assertTrue("Never promise virality or guaranteed results" in system)
     }
