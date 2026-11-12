@@ -160,7 +160,7 @@ abstract class CloudBindingsModule {
     @Binds abstract fun goals(impl: FirestoreGoalRepository): GoalRepository
     @Binds abstract fun creatorIdeas(impl: FirestoreCreatorIdeaRepository): CreatorIdeaRepository
     @Binds abstract fun upcomingPosts(impl: FirestoreUpcomingPostRepository): UpcomingPostRepository
-    @Binds abstract fun scheduledPosts(impl: com.creatora.app.data.cloud.FirestoreScheduledPostRepository): com.creatora.app.domain.repository.ScheduledPostRepository
+    @Binds abstract fun posts(impl: com.creatora.app.data.cloud.FirestorePostRepository): com.creatora.app.domain.repository.PostRepository
     @Binds abstract fun cache(impl: FirestoreCacheRepository): CacheRepository
     @Binds abstract fun homePrefs(impl: DataStoreHomePrefs): HomePrefsRepository
     @Binds abstract fun notificationInbox(impl: DataStoreNotificationInbox): NotificationInboxRepository

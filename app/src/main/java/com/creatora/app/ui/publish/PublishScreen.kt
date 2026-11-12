@@ -194,7 +194,7 @@ private fun TitleCard(state: PublishUiState, actions: PublishActions) {
                 Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs)) {
                     Text(option.title, style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text)
                     StatusChip(stringResource(R.string.publish_option_score, option.score.points), if (option.score.points >= 70) Tone.GOOD else Tone.WARN)
-                    BodyText(option.score.reasons.joinToString(" · ") { stringResource(it.textRes()) })
+                    BodyText(option.score.reasons.map { stringResource(it.textRes()) }.joinToString(" · "))
                     SecondaryButton(stringResource(R.string.publish_use_title), { actions.pick(option) })
                 }
             }
@@ -320,7 +320,7 @@ private fun WhenCard(state: PublishUiState, actions: PublishActions) {
 
 @Composable
 private fun PublishButton(state: PublishUiState, actions: PublishActions) {
-    val names = state.accounts.filter { it.key in state.selected }.joinToString(", ") { stringResource(it.platform.labelRes()) }
+    val names = state.accounts.filter { it.key in state.selected }.map { stringResource(it.platform.labelRes()) }.joinToString(", ")
     val label = when {
         names.isEmpty() -> stringResource(R.string.publish_choose_first)
         state.scheduledAt != null -> stringResource(R.string.publish_button_schedule, names)

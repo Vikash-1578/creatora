@@ -45,9 +45,10 @@ fun canMove(from: PostStatus, to: PostStatus): Boolean = when (from) {
 }
 
 /** A post can be moved to another day only while it has not gone out and its time is still ahead. */
-fun canReschedule(post: ScheduledPost, now: Long): Boolean =
-    post.status in setOf(PostStatus.SCHEDULED, PostStatus.QUEUED, PostStatus.UPLOADING, PostStatus.PROCESSING) &&
-        (post.scheduledAt ?: return false) > now
+fun canReschedule(post: ScheduledPost, now: Long): Boolean {
+    val at = post.scheduledAt ?: return false
+    return post.status in setOf(PostStatus.SCHEDULED, PostStatus.QUEUED, PostStatus.UPLOADING, PostStatus.PROCESSING) && at > now
+}
 
 /** The same time of day on [day]; the post's own time zone is the phone's. */
 fun movedTo(post: ScheduledPost, day: LocalDate, zone: ZoneId): Long {

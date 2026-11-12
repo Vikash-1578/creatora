@@ -17,7 +17,7 @@ import com.creatora.app.domain.publish.postsByDay
 import com.creatora.app.domain.publish.weekOf
 import com.creatora.app.domain.repository.AuthService
 import com.creatora.app.domain.repository.ProjectRepository
-import com.creatora.app.domain.repository.ScheduledPostRepository
+import com.creatora.app.domain.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.DayOfWeek
@@ -58,7 +58,7 @@ data class CalendarUiState(
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
     private val auth: AuthService,
-    private val posts: ScheduledPostRepository,
+    private val posts: PostRepository,
     private val projects: ProjectRepository,
     private val uploader: YouTubeUploader,
     @ApplicationContext private val context: Context,
