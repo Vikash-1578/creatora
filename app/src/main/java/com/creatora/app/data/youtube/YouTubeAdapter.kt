@@ -183,6 +183,15 @@ class YouTubeAdapter @Inject constructor(
             ?: AdapterOutcome.Failed(AdapterError.NotAvailable("No data for this period"))
     }
 
+    override suspend fun dailyViews(channelId: String, startDate: LocalDate, endDate: LocalDate): AdapterOutcome<List<Long>> {
+        val end = minOf(endDate, lastReportDay())
+        val report = get("$ANALYTICS/reports?ids=channel==$channelId&startDate=$startDate&endDate=$end&dimensions=day&metrics=views&sort=day", ::parseReport)
+        return when (report) {
+            is AdapterOutcome.Ok -> AdapterOutcome.Ok(reportToDailyViews(report.value, startDate, end))
+            is AdapterOutcome.Failed -> report
+        }
+    }
+
     override suspend fun trending(region: String, categoryId: String?, limit: Int): AdapterOutcome<List<VideoStats>> {
         val category = categoryId?.let { "&videoCategoryId=$it" }.orEmpty()
         return get("$DATA/videos?part=snippet,statistics&chart=mostPopular&regionCode=${encode(region)}$category&maxResults=${limit.coerceIn(1, 50)}", ::parseVideos)

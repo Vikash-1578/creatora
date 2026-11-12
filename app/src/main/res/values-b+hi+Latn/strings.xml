@@ -429,7 +429,6 @@
     <string name="connect_problem_save_failed">Tumhara channel save nahi ho saka. Connection check karo aur phir koshish karo.</string>
     <string name="home_error_permission">YouTube Analytics ki permission nahi mili. Try again par tap karo aur “YouTube Analytics reports dekhna” allow karo.</string>
     <string name="home_error_platform_said">YouTube ne kaha: %1$s</string>
-    <string name="home_upload_views">%1$s %2$s views</string>
     <string name="home_upload_ctr">CTR %1$s</string>
     <string name="home_upload_viewed">dekha gaya %1$s</string>
     <string name="settings_appcheck_secret">App Check debug secret</string>
@@ -443,4 +442,8 @@
     <string name="goal_advice_keep">Mera target rakho</string>
     <string name="connect_problem_not_configured">Is build mein %1$s login set nahi hai. Ye build settings khali hain: %2$s.</string>
     <string name="connect_problem_login_failed">%1$s login poora nahi hua: %2$s</string>
+    <string name="see_all">Sab dekhein</string>
+    <string name="info_toggle">%1$s ke baare mein aur</string>
+    <string name="home_upload_views_only">%1$s views</string>
+    <string name="home_chart_views">Pichhle 28 dino mein roz ke views</string>
 </resources>

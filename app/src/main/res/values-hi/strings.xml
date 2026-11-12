@@ -429,7 +429,6 @@
     <string name="connect_problem_save_failed">आपका चैनल सेव नहीं हो सका। कनेक्शन जाँचें और फिर कोशिश करें।</string>
     <string name="home_error_permission">YouTube Analytics की अनुमति नहीं मिली। फिर कोशिश करें पर टैप करें और “YouTube Analytics रिपोर्ट देखना” की अनुमति दें।</string>
     <string name="home_error_platform_said">YouTube ने कहा: %1$s</string>
-    <string name="home_upload_views">%1$s %2$s व्यूज़</string>
     <string name="home_upload_ctr">CTR %1$s</string>
     <string name="home_upload_viewed">देखा गया %1$s</string>
     <string name="settings_appcheck_secret">App Check डीबग सीक्रेट</string>
@@ -443,4 +442,8 @@
     <string name="goal_advice_keep">मेरा लक्ष्य रखें</string>
     <string name="connect_problem_not_configured">इस बिल्ड में %1$s लॉगिन सेट नहीं है। ये बिल्ड सेटिंग्स खाली हैं: %2$s।</string>
     <string name="connect_problem_login_failed">%1$s लॉगिन पूरा नहीं हुआ: %2$s</string>
+    <string name="see_all">सभी देखें</string>
+    <string name="info_toggle">%1$s के बारे में और</string>
+    <string name="home_upload_views_only">%1$s व्यूज़</string>
+    <string name="home_chart_views">पिछले 28 दिनों में रोज़ के व्यूज़</string>
 </resources>
