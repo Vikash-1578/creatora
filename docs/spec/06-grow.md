@@ -44,8 +44,105 @@ screen caches (Firestore `users/{uid}/cache`, with time to live and an "updated"
 costs when it is not trivial, and shows the cache with its age when the quota is gone. The Analytics API has its own, smaller
 quota: its limits are checked against Google's docs at build time and its calls are batched and cached the same way.
 
+## Addendum: Studio parity matrix (from Vikash's Studio screenshots)
+Same rule as everywhere in this spec: **Studio's functions, Creatora's own design and layout, never a copy.** Each item is
+marked **✅ build it** (an API exists) or **❌ no API** (one honest card, "Not available outside YouTube Studio", with an
+**Open in YouTube Studio** button; never a fake control). **✅\*** means the API documents it but the exact metric or
+dimension name is confirmed against Google's reference at build time; if it turns out not to exist, it becomes ❌ with the same
+note. This addendum replaces the earlier text where they differ; the sections below are updated to match.
+
+### Content manager (Library > Videos)
+| Item | |
+|---|---|
+| List all channel videos (uploads playlist plus `videos.list`) | ✅ |
+| Sort: Most recent, Most viewed | ✅ |
+| Filter Visibility: Public, Private, Unlisted, Scheduled | ✅ (`status.privacyStatus`, `publishAt`) |
+| Filter Visibility: Draft | ✅ for Creatora's own unfinished projects only; YouTube's drafts are not exposed, and the filter says "Drafts from Creatora" |
+| Filter Views more or less than N | ✅ (on the loaded statistics) |
+| Filter Made for kids: Set by you, Set by YouTube, Not made for kids, Not set | ✅ (`status.selfDeclaredMadeForKids` and `status.madeForKids`) |
+| Filter Type: Shorts, Long | ✅\* from Analytics `creatorContentType` per video; falls back to length and shape, labelled "estimate" |
+| Menu: Share (our share sheet with the youtu.be link) | ✅ |
+| Menu: Play (opens in the YouTube app) | ✅ |
+| Menu: Edit title, description, tags, thumbnail, visibility, made-for-kids (`videos.update`, `thumbnails.set`) | ✅ |
+| Menu: Delete (`videos.delete`) | ✅ with **two confirmations**, the second typed or held, and "this cannot be undone" |
+| Menu: Promote | ❌ (no API) |
+| Menu: Save to device for an uploaded video | ❌ (YouTube does not give the file). Only videos Creatora rendered can be saved, from their project |
+
+### Analytics (Grow), four tabs: Overview, Content, Audience, Trends
+Every card ends with a **one-line AI explanation** (what it means and what to do; one "Explain" action per tab, cost shown, cached
+24 hours) and, when the data is thin, an honest **"Not enough data yet"** state that shows the actual number and what is
+missing (fewer than 100 views in the period, or fewer than 7 days of data). Analytics data is 1 to 2 days behind: every tab shows
+**"Data as of {date}"**.
+
+**Overview**
+- ✅ Views, watch time, subscribers (with gained and lost), each as a card with a chart and **"vs previous period"** and **"vs
+  your usual"** text. "Usual" is the median of the previous 6 periods of the same length, and says so.
+- ✅ Top content, last 28 days (by views).
+- ❌ **Realtime** (last 48 hours, last 60 minutes): there is no realtime API. The tab shows "Latest available" with the data date.
+
+**Content**
+- ✅ Views, likes, subscribers gained from content; ✅\* **engaged views** if the metric is exposed, otherwise a ❌ note.
+- ✅ Top videos and top Shorts (Analytics `creatorContentType`).
+- ✅ Traffic sources with percentages: Shorts feed, YouTube search, suggested, channel pages, subscribers' feeds, external,
+  notifications, playlists and other, from `insightTrafficSourceType` (the labels follow the API's source types; the mapping is
+  in one table).
+- ✅ **YouTube search terms** with percentages (`insightTrafficSourceDetail` filtered to `YT_SEARCH`, top 25).
+- ✅\* Shorts "stayed to watch vs swiped away": shown only if the API exposes a metric for it; otherwise ❌ note.
+- ❌ Top remixed content.
+
+**Audience**
+- ✅ Age, gender, geography (country), device type. ✅\* Subtitle and CC language. ✅ Watch time from **subscribers vs
+  non-subscribers** (`subscribedStatus`).
+- ❌ Monthly audience; new, casual and regular viewers; **when your viewers are on YouTube**; other channels and videos your
+  audience watches; formats your viewers watch. Each says "Not available outside YouTube Studio" with the Studio button.
+- **Best time to post** stays Creatora's own estimate from per-weekday views and the account's own upload hours, labelled
+  "estimate from your last 90 days" (same as spec 05).
+
+**Trends**
+- Creatora's own, not Studio's: the Phase C Research trends (chart, competitor outliers) plus an **Explore topics** search box
+  with example chips from the creator profile's niche and **saved topics** (a heart toggle; saved in `users/{uid}/savedTopics`
+  and shown as chips). A search is the Phase C keyword estimate (about 102 quota units, shown on the button, never on open).
+
+### Community, the comments inbox
+| Item | |
+|---|---|
+| Status filter: Published, Held for review | ✅ (`moderationStatus`; held items only where YouTube returns them to the owner) |
+| Sort: Most relevant, Newest | ✅ (`order`) |
+| Responded, Not responded | ✅ (`totalReplyCount`, and the owner's reply read once and cached) |
+| Keywords | ✅ (`searchTerms`) |
+| Contains questions | ✅ rule based (question mark or question words), and our AI kind "question" |
+| Subscriber count at least N | ✅ author channel looked up (`channels.list`, batched 50 a call, 1 unit), cached 7 days; hidden counts stay "unknown", never 0 |
+| Public subscribers | ✅ checked against the channel's public subscribers list (`subscriptions.list` with `mySubscribers`), read up to 2,000 subscribers and cached 24 hours; the screen says how many were checked |
+| Our AI kinds and reply rules (spec above) | ✅ ours |
+| Viewer posts and Community posts | ❌ (no API) |
+| Comment controls, hold-for-review switch, YouTube blocked words | ❌ for the switches; Creatora's own **blocked words and links filter** works inside the inbox, and says YouTube's list is Studio-only |
+
+### Earn
+- ✅ **Monetization journey** exactly as in the section below: tier 1 (500 subscribers, 3 public uploads in 90 days, 3,000
+  public watch hours in 365 days, **or** 3 million public Shorts views in 90 days), tier 2 (1,000 subscribers and 4,000 public
+  watch hours in 365 days, **or** 10 million public Shorts views in 90 days). Progress bars from API data, a **"Data as of {date}"**
+  line, the label **"Estimate. Official status is in YouTube Studio"**, and the AI plan to the next milestone.
+- **Memberships, Supers (Super Chat, Super Thanks, Super Stickers) and Ads** are explained as cards, shown **locked** with
+  what each needs and what it is. Whether a channel is eligible or approved cannot be read, so they never show a fake
+  "unlocked": they show "Unlocks when YouTube approves your channel" and a Studio button. Tier 1 progress is shown on the
+  early-access cards as the estimate it is.
+- **Creator resources:** links that open in the browser: Creator Support, Copyright Match Tool, end screens (Studio pages).
+
+### Settings additions
+- **Notification categories** (each a switch, Settings > Notifications): **Comments, Analytics insights, Achievements, Policy,
+  Earn, Updates.** Comments and Earn extend the existing categories; Achievements are milestones; Policy is only what the API
+  exposes (rejected or failed upload with reason, restriction changes); **Analytics insights** is a weekly rule-based summary
+  (no AI credits); **Updates** is Creatora news, which needs Firebase Cloud Messaging: the switch is saved now and says
+  "Nothing is sent yet" until a news message exists.
+- **Channel** (Settings > Account > channel): ✅ **Audience (made for kids) default:** Yes, No, or **Review every video**
+  (`channels.update`, confirmed first); ✅ **Country of residence** (`brandingSettings.channel.country`); ✅ **Currency display**
+  (our own setting, in DataStore). Amounts are USD from YouTube; other currencies are converted with the day's public exchange
+  rate (ECB rates through Frankfurter, no key), shown as **approximate with the rate date**, and fall back to USD when offline.
+- ❌ **Account status** (violations, ability to earn), ❌ **Permissions and team**, ❌ **Brand partner access**: one row each,
+  "Not available outside YouTube Studio", opening Studio.
+
 ## 1 Analytics (all plans)
-Creatora's own layout: a header with the account and period chips (**7 / 28 / 90 days**), then a vertical stack of cards.
+Creatora's own layout: a header with the account and period chips (**7 / 28 / 90 days**), four tabs (**Overview, Content, Audience, Trends**, see the addendum for what each holds), then a vertical stack of cards.
 - **Overview cards:** views, watch time, subscribers (gained minus lost), CTR, average view duration and percentage viewed,
   each with the change against the previous period (Phase B `Change`), drawn as a small bar chart with the app's `chartBar`
   token (Compose canvas, no chart library; `GrowCharts` from m11 is the starting point).
@@ -142,11 +239,11 @@ cached for the week.
 A new **Videos** section in Library: all the account's uploaded videos as cards (thumbnail first, title, small status pill,
 views, date). A "Needs attention" strip on top (failed or rejected uploads, restricted, private with a schedule, missing
 thumbnail or description). Filters sit in a bottom sheet of our chips:
-- **Sort by** (newest, oldest, most views, lowest CTR where known);
-- **Visibility:** Public, Private, Unlisted, Scheduled (from `status.privacyStatus` and `publishAt`), and **Draft**, which
-  shows Creatora's own unfinished projects because YouTube does not expose drafts;
-- **Views** (ranges); **Restrictions:** age-restricted, region-restricted, made for kids, rejected or failed upload (from
-  `contentDetails` and `status`). Copyright claims are not exposed, and the sheet says so with a Studio link.
+- **Sort by** (Most recent, Most viewed);
+- **Visibility:** Public, Private, Unlisted, Scheduled, and **Draft** (Creatora's own unfinished projects, since YouTube does not expose drafts);
+- **Views** more or less than N; **Made for kids** (set by you, set by YouTube, not made for kids, not set); **Type** (Shorts, long);
+  and a **Restrictions** group (age-restricted, region-restricted, rejected or failed upload). Copyright claims are not exposed, and the sheet says so with a Studio link.
+- The per-video menu has Share, Edit, Play and Delete; Promote and save-to-device are not available (see the addendum).
 - **Edit** in a bottom sheet in Creatora's form style: title, description, tags, thumbnail (pick or from the thumbnail maker),
   visibility and schedule. **Save** asks for confirmation naming what changes (`videos.update`, `thumbnails.set`, 50 units each).
   Several videos at once: long-press to select, then change visibility or add a tag, with a total quota cost shown.
@@ -166,7 +263,7 @@ Comments on or off for new uploads and the channel's hold-for-review setting are
 card explains this and opens YouTube Studio. What Creatora does offer: the moderation queue actions and its own filter (see
 Comments inbox). No fake switches.
 
-### Notifications (new categories in Settings, Notifications)
+### Notifications (categories in Settings, Notifications; see the addendum for the full list)
 **Achievements** (subscriber and view milestones, first video over a threshold, streaks; from Phase B data), **Policy alerts**
 (only what the API exposes: a rejected or failed upload with its reason, a video becoming region- or age-restricted, a change
 of the long-uploads status; copyright claims and strikes are not exposed, so they never claim to be covered), **Earn updates**
@@ -190,7 +287,8 @@ Not available through any API: one row, "Manage in YouTube Studio", that opens t
 ## Plan limits (added to `PlanLimits`)
 | Limit | Free | Pro |
 |---|---|---|
-| Analytics, Comments inbox, Earnings, Monetization journey, Content manager | yes | yes |
+| Analytics (all four tabs), Comments inbox, Earnings, Monetization journey, Content manager | yes | yes |
+| Explore topics searches | counted in the daily keyword searches | same * |
 | AI reply drafts a day | 10 * | 100 * |
 | Comment classifications a day | 100 * | 1,000 * |
 | A/B tests | **locked (Pro)** | unlimited * |
@@ -212,7 +310,7 @@ with the account like all of the user's data. Room is not changed.
   **AutoMigration** and commit the schema JSON that CI prints.
 
 ## Tests
-Unit tests for: Analytics query building and parsing of every report (overview, per video, retention, audience, traffic,
+Unit tests for: the "Data as of" date, "vs usual" and "Not enough data yet" rules, Studio-parity items marked ❌ (card and Studio link, no control), the comment filters (status, sort, responded, keywords, questions, subscriber count, public subscribers with its cap), the delete double confirmation, made-for-kids filter mapping, Shorts versus long typing and its fallback, search terms and traffic-source percentages, saved topics, the six notification switches, currency conversion and its offline fallback, Analytics query building and parsing of every report (overview, per video, retention, audience, traffic,
 revenue), period changes, report cache TTL and the "updated" time, quota-exhausted handling; comment classification parsing,
 the rule-based spam pre-filter, reply rules (per video and per day limits, default kinds), draft generation per plan limit,
 approve one and approve all selected (including partial failure and retry), nothing posts without approval, comments to ideas,
@@ -228,4 +326,6 @@ error states. Previews in light and dark for every screen.
 2. `youtube.force-ssl` joins the Google verification and audit (spec 05 approvals) [yes].
 3. Online times shown as weekday only, since YouTube has no hourly data [yes].
 4. Partner Program thresholds kept in one config with a "last checked" date and labelled as an estimate [yes].
-5. Phase F as one PR, or Grow first and the Studio-style features second [one PR unless told otherwise].
+5. Phase F as one PR, or Grow first and the Studio-style features second [one PR unless told otherwise; this is now a large phase, so splitting is recommended].
+6. ✅\* items (engaged views, Shorts stayed vs swiped, subtitle language) are confirmed against Google's reference at build time and become ❌ notes if the API lacks them.
+7. Currency conversion uses a public rates service (Frankfurter) and the rate date is shown [yes, or USD only].
