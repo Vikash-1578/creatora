@@ -257,4 +257,25 @@ class HomeLogicTest {
         assertEquals("28", categoryForNiche("gadget reviews"))
         assertNull(categoryForNiche("street food"))
     }
+
+    // ---- platforms that give only some figures
+    @Test
+    fun aSnapshotLeavesOutFiguresThePlatformDoesNotGive() {
+        val instagram = com.creatora.app.domain.account.PeriodMetrics(views = 500, watchMinutes = null, subscribersGained = null, subscribersLost = null)
+        val snapshot = buildSnapshot(1200, instagram, null)
+        assertEquals(500.0, snapshot.views!!.current, 0.0)
+        assertNull(snapshot.watchHours)
+        assertNull(snapshot.subscribersNet)
+    }
+
+    @Test
+    fun sumMetrics_addsWhatEachAccountGave_andKeepsUnknownUnknown() {
+        val youtube = com.creatora.app.domain.account.PeriodMetrics(views = 100, watchMinutes = 600, subscribersGained = 10, subscribersLost = 4)
+        val tiktok = com.creatora.app.domain.account.PeriodMetrics(views = 50, watchMinutes = null, subscribersGained = null, subscribersLost = null)
+        val both = sumMetrics(listOf(youtube, tiktok))!!
+        assertEquals(150L, both.views)
+        assertEquals(600L, both.watchMinutes)
+        assertEquals(6L, both.netSubscribers)
+        assertNull(sumMetrics(listOf(tiktok, tiktok))!!.watchMinutes)
+    }
 }

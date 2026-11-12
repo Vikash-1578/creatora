@@ -17,7 +17,9 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.creatora.app.core.localized
+import android.content.Intent
 import com.creatora.app.data.cloud.ActivityBridge
+import com.creatora.app.data.platform.OAuthBridge
 import com.creatora.app.domain.model.ThemeMode
 import com.creatora.app.ui.AppViewModel
 import com.creatora.app.ui.CreatoraApp
@@ -33,6 +35,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject lateinit var bridge: ActivityBridge
+    @Inject lateinit var oauth: OAuthBridge
 
     // Shows Google's permission screen on request of the data layer and hands the result back.
     private val consent = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
@@ -82,6 +85,18 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    // The sign-in redirect page opens creatora://oauth?...; the platform sign-in that is waiting reads it.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.data?.scheme == "creatora") oauth.deliver(intent.data)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        oauth.onResumed()
     }
 
     override fun onDestroy() {

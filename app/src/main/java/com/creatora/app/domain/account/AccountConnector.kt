@@ -12,7 +12,6 @@ sealed interface LookupResult {
     data class Found(val preview: ChannelPreview) : LookupResult
     /** A link-only platform: only the link is saved, nothing is fetched. */
     data class LinkOnly(val ref: PlatformRef) : LookupResult
-    data class ComingSoon(val platform: ConnectPlatform) : LookupResult
     /** The text is not a link or id Creatora understands. */
     data object Unrecognised : LookupResult
     data class Failed(val error: AdapterError) : LookupResult
@@ -31,16 +30,20 @@ class AccountConnector @Inject constructor(
     private val accounts: ConnectedAccountRepository,
     private val users: UserRepository,
     private val billing: BillingRepository,
+    private val logins: com.creatora.app.domain.platform.LoginRegistry = com.creatora.app.domain.platform.LoginRegistry(emptyList()),
 ) {
     /** The YouTube channels of the account the user just authorised. */
     suspend fun ownChannels(): AdapterOutcome<List<ChannelPreview>> = registry.adapter(ConnectPlatform.YOUTUBE).ownChannels()
+
+    /** Signs in to Instagram, Facebook or TikTok with the platform's own screen. YouTube uses [ownChannels] (Google sign-in). */
+    suspend fun login(platform: ConnectPlatform): com.creatora.app.domain.platform.LoginOutcome =
+        logins.login(platform)?.signIn() ?: com.creatora.app.domain.platform.LoginOutcome.Failed("There is no sign-in for this platform")
 
     /** Understands [input] (a link, id or handle) for the platform the user picked, and fetches a preview where possible. */
     suspend fun lookup(input: String, chosen: ConnectPlatform?): LookupResult {
         val ref = parseReference(input, chosen) ?: return LookupResult.Unrecognised
         return when (ref.platform.support) {
             PlatformSupport.LINK_ONLY -> LookupResult.LinkOnly(ref)
-            PlatformSupport.COMING_SOON -> LookupResult.ComingSoon(ref.platform)
             PlatformSupport.FULL -> when (val result = registry.adapter(ref.platform).lookup(ref)) {
                 is AdapterOutcome.Ok -> LookupResult.Found(result.value)
                 is AdapterOutcome.Failed -> LookupResult.Failed(result.error)

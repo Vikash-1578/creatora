@@ -72,7 +72,7 @@ class IdeasViewModel @Inject constructor(
                 when {
                     accounts.isEmpty() -> _state.value = IdeasState.NoAccount
                     target == null -> _state.value = IdeasState.PickOne
-                    target.platform.support != PlatformSupport.FULL -> _state.value = IdeasState.Unavailable(AdapterError.ComingSoon)
+                    target.platform.support != PlatformSupport.FULL -> _state.value = IdeasState.Unavailable(AdapterError.NotAvailable("Only the link is saved for this platform"))
                     else -> follow(target)
                 }
             }

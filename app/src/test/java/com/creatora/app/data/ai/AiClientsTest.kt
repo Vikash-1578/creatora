@@ -24,12 +24,30 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
     var headers = emptyMap<String, String>()
     var body = ""
 
+    /** POST replies by URL fragment (first match wins), checked before [response]; every POST is kept in [postUrls] and [postBodies]. */
+    val postResponses = linkedMapOf<String, HttpResponse>()
+    val postUrls = mutableListOf<String>()
+    val postBodies = mutableListOf<String>()
+
     override suspend fun post(url: String, headers: Map<String, String>, body: String): HttpResponse {
         if (offline) throw IOException("offline")
         this.url = url
         this.headers = headers
         this.body = body
-        return response
+        postUrls += url
+        postBodies += body
+        return postResponses.entries.firstOrNull { url.contains(it.key) }?.value ?: response
+    }
+
+    val putUrls = mutableListOf<String>()
+    val putHeaders = mutableListOf<Map<String, String>>()
+    var putResponse = HttpResponse(200, "")
+
+    override suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse {
+        if (offline) throw IOException("offline")
+        putUrls += url
+        putHeaders += headers
+        return putResponse
     }
 
     /** GET replies by URL fragment (first match wins); every requested URL is kept in [getUrls]. */

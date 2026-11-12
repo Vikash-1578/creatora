@@ -13,6 +13,12 @@ if (file("google-services.json").exists()) {
     apply(plugin = "com.google.firebase.crashlytics")
 }
 
+// Platform sign-in settings (Instagram, Facebook, TikTok). Read from local.properties or an environment variable
+// (a GitHub Actions secret in CI); never committed. A missing value just leaves that platform's sign-in unset.
+val localProps = java.util.Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+fun platformSetting(name: String): String =
+    (providers.environmentVariable(name).orNull ?: localProps.getProperty(name) ?: "").trim().replace("\\", "\\\\").replace("\"", "\\\"")
+
 android {
     namespace = "com.creatora.app"
     compileSdk = 36
@@ -28,6 +34,11 @@ android {
 
         // Dev fallback: use the user-entered AI keys (M7 providers) instead of Firebase AI Logic.
         // Off by default. Turn on with -PdevAiKeys=true.
+        listOf(
+            "OAUTH_REDIRECT_URL", "INSTAGRAM_APP_ID", "INSTAGRAM_APP_SECRET", "FACEBOOK_APP_ID", "FACEBOOK_APP_SECRET",
+            "FACEBOOK_CONFIG_ID", "TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET",
+        ).forEach { buildConfigField("String", it, "\"${platformSetting(it)}\"") }
+
         buildConfigField("boolean", "DEV_AI_KEYS", providers.gradleProperty("devAiKeys").orElse("false").get())
     }
 
