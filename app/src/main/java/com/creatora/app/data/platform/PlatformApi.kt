@@ -1,6 +1,9 @@
 package com.creatora.app.data.platform
 
+<<<<<<< HEAD
 import com.creatora.app.data.ai.HttpResponse
+=======
+>>>>>>> origin/main
 import com.creatora.app.data.ai.HttpTransport
 import com.creatora.app.domain.account.AdapterError
 import com.creatora.app.domain.account.AdapterOutcome
@@ -28,6 +31,7 @@ class PlatformApi(private val http: HttpTransport, private val errors: ErrorRepo
     suspend fun <T> put(url: String, body: ByteArray, headers: Map<String, String>, parse: (String) -> T): AdapterOutcome<T> =
         call(url) { http.put(url, headers, body) }.then(parse)
 
+<<<<<<< HEAD
     /** POST that also gives the response headers (a resumable upload hands out its upload address in `Location`). */
     suspend fun <T> postRaw(url: String, body: String, headers: Map<String, String> = emptyMap(), parse: (HttpResponse) -> T): AdapterOutcome<T> =
         callRaw(url) { http.post(url, headers + ("Accept" to "application/json"), body) }.thenRaw(parse)
@@ -39,16 +43,24 @@ class PlatformApi(private val http: HttpTransport, private val errors: ErrorRepo
         call(url) { http.putFile(url, headers, file) }.then(parse)
 
     private suspend fun callRaw(url: String, send: suspend () -> HttpResponse): AdapterOutcome<HttpResponse> {
+=======
+    private suspend fun call(url: String, send: suspend () -> com.creatora.app.data.ai.HttpResponse): AdapterOutcome<String> {
+>>>>>>> origin/main
         val response = try {
             send()
         } catch (e: IOException) {
             return AdapterOutcome.Failed(AdapterError.Network)
         }
+<<<<<<< HEAD
         if (response.code in 200..299) return AdapterOutcome.Ok(response)
+=======
+        if (response.code in 200..299) return AdapterOutcome.Ok(response.body)
+>>>>>>> origin/main
         errors.record(PlatformApiException(platformName, response.code, url.substringBefore('?').removePrefix("https://"), response.body))
         return AdapterOutcome.Failed(platformError(response.code, response.body))
     }
 
+<<<<<<< HEAD
     private suspend fun call(url: String, send: suspend () -> HttpResponse): AdapterOutcome<String> =
         when (val r = callRaw(url, send)) {
             is AdapterOutcome.Ok -> AdapterOutcome.Ok(r.value.body)
@@ -61,6 +73,8 @@ class PlatformApi(private val http: HttpTransport, private val errors: ErrorRepo
         is AdapterOutcome.Failed -> this
     }
 
+=======
+>>>>>>> origin/main
     private fun <T> AdapterOutcome<String>.then(parse: (String) -> T): AdapterOutcome<T> = when (this) {
         is AdapterOutcome.Ok -> runCatching { AdapterOutcome.Ok(parse(value)) }
             .getOrElse { AdapterOutcome.Failed(AdapterError.NotAvailable("The reply from $platformName could not be read")) }

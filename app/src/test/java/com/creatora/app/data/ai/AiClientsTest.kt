@@ -39,6 +39,7 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
         return postResponses.entries.firstOrNull { url.contains(it.key) }?.value ?: response
     }
 
+<<<<<<< HEAD
     val postBytesUrls = mutableListOf<String>()
     var postBytesResponse = HttpResponse(200, "")
 
@@ -61,13 +62,19 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
 
     val putUrls = mutableListOf<String>()
     val putBodies = mutableListOf<String>()
+=======
+    val putUrls = mutableListOf<String>()
+>>>>>>> origin/main
     val putHeaders = mutableListOf<Map<String, String>>()
     var putResponse = HttpResponse(200, "")
 
     override suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse {
         if (offline) throw IOException("offline")
         putUrls += url
+<<<<<<< HEAD
         putBodies += String(body)
+=======
+>>>>>>> origin/main
         putHeaders += headers
         return putResponse
     }

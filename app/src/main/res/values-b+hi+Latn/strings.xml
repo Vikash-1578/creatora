@@ -554,6 +554,7 @@
     <string name="goal_advice_keep">Mera target rakho</string>
     <string name="connect_problem_not_configured">Is build mein %1$s login set nahi hai. Ye build settings khali hain: %2$s.</string>
     <string name="connect_problem_login_failed">%1$s login poora nahi hua: %2$s</string>
+<<<<<<< HEAD
     <string name="see_all">Sab dekhein</string>
     <string name="info_toggle">%1$s ke baare mein aur</string>
     <string name="home_upload_views_only">%1$s views</string>
@@ -711,4 +712,6 @@
         <item quantity="one">%1$d post shuru hui. Calendar mein uski progress dekhein.</item>
         <item quantity="other">%1$d posts shuru huin. Calendar mein unki progress dekhein.</item>
     </plurals>
+=======
+>>>>>>> origin/main
 </resources>

@@ -78,6 +78,7 @@ sealed interface PublishSource {
     data class LocalFile(val file: java.io.File) : PublishSource
 }
 
+<<<<<<< HEAD
 /** What YouTube asks for besides the video. Null answers are never sent as "no": the post is refused earlier. */
 data class PostDetails(
     val title: String = "",
@@ -87,6 +88,8 @@ data class PostDetails(
     val thumbnail: java.io.File? = null,
 )
 
+=======
+>>>>>>> origin/main
 /**
  * One post to one account. [scheduledAtMillis] is only used by platforms that schedule natively (Facebook Pages).
  * [makePublic] is false unless the user chose it; platforms that have not approved Creatora keep the post private anyway.
@@ -97,13 +100,19 @@ data class PublishRequest(
     val source: PublishSource? = null,
     val scheduledAtMillis: Long? = null,
     val makePublic: Boolean = false,
+<<<<<<< HEAD
     val details: PostDetails = PostDetails(),
+=======
+>>>>>>> origin/main
 )
 
 sealed interface PublishStatus {
     data class Processing(val detail: String? = null) : PublishStatus
+<<<<<<< HEAD
     /** Uploaded and waiting for the time it was scheduled for; the platform publishes it. */
     data class Scheduled(val atMillis: Long?) : PublishStatus
+=======
+>>>>>>> origin/main
     data class Live(val url: String?) : PublishStatus
     /** Posted, but the platform keeps it private until its review of Creatora is done. */
     data class PrivateUntilApproved(val detail: String) : PublishStatus

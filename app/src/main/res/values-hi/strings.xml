@@ -554,6 +554,7 @@
     <string name="goal_advice_keep">मेरा लक्ष्य रखें</string>
     <string name="connect_problem_not_configured">इस बिल्ड में %1$s लॉगिन सेट नहीं है। ये बिल्ड सेटिंग्स खाली हैं: %2$s।</string>
     <string name="connect_problem_login_failed">%1$s लॉगिन पूरा नहीं हुआ: %2$s</string>
+<<<<<<< HEAD
     <string name="see_all">सभी देखें</string>
     <string name="info_toggle">%1$s के बारे में और</string>
     <string name="home_upload_views_only">%1$s व्यूज़</string>
@@ -711,4 +712,6 @@
         <item quantity="one">%1$d पोस्ट शुरू हुई। कैलेंडर में उसकी प्रगति देखें।</item>
         <item quantity="other">%1$d पोस्ट शुरू हुईं। कैलेंडर में उनकी प्रगति देखें।</item>
     </plurals>
+=======
+>>>>>>> origin/main
 </resources>
