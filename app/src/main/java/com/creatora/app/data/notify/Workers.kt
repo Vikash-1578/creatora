@@ -38,6 +38,7 @@ interface PollEntryPoint {
     fun prefs(): NotificationPrefsRepository
     fun settings(): SettingsRepository
     fun platforms(): PlatformRegistry
+    fun inbox(): com.creatora.app.domain.repository.NotificationInboxRepository
 }
 
 /**
@@ -68,11 +69,10 @@ class YouTubePollWorker(context: Context, params: WorkerParameters) : CoroutineW
             val last = prefs.lastValue(key)
             if (last != null && settings.isOn(NotificationCategory.VIEW_MILESTONES)) {
                 crossedMilestone(last, views, settings.milestoneViews)?.let { milestone ->
-                    Notifier.post(
-                        applicationContext, NotificationCategory.VIEW_MILESTONES, MILESTONE_ID,
-                        text.getString(R.string.notify_milestone_title, numbers.format(milestone)),
-                        text.getString(R.string.notify_milestone_text, channel.title, numbers.format(views)),
-                    )
+                    val title = text.getString(R.string.notify_milestone_title, numbers.format(milestone))
+                    val body = text.getString(R.string.notify_milestone_text, channel.title, numbers.format(views))
+                    Notifier.post(applicationContext, NotificationCategory.VIEW_MILESTONES, MILESTONE_ID, title, body)
+                    entry.inbox().add(NotificationCategory.VIEW_MILESTONES, title, body, System.currentTimeMillis())
                 }
             }
             prefs.setLastValue(key, views)
@@ -85,11 +85,10 @@ class YouTubePollWorker(context: Context, params: WorkerParameters) : CoroutineW
             val last = prefs.lastValue(key)
             if (last != null && total > last && settings.isOn(NotificationCategory.NEW_COMMENTS)) {
                 val added = (total - last).toInt()
-                Notifier.post(
-                    applicationContext, NotificationCategory.NEW_COMMENTS, COMMENTS_ID,
-                    text.resources.getQuantityString(R.plurals.notify_comments_title, added, added),
-                    text.getString(R.string.notify_comments_text),
-                )
+                val title = text.resources.getQuantityString(R.plurals.notify_comments_title, added, added)
+                val body = text.getString(R.string.notify_comments_text)
+                Notifier.post(applicationContext, NotificationCategory.NEW_COMMENTS, COMMENTS_ID, title, body)
+                entry.inbox().add(NotificationCategory.NEW_COMMENTS, title, body, System.currentTimeMillis())
             }
             prefs.setLastValue(key, total)
         }
@@ -109,10 +108,10 @@ class DailyIdeasWorker(context: Context, params: WorkerParameters) : CoroutineWo
         val entry = EntryPointAccessors.fromApplication(applicationContext, PollEntryPoint::class.java)
         if (entry.auth().user.first() == null || !entry.prefs().prefs.first().isOn(NotificationCategory.DAILY_IDEAS)) return Result.success()
         val text = applicationContext.withLanguage(entry.settings().language.first())
-        Notifier.post(
-            applicationContext, NotificationCategory.DAILY_IDEAS, IDEAS_ID,
-            text.getString(R.string.notify_ideas_title), text.getString(R.string.notify_ideas_text),
-        )
+        val title = text.getString(R.string.notify_ideas_title)
+        val body = text.getString(R.string.notify_ideas_text)
+        Notifier.post(applicationContext, NotificationCategory.DAILY_IDEAS, IDEAS_ID, title, body)
+        entry.inbox().add(NotificationCategory.DAILY_IDEAS, title, body, System.currentTimeMillis())
         return Result.success()
     }
 

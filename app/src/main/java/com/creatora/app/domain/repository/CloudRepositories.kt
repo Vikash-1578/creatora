@@ -1,6 +1,12 @@
 package com.creatora.app.domain.repository
 
+import com.creatora.app.domain.account.AdapterError
 import com.creatora.app.domain.account.AppLanguage
+import com.creatora.app.domain.account.ConnectPlatform
+import com.creatora.app.domain.account.VideoStats
+import com.creatora.app.domain.home.CreatorIdea
+import com.creatora.app.domain.home.IdeaStatus
+import com.creatora.app.domain.home.StreakUnit
 import com.creatora.app.domain.account.ConnectedAccount
 import com.creatora.app.domain.account.CreatorProfile
 import com.creatora.app.domain.account.NotificationPrefs
@@ -75,6 +81,15 @@ interface AiHistoryRepository {
     suspend fun clear(uid: String)
 }
 
+interface GoalRepository {
+    /** Newest first. */
+    fun observe(uid: String): Flow<List<com.creatora.app.domain.account.Goal>>
+
+    /** Saves the goal and returns its id (a new id when [goal] has none). */
+    suspend fun save(uid: String, goal: com.creatora.app.domain.account.Goal): String
+    suspend fun delete(uid: String, id: String)
+}
+
 sealed interface AuthorizationOutcome {
     data class Granted(val accessToken: String) : AuthorizationOutcome
     /** The user closed the permission screen or said no. */
@@ -113,4 +128,65 @@ interface BillingRepository {
     val state: Flow<BillingState>
     suspend fun refresh()
     suspend fun launchUpgrade(): LaunchOutcome
+}
+
+/** A post scheduled for later (`users/{uid}/scheduledPosts`). Creating them belongs to the Publish phase. */
+data class UpcomingPost(val id: String, val accountKey: String?, val platform: ConnectPlatform, val title: String, val scheduledAt: Long)
+
+interface UpcomingPostRepository {
+    /** Soonest first. */
+    fun observe(uid: String): Flow<List<UpcomingPost>>
+}
+
+interface CreatorIdeaRepository {
+    /** Newest first. */
+    fun observe(uid: String): Flow<List<CreatorIdea>>
+    suspend fun save(uid: String, idea: CreatorIdea): String
+    suspend fun setStatus(uid: String, id: String, status: IdeaStatus, projectId: Long? = null)
+}
+
+data class CachedText(val text: String, val cachedAt: Long)
+
+/** Cloud cache for results that cost AI actions or API quota (`users/{uid}/cache/{key}`). */
+interface CacheRepository {
+    suspend fun get(uid: String, key: String): CachedText?
+    suspend fun put(uid: String, key: String, text: String, nowMillis: Long)
+}
+
+/** Choices remembered on this phone for Home. */
+interface HomePrefsRepository {
+    val selectedKey: Flow<String?>
+    suspend fun setSelectedKey(key: String)
+
+    /** Whether money amounts are hidden behind the eye icon. */
+    val hideAmounts: Flow<Boolean>
+    suspend fun setHideAmounts(hidden: Boolean)
+
+    val streakUnit: Flow<StreakUnit>
+    suspend fun setStreakUnit(unit: StreakUnit)
+
+    /** Region code for trending (like IN); null means the device region. */
+    val region: Flow<String?>
+    suspend fun setRegion(code: String)
+}
+
+data class InboxEntry(val id: Long, val category: com.creatora.app.domain.account.NotificationCategory, val title: String, val text: String, val at: Long)
+
+/** The last notifications the app sent, so the bell has something real to show. */
+interface NotificationInboxRepository {
+    /** Newest first. */
+    val entries: Flow<List<InboxEntry>>
+    suspend fun add(category: com.creatora.app.domain.account.NotificationCategory, title: String, text: String, at: Long)
+    suspend fun clear()
+}
+
+sealed interface TrendingResult {
+    /** [fromCache] with [cachedAt]; [stale] when the cache was older than allowed and fresh data could not be fetched. */
+    data class Ok(val items: List<VideoStats>, val cachedAt: Long, val fromCache: Boolean, val stale: Boolean = false) : TrendingResult
+    data class Failed(val error: AdapterError) : TrendingResult
+}
+
+interface TrendingRepository {
+    /** The most popular videos for [region] (and the category that fits [niche]), cached for a day. */
+    suspend fun trending(uid: String, region: String, niche: String?, force: Boolean = false): TrendingResult
 }

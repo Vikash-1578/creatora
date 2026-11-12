@@ -45,8 +45,32 @@ fun parseVideos(json: String): List<VideoStats> {
             views = stats.longOrNull("viewCount") ?: 0,
             likes = stats.longOrNull("likeCount"),
             comments = stats.longOrNull("commentCount"),
+            channelTitle = snippet.optString("channelTitle"),
+            thumbnailUrl = snippet.optJSONObject("thumbnails")?.let { (it.optJSONObject("medium") ?: it.optJSONObject("default"))?.optString("url") }?.ifEmpty { null },
         )
     }
+}
+
+/** search.list response (part=id): the video ids. */
+fun parseSearchVideoIds(json: String): List<String> {
+    val items = JSONObject(json).optJSONArray("items") ?: return emptyList()
+    return (0 until items.length()).mapNotNull { items.getJSONObject(it).optJSONObject("id")?.optString("videoId")?.ifEmpty { null } }
+}
+
+/**
+ * The totals report (no dimensions) as [PeriodMetrics]; the revenue report (or null when it was refused) fills the
+ * estimated revenue. Null when the report has no row.
+ */
+fun reportToPeriodMetrics(core: List<Map<String, Any?>>, revenue: List<Map<String, Any?>>?): com.creatora.app.domain.account.PeriodMetrics? {
+    val row = core.firstOrNull() ?: return null
+    fun long(name: String) = (row[name] as? Number)?.toLong() ?: 0L
+    return com.creatora.app.domain.account.PeriodMetrics(
+        views = long("views"),
+        watchMinutes = long("estimatedMinutesWatched"),
+        subscribersGained = long("subscribersGained"),
+        subscribersLost = long("subscribersLost"),
+        revenueUsd = (revenue?.firstOrNull()?.get("estimatedRevenue") as? Number)?.toDouble(),
+    )
 }
 
 /** playlistItems.list response: the video ids, in the order given. */

@@ -110,7 +110,23 @@ data class VideoStats(
     /** Null when the creator hides likes or the platform does not give them. */
     val likes: Long? = null,
     val comments: Long? = null,
+    val channelTitle: String = "",
+    val thumbnailUrl: String? = null,
 )
+
+/**
+ * A channel's totals for a period. [revenueUsd] is null when the channel is not monetized or the revenue scope was
+ * not granted: unknown, never zero. Revenue is the platform's estimate, in US dollars.
+ */
+data class PeriodMetrics(
+    val views: Long,
+    val watchMinutes: Long,
+    val subscribersGained: Long,
+    val subscribersLost: Long,
+    val revenueUsd: Double? = null,
+) {
+    val netSubscribers: Long get() = subscribersGained - subscribersLost
+}
 
 /** Analytics for one video. Each value is null when the platform did not return it (for example CTR, or revenue when not monetized). */
 data class VideoAnalytics(
@@ -153,6 +169,18 @@ interface PlatformAdapter {
     suspend fun recentVideos(channelId: String, limit: Int = 15): AdapterOutcome<List<VideoStats>>
 
     suspend fun analytics(channelId: String, videoIds: List<String>): AdapterOutcome<List<VideoAnalytics>>
+
+    /** Totals for [startDate] to [endDate] (inclusive) of a channel the user owns. */
+    suspend fun channelMetrics(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<PeriodMetrics>
+
+    /** CTR, average percentage viewed and average view duration for videos of an owned channel (no traffic or revenue). */
+    suspend fun videoMetrics(channelId: String, videoIds: List<String>): AdapterOutcome<List<VideoAnalytics>>
+
+    /** The most popular videos right now in a region, optionally in one video category. */
+    suspend fun trending(region: String, categoryId: String?, limit: Int = 15): AdapterOutcome<List<VideoStats>>
+
+    /** Recent videos matching a search, most viewed first. A search is expensive in quota. */
+    suspend fun searchVideos(query: String, limit: Int = 10): AdapterOutcome<List<VideoStats>>
 }
 
 /** Adapter for a platform that is not built yet: every call says so. */
@@ -162,6 +190,10 @@ class ComingSoonAdapter(override val platform: ConnectPlatform) : PlatformAdapte
     override suspend fun lookup(ref: PlatformRef) = soon
     override suspend fun recentVideos(channelId: String, limit: Int) = soon
     override suspend fun analytics(channelId: String, videoIds: List<String>) = soon
+    override suspend fun channelMetrics(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate) = soon
+    override suspend fun videoMetrics(channelId: String, videoIds: List<String>) = soon
+    override suspend fun trending(region: String, categoryId: String?, limit: Int) = soon
+    override suspend fun searchVideos(query: String, limit: Int) = soon
 }
 
 object YouTubeScopes {

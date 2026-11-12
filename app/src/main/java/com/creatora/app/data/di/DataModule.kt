@@ -55,7 +55,14 @@ import com.creatora.app.BuildConfig
 import com.creatora.app.data.cloud.FirebaseAiService
 import com.creatora.app.data.cloud.FirebaseAuthService
 import com.creatora.app.data.cloud.FirestoreAiHistoryRepository
+import com.creatora.app.data.cloud.FirestoreCacheRepository
 import com.creatora.app.data.cloud.FirestoreConnectedAccountRepository
+import com.creatora.app.data.cloud.FirestoreCreatorIdeaRepository
+import com.creatora.app.data.cloud.FirestoreUpcomingPostRepository
+import com.creatora.app.data.home.CachedTrendingRepository
+import com.creatora.app.data.home.DataStoreHomePrefs
+import com.creatora.app.data.home.DataStoreNotificationInbox
+import com.creatora.app.data.cloud.FirestoreGoalRepository
 import com.creatora.app.data.cloud.FirestoreUsageRepository
 import com.creatora.app.data.cloud.FirestoreUserRepository
 import com.creatora.app.data.cloud.GoogleYouTubeAuthorizer
@@ -67,7 +74,14 @@ import com.creatora.app.domain.ai.MeteredAiService
 import com.creatora.app.domain.repository.AiHistoryRepository
 import com.creatora.app.domain.repository.AuthService
 import com.creatora.app.domain.repository.BillingRepository
+import com.creatora.app.domain.repository.CacheRepository
 import com.creatora.app.domain.repository.ConnectedAccountRepository
+import com.creatora.app.domain.repository.CreatorIdeaRepository
+import com.creatora.app.domain.repository.HomePrefsRepository
+import com.creatora.app.domain.repository.NotificationInboxRepository
+import com.creatora.app.domain.repository.TrendingRepository
+import com.creatora.app.domain.repository.UpcomingPostRepository
+import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.NotificationPrefsRepository
 import com.creatora.app.domain.repository.UsageRepository
 import com.creatora.app.domain.repository.UserRepository
@@ -116,8 +130,9 @@ object CloudModule {
         history: AiHistoryRepository,
         settings: SettingsRepository,
         billing: BillingRepository,
+        goals: GoalRepository,
     ): AiService =
-        if (BuildConfig.DEV_AI_KEYS) failover else MeteredAiService(firebase, auth, users, usage, history, settings, billing)
+        if (BuildConfig.DEV_AI_KEYS) failover else MeteredAiService(firebase, auth, users, usage, history, settings, billing, goals)
 
     @Provides
     @Singleton
@@ -131,6 +146,13 @@ abstract class CloudBindingsModule {
     @Binds abstract fun users(impl: FirestoreUserRepository): UserRepository
     @Binds abstract fun usage(impl: FirestoreUsageRepository): UsageRepository
     @Binds abstract fun accounts(impl: FirestoreConnectedAccountRepository): ConnectedAccountRepository
+    @Binds abstract fun goals(impl: FirestoreGoalRepository): GoalRepository
+    @Binds abstract fun creatorIdeas(impl: FirestoreCreatorIdeaRepository): CreatorIdeaRepository
+    @Binds abstract fun upcomingPosts(impl: FirestoreUpcomingPostRepository): UpcomingPostRepository
+    @Binds abstract fun cache(impl: FirestoreCacheRepository): CacheRepository
+    @Binds abstract fun homePrefs(impl: DataStoreHomePrefs): HomePrefsRepository
+    @Binds abstract fun notificationInbox(impl: DataStoreNotificationInbox): NotificationInboxRepository
+    @Binds abstract fun trending(impl: CachedTrendingRepository): TrendingRepository
     @Binds abstract fun aiHistory(impl: FirestoreAiHistoryRepository): AiHistoryRepository
     @Binds abstract fun youTubeAuthorizer(impl: GoogleYouTubeAuthorizer): YouTubeAuthorizer
     @Binds abstract fun billing(impl: PlayBillingRepository): BillingRepository

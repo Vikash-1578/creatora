@@ -55,6 +55,55 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         )
 
+    /**
+     * The day's ideas for one account, steered by the goal (added by the metered service). Each idea carries an AI
+     * estimate of its potential (0 to 100) and a reason that names the real data it rests on.
+     */
+    suspend fun dailyIdeas(facts: String, count: Int): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You suggest video ideas for one creator. Reply with exactly $count ideas, one per line, in this " +
+                    "format and nothing else:\nIDEA: <a specific title-style sentence> | SCORE: <0 to 100, how likely the " +
+                    "idea is to do well for this creator> | WHY: <one sentence that cites the data given below>\n" +
+                    "Use only the facts given; never invent numbers. The score is an estimate, so keep it modest.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** One concrete tip for today, built only from [facts] (real numbers), quoting them. */
+    suspend fun todaysFocus(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You give one creator ONE concrete thing to focus on today. Use only the numbers given and quote " +
+                    "them. If the numbers do not support a tip, say what is missing. Reply in exactly this format:\n" +
+                    "TIP: <two sentences: what to do and why, quoting the numbers>\n" +
+                    "SOURCE: <the metrics the tip is based on, with their values>",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** Why one video did well or badly, from its real numbers only. */
+    suspend fun whyVideo(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You explain in three or four sentences why one video did better or worse than the creator's usual. " +
+                    "Use ONLY the numbers given and quote them; if a number is marked not available, say so instead of " +
+                    "guessing. End with one concrete thing to try next. Plain text.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** A week-by-week plan toward the goal, or this week's re-plan from [progress] (real results). Aims, never promises. */
+    suspend fun weeklyPlan(goal: String, progress: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You plan a creator's next steps toward their aim. Talk about aims, plans and progress; never promise " +
+                    "virality or results. Use only the progress numbers given. Reply with three to five short lines for THIS " +
+                    "week: what to publish, what to test, what to change. If progress is behind, say so plainly and kindly.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Aim: $goal\nProgress: $progress")),
+            ),
+        )
+
     suspend fun ideas(topic: String, count: Int = IDEA_COUNT): AiOutcome<List<String>> =
         ai.complete(
             AiRequest(

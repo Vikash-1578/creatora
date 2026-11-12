@@ -4,12 +4,22 @@ import com.creatora.app.domain.account.AppLanguage
 import com.creatora.app.domain.account.ConnectPlatform
 import com.creatora.app.domain.account.ConnectedAccount
 import com.creatora.app.domain.account.CreatorProfile
+import com.creatora.app.domain.account.Goal
+import com.creatora.app.domain.account.GoalMetric
 import com.creatora.app.domain.account.Plan
 import com.creatora.app.domain.account.ProfileSource
 import com.creatora.app.domain.repository.AiHistoryEntry
 import com.creatora.app.domain.repository.AiHistoryRepository
 import com.creatora.app.domain.repository.AuthUser
 import com.creatora.app.domain.repository.ConnectedAccountRepository
+import com.creatora.app.domain.repository.CacheRepository
+import com.creatora.app.domain.repository.CachedText
+import com.creatora.app.domain.repository.CreatorIdeaRepository
+import com.creatora.app.domain.repository.GoalRepository
+import com.creatora.app.domain.repository.UpcomingPost
+import com.creatora.app.domain.repository.UpcomingPostRepository
+import com.creatora.app.domain.home.CreatorIdea
+import com.creatora.app.domain.home.IdeaStatus
 import com.creatora.app.domain.repository.UsageRepository
 import com.creatora.app.domain.repository.UserDoc
 import com.creatora.app.domain.repository.UserRepository
@@ -198,5 +208,134 @@ class FirestoreAiHistoryRepository @Inject constructor(private val config: Cloud
 
     private companion object {
         const val HISTORY_LIMIT = 50L
+    }
+}
+
+class FirestoreGoalRepository @Inject constructor(private val config: CloudConfig) : GoalRepository {
+
+    private fun collection(uid: String) = userDoc(uid).collection("goals")
+
+    override fun observe(uid: String): Flow<List<Goal>> =
+        if (!config.isConfigured) flowOf(emptyList()) else collection(uid).orderBy("startedAt", Query.Direction.DESCENDING).listFlow { it.toGoal() }
+
+    override suspend fun save(uid: String, goal: Goal): String {
+        val doc = if (goal.id.isBlank()) collection(uid).document() else collection(uid).document(goal.id)
+        doc.set(
+            mapOf(
+                "metric" to goal.metric.name,
+                "target" to goal.target,
+                "startedAt" to goal.startedAt,
+                "deadline" to goal.deadline,
+                "startValue" to goal.startValue,
+                "accountKey" to goal.accountKey,
+                "desire" to goal.desire,
+                "uploadsPerWeek" to goal.uploadsPerWeek,
+                "primary" to goal.primary,
+                "reachedAt" to goal.reachedAt,
+            ),
+        ).await()
+        return doc.id
+    }
+
+    override suspend fun delete(uid: String, id: String) {
+        collection(uid).document(id).delete().await()
+    }
+}
+
+private fun DocumentSnapshot.toGoal(): Goal? {
+    val metric = GoalMetric.entries.firstOrNull { it.name == getString("metric") } ?: return null
+    return Goal(
+        id = id,
+        metric = metric,
+        target = getLong("target") ?: return null,
+        startedAt = getLong("startedAt") ?: 0,
+        deadline = getLong("deadline") ?: 0,
+        startValue = getLong("startValue"),
+        accountKey = getString("accountKey"),
+        desire = getString("desire").orEmpty(),
+        uploadsPerWeek = getLong("uploadsPerWeek")?.toInt(),
+        primary = getBoolean("primary") ?: false,
+        reachedAt = getLong("reachedAt"),
+    )
+}
+
+class FirestoreCreatorIdeaRepository @Inject constructor(private val config: CloudConfig) : CreatorIdeaRepository {
+
+    private fun collection(uid: String) = userDoc(uid).collection("ideas")
+
+    override fun observe(uid: String): Flow<List<CreatorIdea>> =
+        if (!config.isConfigured) flowOf(emptyList()) else collection(uid).orderBy("createdAt", Query.Direction.DESCENDING).limit(IDEA_LIMIT).listFlow { it.toIdea() }
+
+    override suspend fun save(uid: String, idea: CreatorIdea): String {
+        val doc = if (idea.id.isBlank()) collection(uid).document() else collection(uid).document(idea.id)
+        doc.set(
+            mapOf(
+                "title" to idea.title,
+                "reason" to idea.reason,
+                "score" to idea.score,
+                "status" to idea.status.name,
+                "source" to idea.source,
+                "accountKey" to idea.accountKey,
+                "day" to idea.day,
+                "createdAt" to idea.createdAt,
+                "projectId" to idea.projectId,
+            ),
+        ).await()
+        return doc.id
+    }
+
+    override suspend fun setStatus(uid: String, id: String, status: IdeaStatus, projectId: Long?) {
+        val update = mutableMapOf<String, Any?>("status" to status.name)
+        if (projectId != null) update["projectId"] = projectId
+        collection(uid).document(id).set(update, SetOptions.merge()).await()
+    }
+
+    private companion object {
+        const val IDEA_LIMIT = 300L
+    }
+}
+
+private fun DocumentSnapshot.toIdea(): CreatorIdea? {
+    val title = getString("title") ?: return null
+    return CreatorIdea(
+        id = id,
+        title = title,
+        reason = getString("reason").orEmpty(),
+        score = getLong("score")?.toInt(),
+        status = IdeaStatus.entries.firstOrNull { it.name == getString("status") } ?: IdeaStatus.NEW,
+        source = getString("source").orEmpty(),
+        accountKey = getString("accountKey"),
+        day = getString("day").orEmpty(),
+        createdAt = getLong("createdAt") ?: 0,
+        projectId = getLong("projectId"),
+    )
+}
+
+class FirestoreUpcomingPostRepository @Inject constructor(private val config: CloudConfig) : UpcomingPostRepository {
+    override fun observe(uid: String): Flow<List<UpcomingPost>> =
+        if (!config.isConfigured) flowOf(emptyList()) else userDoc(uid).collection("scheduledPosts").orderBy("scheduledAt").listFlow { doc ->
+            UpcomingPost(
+                id = doc.id,
+                accountKey = doc.getString("accountKey"),
+                platform = ConnectPlatform.entries.firstOrNull { it.name == doc.getString("platform") } ?: return@listFlow null,
+                title = doc.getString("title").orEmpty(),
+                scheduledAt = doc.getLong("scheduledAt") ?: return@listFlow null,
+            )
+        }
+}
+
+class FirestoreCacheRepository @Inject constructor(private val config: CloudConfig) : CacheRepository {
+    private fun doc(uid: String, key: String) = userDoc(uid).collection("cache").document(key)
+
+    override suspend fun get(uid: String, key: String): CachedText? {
+        if (!config.isConfigured) return null
+        val snapshot = runCatching { doc(uid, key).get().await() }.getOrNull() ?: return null
+        val text = snapshot.getString("text") ?: return null
+        return CachedText(text, snapshot.getLong("cachedAt") ?: 0)
+    }
+
+    override suspend fun put(uid: String, key: String, text: String, nowMillis: Long) {
+        if (!config.isConfigured) return
+        runCatching { doc(uid, key).set(mapOf("text" to text, "cachedAt" to nowMillis)).await() }
     }
 }
