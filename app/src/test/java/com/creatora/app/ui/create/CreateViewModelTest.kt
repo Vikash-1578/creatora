@@ -8,6 +8,7 @@ import com.creatora.app.testutil.FakeAiService
 import com.creatora.app.testutil.okReply
 import com.creatora.app.testutil.FakeProjectRepository
 import com.creatora.app.testutil.MainDispatcherRule
+import com.creatora.app.testutil.keepActive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -157,7 +158,7 @@ class CreateViewModelStartTest {
         val (vm, _) = open()
         ideas.save("uid1", com.creatora.app.domain.home.CreatorIdea(title = "Saved", status = com.creatora.app.domain.home.IdeaStatus.SAVED))
         ideas.save("uid1", com.creatora.app.domain.home.CreatorIdea(title = "Daily", status = com.creatora.app.domain.home.IdeaStatus.NEW))
-        com.creatora.app.testutil.keepActive(vm.savedIdeas)
+        keepActive(vm.savedIdeas)
 
         assertEquals(listOf("Saved"), vm.savedIdeas.value.map { it.title })
     }
