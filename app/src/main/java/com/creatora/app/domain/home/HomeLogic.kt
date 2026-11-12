@@ -56,9 +56,9 @@ fun sumMetrics(list: List<PeriodMetrics>): PeriodMetrics? {
     if (list.isEmpty()) return null
     return PeriodMetrics(
         views = list.sumOf { it.views },
-        watchMinutes = list.sumOf { it.watchMinutes },
-        subscribersGained = list.sumOf { it.subscribersGained },
-        subscribersLost = list.sumOf { it.subscribersLost },
+        watchMinutes = list.mapNotNull { it.watchMinutes }.takeIf { it.isNotEmpty() }?.sum(),
+        subscribersGained = list.mapNotNull { it.subscribersGained }.takeIf { it.isNotEmpty() }?.sum(),
+        subscribersLost = list.mapNotNull { it.subscribersLost }.takeIf { it.isNotEmpty() }?.sum(),
         revenueUsd = if (list.all { it.revenueUsd != null }) list.sumOf { it.revenueUsd ?: 0.0 } else null,
     )
 }
@@ -70,15 +70,26 @@ data class Snapshot(
     val watchHours: Change?,
     val subscribersNet: Change?,
     val earningsUsd: Change?,
+    /** Views per day for the mini chart; null when not available. */
+    val viewsSeries: List<Long>? = null,
 )
 
-fun buildSnapshot(subscribers: Long?, current: PeriodMetrics?, previous: PeriodMetrics?): Snapshot = Snapshot(
+fun buildSnapshot(subscribers: Long?, current: PeriodMetrics?, previous: PeriodMetrics?, viewsSeries: List<Long>? = null): Snapshot = Snapshot(
     subscribers = subscribers,
     views = current?.let { Change(it.views.toDouble(), previous?.views?.toDouble()) },
-    watchHours = current?.let { Change(it.watchMinutes / 60.0, previous?.let { p -> p.watchMinutes / 60.0 }) },
-    subscribersNet = current?.let { Change(it.netSubscribers.toDouble(), previous?.netSubscribers?.toDouble()) },
+    watchHours = current?.watchMinutes?.let { Change(it / 60.0, previous?.watchMinutes?.let { p -> p / 60.0 }) },
+    subscribersNet = current?.netSubscribers?.let { Change(it.toDouble(), previous?.netSubscribers?.toDouble()) },
     earningsUsd = current?.revenueUsd?.let { Change(it, previous?.revenueUsd) },
+    viewsSeries = viewsSeries,
 )
+
+/** Adds the daily series of several accounts day by day; null when any is missing or they differ in length (nothing is guessed). */
+fun sumSeries(list: List<List<Long>?>): List<Long>? {
+    if (list.isEmpty() || list.any { it == null }) return null
+    val all = list.filterNotNull()
+    if (all.map { it.size }.distinct().size != 1) return null
+    return all.first().indices.map { i -> all.sumOf { it[i] } }
+}
 
 // ---------------------------------------------------------------- recent uploads
 
@@ -164,22 +175,24 @@ enum class GoalMissing { NO_START_VALUE, NO_DATA }
 /** The numbers a goal can be measured against, each null when the platform did not give it. */
 data class GoalInputs(val subscribersNow: Long?, val viewsSince: Long?, val uploadsSince: Int?, val earningsSince: Double?)
 
+/**
+ * A subscriber goal is the total to reach ("10,000,000 subscribers"), so [GoalProgress.current] is today's total and the bar
+ * runs from the starting count to the target. The other goals count what happened since the goal started.
+ */
 fun goalProgress(goal: Goal, inputs: GoalInputs): GoalProgress {
     val current: Long? = when (goal.metric) {
-        GoalMetric.SUBSCRIBERS -> {
-            val start = goal.startValue
-            val now = inputs.subscribersNow
-            if (start == null || now == null) null else (now - start).coerceAtLeast(0)
-        }
+        GoalMetric.SUBSCRIBERS -> inputs.subscribersNow
         GoalMetric.VIEWS -> inputs.viewsSince
         GoalMetric.UPLOADS -> inputs.uploadsSince?.toLong()
         GoalMetric.EARNINGS -> inputs.earningsSince?.toLong()
     }
-    if (current == null) {
-        val missing = if (goal.metric == GoalMetric.SUBSCRIBERS && goal.startValue == null) GoalMissing.NO_START_VALUE else GoalMissing.NO_DATA
-        return GoalProgress(null, goal.target, null, reached = false, missing = missing)
+    if (current == null) return GoalProgress(null, goal.target, null, reached = false, missing = GoalMissing.NO_DATA)
+    val fraction = if (goal.metric == GoalMetric.SUBSCRIBERS) {
+        val start = (goal.startValue ?: 0L).coerceAtMost(current)
+        if (goal.target > start) ((current - start).toFloat() / (goal.target - start)).coerceIn(0f, 1f) else if (current >= goal.target) 1f else 0f
+    } else {
+        (current.toFloat() / goal.target).coerceIn(0f, 1f)
     }
-    val fraction = (current.toFloat() / goal.target).coerceIn(0f, 1f)
     return GoalProgress(current, goal.target, fraction, reached = current >= goal.target, missing = null)
 }
 

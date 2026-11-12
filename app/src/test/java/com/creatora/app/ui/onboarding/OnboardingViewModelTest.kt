@@ -3,6 +3,7 @@ package com.creatora.app.ui.onboarding
 import com.creatora.app.domain.account.AccountConnector
 import com.creatora.app.domain.account.AdapterError
 import com.creatora.app.domain.account.AdapterOutcome
+import com.creatora.app.domain.account.ChannelPreview
 import com.creatora.app.domain.account.AppLanguage
 import com.creatora.app.domain.account.ConnectPlatform
 import com.creatora.app.domain.account.CreatorProfileService
@@ -48,11 +49,13 @@ class OnboardingViewModelTest {
 
     private val reporter = com.creatora.app.testutil.FakeErrorReporter()
 
+    private val tiktokLogin = com.creatora.app.testutil.FakePlatformLogin(ConnectPlatform.TIKTOK)
+
     private fun viewModel(): OnboardingViewModel {
         val registry = PlatformRegistry(listOf(youtube))
         return OnboardingViewModel(
             settings, auth, users,
-            AccountConnector(registry, accounts, users, billing),
+            AccountConnector(registry, accounts, users, billing, com.creatora.app.domain.platform.LoginRegistry(listOf(tiktokLogin))),
             CreatorProfileService(registry, accounts, users, AiTasks(ai)),
             prefs, billing, goals, accounts, reporter,
         )
@@ -190,7 +193,7 @@ class OnboardingViewModelTest {
     }
 
     @Test
-    fun pastingALinkOnlyLink_savesTheLink_andComingSoonSavesNothing() = runTest {
+    fun pastingALinkOnlyLink_savesTheLink_andAnUnknownAccountOfAnApiPlatformIsSaidToBeUnavailable() = runTest {
         val vm = viewModel()
         vm.signIn()
 
@@ -201,7 +204,7 @@ class OnboardingViewModelTest {
         assertEquals("https://sharechat.com/profile/maya", saved.link)
 
         vm.lookUp("https://instagram.com/maya", ConnectPlatform.INSTAGRAM)
-        assertEquals(ConnectPlatform.INSTAGRAM, vm.state.value.lookup.comingSoon)
+        assertEquals(ConnectProblem.NOT_AVAILABLE, vm.state.value.lookup.problem) // Instagram only shows accounts you sign in to
         assertEquals(1, accounts.byUser.value.getValue(TestUser.uid).size)
 
         vm.lookUp("nonsense words", ConnectPlatform.YOUTUBE)
@@ -248,7 +251,7 @@ class OnboardingViewModelTest {
     }
 
     @Test
-    fun loginButtons_googleRefetchesChannels_othersSayComingSoon() = runTest {
+    fun loginButtons_googleRefetchesChannels_othersUseTheirOwnSignIn() = runTest {
         val vm = viewModel()
         vm.signIn()
         youtube.own = AdapterOutcome.Ok(listOf(preview("UC7")))
@@ -256,9 +259,14 @@ class OnboardingViewModelTest {
         vm.login(ConnectPlatform.YOUTUBE)
         assertEquals(listOf("UC7"), vm.state.value.channels.map { it.id })
 
+        tiktokLogin.outcome = com.creatora.app.domain.platform.LoginOutcome.Signed(listOf(ChannelPreview(ConnectPlatform.TIKTOK, "tt1", "Maya")))
         vm.login(ConnectPlatform.TIKTOK)
-        assertEquals(ConnectPlatform.TIKTOK, vm.state.value.lookup.comingSoon)
-        assertTrue(accounts.byUser.value.isEmpty())
+        assertEquals(listOf("UC7", "tt1"), vm.state.value.channels.map { it.id })
+        assertTrue(accounts.byUser.value.isEmpty()) // saved only after "Is this you?"
+
+        tiktokLogin.outcome = com.creatora.app.domain.platform.LoginOutcome.Failed("access_denied")
+        vm.login(ConnectPlatform.TIKTOK)
+        assertEquals(ConnectProblem.LOGIN_FAILED, vm.state.value.lookup.problem)
     }
 
     @Test

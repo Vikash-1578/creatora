@@ -27,6 +27,8 @@ import com.creatora.app.domain.repository.CacheRepository
 import com.creatora.app.domain.repository.GoalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Instant
+import com.creatora.app.domain.home.ChannelOverview
+import com.creatora.app.domain.home.goalRealism
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
@@ -57,6 +59,14 @@ data class GoalsState(
     val celebrating: Goal? = null,
     val plan: PlanState = PlanState.None,
     val loading: Boolean = true,
+    /** A goal that looks out of reach: shown with a kind note and a suggested target before anything is saved. */
+    val advice: GoalAdvice? = null,
+)
+
+/** The goal as typed, the target that fits the recent pace, and the AI's kind note (null while it is written or if it failed). */
+data class GoalAdvice(
+    val metric: GoalMetric, val target: Long, val days: Int, val forAll: Boolean, val startValue: Long?,
+    val suggested: Long, val message: String?, val loading: Boolean,
 )
 
 private const val DAY_MILLIS = 24L * 60 * 60 * 1000
@@ -132,11 +142,58 @@ class GoalsViewModel @Inject constructor(
         if (target <= 0 || days <= 0) return
         viewModelScope.launch {
             val accounts = context.selected.first()
-            val key = if (forAll) null else accounts.singleOrNull()?.key
+            val scope = accounts.filter { it.platform.support == PlatformSupport.FULL }
+            val overviews = scope.map { loader.overview(it) }
+            val subscribers = overviews.map { it.channel?.subscribers }.let { list -> if (list.isEmpty() || list.any { it == null }) null else list.sumOf { it ?: 0L } }
+            val start = startValue ?: if (metric == GoalMetric.SUBSCRIBERS) subscribers else null
             val now = System.currentTimeMillis()
-            goals.save(id, Goal(metric = metric, target = target, startedAt = now, deadline = now + days * DAY_MILLIS, startValue = startValue, accountKey = key, primary = false))
+            val recent = recentPace(metric, overviews, now)
+            val realism = goalRealism(metric, target, subscribers, recent, days)
+            if (realism != null && realism.unrealistic) {
+                // Not saved yet: the user sees a kind note and a target that fits, and chooses.
+                _state.update { it.copy(advice = GoalAdvice(metric, target, days, forAll, start, realism.suggested, null, loading = true)) }
+                val message = (ai.goalAdvice(adviceFacts(metric, target, days, subscribers, recent, realism.suggested)) as? AiOutcome.Ok)?.value
+                _state.update { state -> state.advice?.let { state.copy(advice = it.copy(message = message, loading = false)) } ?: state }
+                return@launch
+            }
+            save(id, metric, target, days, forAll, start)
         }
     }
+
+    private suspend fun save(uid: String, metric: GoalMetric, target: Long, days: Int, forAll: Boolean, startValue: Long?) {
+        val key = if (forAll) null else context.selected.first().singleOrNull()?.key
+        val now = System.currentTimeMillis()
+        goals.save(uid, Goal(metric = metric, target = target, startedAt = now, deadline = now + days * DAY_MILLIS, startValue = startValue, accountKey = key, primary = false))
+    }
+
+    /** What the account got in the last 28 days for this measure; null when any of its data is missing. */
+    private fun recentPace(metric: GoalMetric, overviews: List<ChannelOverview>, now: Long): Long? {
+        if (overviews.isEmpty() || overviews.any { it.error != null }) return null
+        return when (metric) {
+            GoalMetric.UPLOADS -> overviews.sumOf { o -> o.videos.count { (parsePublished(it.publishedAt) ?: 0L) >= now - 28 * DAY_MILLIS } }.toLong()
+            else -> {
+                val current = overviews.map { it.current }
+                if (current.any { it == null }) null else when (metric) {
+                    GoalMetric.SUBSCRIBERS -> current.sumOf { it!!.netSubscribers ?: 0L }
+                    GoalMetric.VIEWS -> current.sumOf { it!!.views }
+                    else -> if (current.all { it!!.revenueUsd != null }) current.sumOf { it!!.revenueUsd!! }.toLong() else null
+                }
+            }
+        }
+    }
+
+    private fun adviceFacts(metric: GoalMetric, target: Long, days: Int, current: Long?, recent: Long?, suggested: Long) =
+        "Goal: ${metric.name.lowercase()} $target in $days days. Now: ${current ?: "not known"}. The last 28 days: $recent. A target that fits that pace: $suggested."
+
+    /** The user picked the suggested target (or kept their own): saves the goal. */
+    fun answerAdvice(useSuggested: Boolean) {
+        val advice = _state.value.advice ?: return
+        val id = uid ?: return
+        _state.update { it.copy(advice = null) }
+        viewModelScope.launch { save(id, advice.metric, if (useSuggested) advice.suggested else advice.target, advice.days, advice.forAll, advice.startValue) }
+    }
+
+    fun dismissAdvice() = _state.update { it.copy(advice = null) }
 
     fun edit(goal: Goal, target: Long, days: Int) {
         val id = uid ?: return

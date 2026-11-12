@@ -31,7 +31,7 @@ class GoogleYouTubeAuthorizer @Inject constructor(
                 val data = bridge.requestConsent(screen) ?: return AuthorizationOutcome.Denied
                 result = client.getAuthorizationResultFromIntent(data)
             }
-            result.accessToken?.let { AuthorizationOutcome.Granted(it) } ?: AuthorizationOutcome.Failed
+            result.accessToken?.let { AuthorizationOutcome.Granted(it, result.grantedScopes.toSet()) } ?: AuthorizationOutcome.Failed
         } catch (e: ApiException) {
             if (e.statusCode == CommonStatusCodes.CANCELED) AuthorizationOutcome.Denied else AuthorizationOutcome.Failed
         } catch (e: CancellationException) {

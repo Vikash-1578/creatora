@@ -27,6 +27,7 @@ fun parseChannels(json: String): List<ChannelPreview> {
             subscribers = if (stats.optBoolean("hiddenSubscriberCount")) null else stats.longOrNull("subscriberCount"),
             videoCount = stats.longOrNull("videoCount"),
             viewCount = stats.longOrNull("viewCount"),
+            country = snippet.optString("country").ifEmpty { null },
         )
     }
 }
@@ -140,3 +141,16 @@ fun reportToTraffic(rows: List<Map<String, Any?>>): Map<String, Long> =
         val views = row["views"].asDouble()?.toLong() ?: return@mapNotNull null
         source to views
     }.toMap()
+
+/**
+ * The day-by-day views report as one number per day from [start] to [end] (inclusive), oldest first. A day the report
+ * leaves out had no views, so it is 0; this is a chart series, not a total.
+ */
+fun reportToDailyViews(rows: List<Map<String, Any?>>, start: java.time.LocalDate, end: java.time.LocalDate): List<Long> {
+    val byDay = rows.mapNotNull { row ->
+        val day = (row["day"] as? String)?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() } ?: return@mapNotNull null
+        day to ((row["views"] as? Number)?.toLong() ?: 0L)
+    }.toMap()
+    val days = java.time.temporal.ChronoUnit.DAYS.between(start, end).toInt() + 1
+    return (0 until days.coerceAtLeast(0)).map { byDay[start.plusDays(it.toLong())] ?: 0L }
+}

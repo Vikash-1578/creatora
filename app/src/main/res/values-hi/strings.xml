@@ -28,10 +28,10 @@
     <string name="connect_input_label">लिंक, ID या @हैंडल पेस्ट करें</string>
     <string name="connect_button">खोजें और जोड़ें</string>
     <string name="connect_hint_full">Google आपके खाते के YouTube चैनल खुद खोज लेता है। आप लिंक या ID भी पेस्ट कर सकते हैं।</string>
-    <string name="connect_hint_instagram">Instagram के लिए प्रोफेशनल (बिज़नेस या क्रिएटर) खाता चाहिए। बदलने के लिए: Instagram, सेटिंग्स, अकाउंट टाइप, प्रोफेशनल अकाउंट पर स्विच करें। जोड़ना जल्द आ रहा है।</string>
-    <string name="connect_hint_coming_soon">यह प्लेटफ़ॉर्म जल्द आ रहा है। अभी कुछ भी नहीं लिया जाता।</string>
+    <string name="connect_hint_instagram">Instagram के लिए प्रोफेशनल (बिज़नेस या क्रिएटर) खाता चाहिए; निजी खाता नहीं जुड़ सकता। बदलने के लिए: Instagram, सेटिंग्स, अकाउंट टाइप, प्रोफेशनल अकाउंट पर स्विच करें।</string>
+    <string name="connect_hint_facebook">Facebook से आपके पेज जुड़ते हैं, निजी प्रोफ़ाइल नहीं। लॉगिन पर वे पेज चुनें जो Creatora को दिखाने हैं।</string>
+    <string name="connect_hint_tiktok">TikTok लॉगिन से आपकी प्रोफ़ाइल, फ़ॉलोअर और हर वीडियो के आँकड़े आते हैं। TikTok समय के साथ खाते के आँकड़े नहीं देता।</string>
     <string name="connect_hint_link_only">सिर्फ़ लिंक सेव होता है। इस प्लेटफ़ॉर्म से कुछ नहीं लिया जाता।</string>
-    <string name="connect_coming_soon">%1$s जल्द आ रहा है। कुछ भी सेव या फ़ेच नहीं हुआ।</string>
     <string name="connect_link_saved">लिंक सेव हो गया।</string>
     <string name="connect_plan_limit">आपके प्लान में %1$d खाता जोड़ सकते हैं। और जोड़ने के लिए अपग्रेड करें।</string>
     <string name="connect_problem_not_authorized">YouTube की अनुमति नहीं मिली। आप बाद में सेटिंग्स में दे सकते हैं।</string>
@@ -219,7 +219,6 @@
     <string name="home_error_network">इंटरनेट नहीं है। फिर कोशिश करें।</string>
     <string name="home_error_quota">YouTube अभी अनुरोध सीमित कर रहा है। बाद में कोशिश करें।</string>
     <string name="home_error_not_found">कुछ नहीं मिला।</string>
-    <string name="home_error_coming_soon">यह प्लेटफ़ॉर्म जल्द आ रहा है। अभी कुछ नहीं लिया जाता।</string>
     <string name="home_error_not_available">यह इस खाते के लिए अभी उपलब्ध नहीं है।</string>
     <string name="home_focus_title">आज का फ़ोकस</string>
     <string name="home_focus_fix">ठीक करें</string>
@@ -239,7 +238,6 @@
     <string name="home_ideas_bad_reply">AI का जवाब इस्तेमाल नहीं हो सका। बाद में फिर कोशिश करें।</string>
     <string name="home_uploads_title">हाल के अपलोड</string>
     <string name="home_uploads_empty">अभी कोई अपलोड नहीं मिला।</string>
-    <string name="home_upload_numbers">%1$s %2$s व्यूज़ · CTR %3$s · देखा गया %4$s</string>
     <string name="home_status_good">आपके सामान्य वीडियो की तुलना में अच्छा चल रहा है</string>
     <string name="home_status_average">आपके चैनल के औसत जैसा</string>
     <string name="home_status_poor">आपके सामान्य से कम</string>
@@ -257,18 +255,18 @@
     <string name="home_goals_empty">अभी कोई लक्ष्य नहीं। प्रगति देखने के लिए एक बनाएं।</string>
     <string name="home_goal_add">लक्ष्य जोड़ें</string>
     <string name="home_goal_edit">लक्ष्य बदलें</string>
-    <string name="home_goal_line">%1$s: %2$d</string>
+    <string name="home_goal_line">%1$s: %2$s</string>
     <string name="home_goal_days">%1$d दिन</string>
     <string name="home_goal_days_left">%1$d दिन बाकी</string>
     <string name="home_goal_reached">पूरा हुआ</string>
-    <string name="home_goal_progress">%2$d में से %1$d (%3$d%%)</string>
+    <string name="home_goal_progress">%2$s में से %1$s (%3$d%%)</string>
     <string name="home_goal_no_start">प्रगति के लिए शुरुआती सब्सक्राइबर संख्या चाहिए, जो उपलब्ध नहीं थी।</string>
     <string name="home_goal_no_data">इस लक्ष्य की प्रगति अभी उपलब्ध नहीं है।</string>
     <string name="home_goal_plan">इस हफ़्ते की योजना</string>
     <string name="home_plan_title">इस हफ़्ते की योजना (एक लक्ष्य, वादा नहीं)</string>
     <string name="home_plan_refresh">फिर से योजना बनाएं</string>
     <string name="home_goal_celebrate_title">लक्ष्य पूरा हुआ!</string>
-    <string name="home_goal_celebrate_body">आपने %1$s का %2$d का लक्ष्य पूरा कर लिया। शाबाश।</string>
+    <string name="home_goal_celebrate_body">आपने %1$s का %2$s का लक्ष्य पूरा कर लिया। शाबाश।</string>
     <string name="home_goals_note">लक्ष्य एक निशाना हैं। प्रगति आपके असली आँकड़ों से आती है।</string>
     <string name="home_streak_title">अपलोड स्ट्रीक</string>
     <string name="home_streak_best">सबसे अच्छी: %1$s</string>
@@ -288,7 +286,6 @@
     <string name="home_trending_stale">रिफ़्रेश नहीं हो सका। %1$s का डेटा दिखा रहे हैं।</string>
     <string name="home_action_keywords">कीवर्ड खोज</string>
     <string name="home_action_thumbnail">थंबनेल</string>
-    <string name="home_keyword_soon">कीवर्ड खोज बाद के अपडेट में आएगी।</string>
     <string name="home_thumbnail_needs_project">पहले एक वीडियो शुरू करें या जारी रखें, फिर उसका थंबनेल बनाएं।</string>
     <string name="home_connect_title">अपना चैनल जोड़ें</string>
     <string name="home_connect_body">अपने आँकड़े, आज का फ़ोकस और रोज़ के आइडिया देखने के लिए खाता जोड़ें। तब तक देखें क्या ट्रेंड कर रहा है।</string>
@@ -312,7 +309,7 @@
     <string name="research_loading">लोड हो रहा है…</string>
     <string name="research_thinking">सोच रहा है…</string>
     <string name="research_pick_one">ऊपर से एक खाता चुनें। आउटलायर स्कोर एक बार में एक चैनल के लिए निकलता है।</string>
-    <string name="research_unsupported">इस प्लेटफ़ॉर्म के लिए रिसर्च अभी उपलब्ध नहीं है। अभी सिर्फ़ YouTube चलता है।</string>
+    <string name="research_unsupported">रिसर्च YouTube चैनलों के लिए है। Instagram, Facebook और TikTok अपने API से सार्वजनिक खोज या दूसरों के आँकड़े नहीं देते।</string>
     <string name="research_not_enough">तुलना के लिए Creatora को 2 दिन से पुराने कम से कम 5 वीडियो चाहिए। आपके चैनल से कुल %1$d वीडियो मिले।</string>
     <string name="research_outlier_title">आउटलायर स्कोर</string>
     <string name="research_estimate">अनुमान</string>
@@ -542,4 +539,23 @@
         <item quantity="other">%1$d क्रेडिट लगते हैं</item>
     </plurals>
     <string name="connect_problem_save_failed">आपका चैनल सेव नहीं हो सका। कनेक्शन जाँचें और फिर कोशिश करें।</string>
+    <string name="home_error_permission">YouTube Analytics की अनुमति नहीं मिली। फिर कोशिश करें पर टैप करें और “YouTube Analytics रिपोर्ट देखना” की अनुमति दें।</string>
+    <string name="home_error_platform_said">YouTube ने कहा: %1$s</string>
+    <string name="home_upload_ctr">CTR %1$s</string>
+    <string name="home_upload_viewed">देखा गया %1$s</string>
+    <string name="settings_appcheck_secret">App Check डीबग सीक्रेट</string>
+    <string name="settings_appcheck_note">सिर्फ़ टेस्ट बिल्ड के लिए। इसे Firebase console, App Check, Manage debug tokens में जोड़ें, या Firebase AI Logic के लिए App Check enforcement बंद करें, वरना AI कॉल रोक दिए जाते हैं।</string>
+    <string name="unit_lakh">लाख</string>
+    <string name="unit_crore">करोड़</string>
+    <string name="goal_advice_title">यह लक्ष्य बहुत बड़ा लगता है</string>
+    <string name="goal_advice_static">आपकी हाल की रफ़्तार से इस समय सीमा में %1$s बहुत बड़ी छलाँग है। %2$s एक यथार्थवादी पहला कदम है।</string>
+    <string name="goal_advice_suggested">सुझाया लक्ष्य: %1$s</string>
+    <string name="goal_advice_use">सुझाया लक्ष्य रखें</string>
+    <string name="goal_advice_keep">मेरा लक्ष्य रखें</string>
+    <string name="connect_problem_not_configured">इस बिल्ड में %1$s लॉगिन सेट नहीं है। ये बिल्ड सेटिंग्स खाली हैं: %2$s।</string>
+    <string name="connect_problem_login_failed">%1$s लॉगिन पूरा नहीं हुआ: %2$s</string>
+    <string name="see_all">सभी देखें</string>
+    <string name="info_toggle">%1$s के बारे में और</string>
+    <string name="home_upload_views_only">%1$s व्यूज़</string>
+    <string name="home_chart_views">पिछले 28 दिनों में रोज़ के व्यूज़</string>
 </resources>

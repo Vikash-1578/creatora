@@ -157,8 +157,8 @@ class HomeLogicTest {
     @Test
     fun goalProgress_usesRealNumbersForEachMetric() {
         val subs = goalProgress(goal(GoalMetric.SUBSCRIBERS, 1_000, start = 400), GoalInputs(subscribersNow = 800, viewsSince = null, uploadsSince = null, earningsSince = null))
-        assertEquals(400L, subs.current)
-        assertEquals(0.4f, subs.fraction!!, 0.001f)
+        assertEquals(800L, subs.current) // a subscriber goal is a total: today's count
+        assertEquals(0.667f, subs.fraction!!, 0.001f) // from the starting 400 to the target 1,000
         assertFalse(subs.reached)
 
         assertEquals(0.5f, goalProgress(goal(GoalMetric.VIEWS, 2_000), GoalInputs(null, 1_000, null, null)).fraction!!, 0.001f)
@@ -170,16 +170,18 @@ class HomeLogicTest {
 
     @Test
     fun goalProgress_saysWhatIsMissing_insteadOfInventingABar() {
-        val noStart = goalProgress(goal(GoalMetric.SUBSCRIBERS, 100), GoalInputs(500, null, null, null))
-        assertNull(noStart.fraction)
-        assertEquals(GoalMissing.NO_START_VALUE, noStart.missing)
+        val noStart = goalProgress(goal(GoalMetric.SUBSCRIBERS, 10_000_000), GoalInputs(6, null, null, null))
+        assertEquals(6L, noStart.current) // starts from today's count, not from zero
+        assertTrue(noStart.fraction!! < 0.0001f)
+        assertNull(noStart.missing)
 
         val noData = goalProgress(goal(GoalMetric.VIEWS, 100), GoalInputs(null, null, null, null))
         assertEquals(GoalMissing.NO_DATA, noData.missing)
         assertNull(noData.current)
 
-        // Subscribers cannot go below zero: a net loss is shown as no progress.
-        assertEquals(0L, goalProgress(goal(GoalMetric.SUBSCRIBERS, 100, start = 500), GoalInputs(450, null, null, null)).current)
+        // A net loss never shows a bar below zero.
+        assertEquals(0f, goalProgress(goal(GoalMetric.SUBSCRIBERS, 1_000, start = 500), GoalInputs(450, null, null, null)).fraction!!, 0.001f)
+        assertTrue(goalProgress(goal(GoalMetric.SUBSCRIBERS, 100), GoalInputs(500, null, null, null)).reached)
     }
 
     // ---- time, cache, locale
@@ -254,5 +256,26 @@ class HomeLogicTest {
         assertEquals("27", categoryForNiche("Study tips and exam prep"))
         assertEquals("28", categoryForNiche("gadget reviews"))
         assertNull(categoryForNiche("street food"))
+    }
+
+    // ---- platforms that give only some figures
+    @Test
+    fun aSnapshotLeavesOutFiguresThePlatformDoesNotGive() {
+        val instagram = com.creatora.app.domain.account.PeriodMetrics(views = 500, watchMinutes = null, subscribersGained = null, subscribersLost = null)
+        val snapshot = buildSnapshot(1200, instagram, null)
+        assertEquals(500.0, snapshot.views!!.current, 0.0)
+        assertNull(snapshot.watchHours)
+        assertNull(snapshot.subscribersNet)
+    }
+
+    @Test
+    fun sumMetrics_addsWhatEachAccountGave_andKeepsUnknownUnknown() {
+        val youtube = com.creatora.app.domain.account.PeriodMetrics(views = 100, watchMinutes = 600, subscribersGained = 10, subscribersLost = 4)
+        val tiktok = com.creatora.app.domain.account.PeriodMetrics(views = 50, watchMinutes = null, subscribersGained = null, subscribersLost = null)
+        val both = sumMetrics(listOf(youtube, tiktok))!!
+        assertEquals(150L, both.views)
+        assertEquals(600L, both.watchMinutes)
+        assertEquals(6L, both.netSubscribers)
+        assertNull(sumMetrics(listOf(tiktok, tiktok))!!.watchMinutes)
     }
 }

@@ -2,6 +2,7 @@ package com.creatora.app.ui.settings
 
 import com.creatora.app.domain.account.AccountConnector
 import com.creatora.app.domain.account.AdapterOutcome
+import com.creatora.app.domain.account.ChannelPreview
 import com.creatora.app.domain.account.AppLanguage
 import com.creatora.app.domain.account.ConnectPlatform
 import com.creatora.app.domain.account.CreatorProfile
@@ -104,8 +105,10 @@ class SettingsViewModelsTest {
     }
 
     // ---- connected accounts
+    private val instagramLogin = com.creatora.app.testutil.FakePlatformLogin(ConnectPlatform.INSTAGRAM)
+
     private fun connected() = ConnectedAccountsViewModel(
-        auth, users, accounts, AccountConnector(registry, accounts, users, billing),
+        auth, users, accounts, AccountConnector(registry, accounts, users, billing, com.creatora.app.domain.platform.LoginRegistry(listOf(instagramLogin))),
         CreatorProfileService(registry, accounts, users, AiTasks(FakeAiService(okReply("NICHE: unknown")))),
     ).also { }
 
@@ -148,7 +151,7 @@ class SettingsViewModelsTest {
     }
 
     @Test
-    fun connectedAccounts_loginWithGoogleFindsChannels_otherPlatformsSayComingSoon() = runTest {
+    fun connectedAccounts_loginWithGoogleFindsChannels_otherPlatformsUseTheirOwnSignIn() = runTest {
         youtube.own = AdapterOutcome.Ok(listOf(preview("UC1")))
         val vm = connected()
         keepActive(vm.state)
@@ -156,9 +159,27 @@ class SettingsViewModelsTest {
         vm.login(ConnectPlatform.YOUTUBE)
         assertEquals(listOf("UC1"), vm.state.value.ownChannels.map { it.id })
 
+        // A signed-in Instagram account is offered with "Is this you?" and saved only when confirmed.
+        val ig = ChannelPreview(ConnectPlatform.INSTAGRAM, "ig1", "Maya")
+        instagramLogin.outcome = com.creatora.app.domain.platform.LoginOutcome.Signed(listOf(ig))
         vm.login(ConnectPlatform.INSTAGRAM)
-        assertEquals(ConnectPlatform.INSTAGRAM, vm.state.value.lookup.comingSoon)
-        assertTrue(vm.state.value.accounts.isEmpty()) // nothing is connected or saved by a platform that is not built
+        assertEquals(listOf("UC1", "ig1"), vm.state.value.ownChannels.map { it.id })
+        assertTrue(vm.state.value.accounts.isEmpty())
+
+        // Real reasons are shown, never "coming soon".
+        instagramLogin.outcome = com.creatora.app.domain.platform.LoginOutcome.NotConfigured(listOf("INSTAGRAM_APP_ID", "OAUTH_REDIRECT_URL"))
+        vm.login(ConnectPlatform.INSTAGRAM)
+        assertEquals(com.creatora.app.ui.accounts.ConnectProblem.NOT_CONFIGURED, vm.state.value.lookup.problem)
+        assertEquals("INSTAGRAM_APP_ID, OAUTH_REDIRECT_URL", vm.state.value.lookup.detail)
+
+        instagramLogin.outcome = com.creatora.app.domain.platform.LoginOutcome.Failed("Invalid redirect_uri")
+        vm.login(ConnectPlatform.INSTAGRAM)
+        assertEquals(com.creatora.app.ui.accounts.ConnectProblem.LOGIN_FAILED, vm.state.value.lookup.problem)
+        assertEquals("Invalid redirect_uri", vm.state.value.lookup.detail)
+
+        instagramLogin.outcome = com.creatora.app.domain.platform.LoginOutcome.Cancelled
+        vm.login(ConnectPlatform.INSTAGRAM)
+        assertEquals(null, vm.state.value.lookup.problem)
     }
 
     // ---- notifications

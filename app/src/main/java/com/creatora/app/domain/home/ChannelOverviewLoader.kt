@@ -28,6 +28,8 @@ data class ChannelOverview(
     val previous: PeriodMetrics?,
     val error: AdapterError?,
     val metricsError: AdapterError? = null,
+    /** Views per day over the last 28 days for the mini chart; null when the platform gives none. */
+    val dailyViews: List<Long>? = null,
 )
 
 /**
@@ -61,8 +63,7 @@ class ChannelOverviewLoader(
 
     private suspend fun load(account: ConnectedAccount): ChannelOverview {
         if (account.platform.support != PlatformSupport.FULL) {
-            val error = if (account.platform.support == PlatformSupport.LINK_ONLY) AdapterError.NotAvailable("Only the link is saved for this platform") else AdapterError.ComingSoon
-            return ChannelOverview(account, null, emptyList(), null, null, error)
+            return ChannelOverview(account, null, emptyList(), null, null, AdapterError.NotAvailable("Only the link is saved for this platform"))
         }
         val adapter = registry.adapter(account.platform)
         val channel = (adapter.lookup(PlatformRef(account.platform, account.id, null)) as? AdapterOutcome.Ok)?.value
@@ -73,6 +74,7 @@ class ChannelOverviewLoader(
         val today = LocalDate.now()
         val current = adapter.channelMetrics(account.id, today.minusDays(27), today)
         val previous = adapter.channelMetrics(account.id, today.minusDays(55), today.minusDays(28))
+        val series = (adapter.dailyViews(account.id, today.minusDays(27), today) as? AdapterOutcome.Ok)?.value
         return ChannelOverview(
             account = account,
             channel = channel,
@@ -81,6 +83,7 @@ class ChannelOverviewLoader(
             previous = (previous as? AdapterOutcome.Ok)?.value,
             error = null,
             metricsError = (current as? AdapterOutcome.Failed)?.error,
+            dailyViews = series,
         )
     }
 

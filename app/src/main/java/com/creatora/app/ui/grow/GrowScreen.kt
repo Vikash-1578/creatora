@@ -15,13 +15,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.creatora.app.R
 import com.creatora.app.ui.components.FeatureCard
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.creatora.app.ui.home.AccountSwitcher
+import com.creatora.app.ui.home.ChannelCardsViewModel
+import com.creatora.app.ui.home.SnapshotSection
+import com.creatora.app.ui.home.StreakSection
+import com.creatora.app.ui.home.UploadsSection
+import com.creatora.app.ui.home.WhyDialog
+import com.creatora.app.ui.research.ResearchViewModel
 import com.creatora.app.ui.components.ScreenHeader
 import com.creatora.app.ui.components.TabScreen
 import com.creatora.app.ui.theme.CreatoraTheme
 
-/** Grow tab. Each section says what it will show and what is needed to switch it on. */
+/**
+ * Grow tab. It reads the same connected accounts as Home: with none it asks to connect one; with one or more it shows the
+ * real numbers for the selected account (snapshot, recent uploads, upload streak) under the same account switcher.
+ */
 @Composable
-fun GrowScreen(onConnectChannel: () -> Unit, onOpenCreate: () -> Unit, modifier: Modifier = Modifier) {
+fun GrowScreen(
+    onConnectChannel: () -> Unit,
+    onOpenCreate: () -> Unit,
+    modifier: Modifier = Modifier,
+    accountsViewModel: ResearchViewModel = hiltViewModel(),
+    cardsViewModel: ChannelCardsViewModel = hiltViewModel(),
+) {
+    val header by accountsViewModel.header.collectAsStateWithLifecycle()
+    val cards by cardsViewModel.state.collectAsStateWithLifecycle()
+    val accounts = header?.accounts.orEmpty()
     TabScreen(modifier = modifier) {
         ScreenHeader(
             title = stringResource(R.string.tab_grow),
@@ -31,23 +53,42 @@ fun GrowScreen(onConnectChannel: () -> Unit, onOpenCreate: () -> Unit, modifier:
             modifier = Modifier.padding(horizontal = CreatoraTheme.spacing.lg),
             verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.md),
         ) {
-            val connect = stringResource(R.string.grow_action_connect)
-            FeatureCard(Icons.Outlined.BarChart, stringResource(R.string.grow_analytics), stringResource(R.string.grow_analytics_body), connect, onConnectChannel)
-            FeatureCard(Icons.Outlined.ChatBubbleOutline, stringResource(R.string.grow_comments), stringResource(R.string.grow_comments_body), connect, onConnectChannel)
-            FeatureCard(Icons.Outlined.Science, stringResource(R.string.grow_tests), stringResource(R.string.grow_tests_body), stringResource(R.string.grow_action_create), onOpenCreate)
-            FeatureCard(Icons.Outlined.Checklist, stringResource(R.string.grow_audit), stringResource(R.string.grow_audit_body), connect, onConnectChannel)
+            if (header != null && accounts.isEmpty()) {
+                val connect = stringResource(R.string.grow_action_connect)
+                FeatureCard(Icons.Outlined.BarChart, stringResource(R.string.grow_analytics), stringResource(R.string.grow_analytics_body), connect, onConnectChannel)
+                FeatureCard(Icons.Outlined.ChatBubbleOutline, stringResource(R.string.grow_comments), stringResource(R.string.grow_comments_body), connect, onConnectChannel)
+                FeatureCard(Icons.Outlined.Science, stringResource(R.string.grow_tests), stringResource(R.string.grow_tests_body), stringResource(R.string.grow_action_create), onOpenCreate)
+                FeatureCard(Icons.Outlined.Checklist, stringResource(R.string.grow_audit), stringResource(R.string.grow_audit_body), connect, onConnectChannel)
+            } else if (header != null) {
+                AccountSwitcher(accounts, header!!.selection, accountsViewModel::select)
+                SnapshotSection(cards, cardsViewModel::setHideAmounts, cardsViewModel::refresh)
+                UploadsSection(cards, cardsViewModel::explain)
+                StreakSection(cards, cardsViewModel::setStreakUnit)
+            }
         }
     }
+    WhyDialog(cards.why, cardsViewModel::closeWhy)
 }
 
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun GrowScreenLightPreview() {
-    CreatoraTheme(darkTheme = false) { GrowScreen(onConnectChannel = {}, onOpenCreate = {}) }
+    CreatoraTheme(darkTheme = false) { GrowEmptyPreview() }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun GrowScreenDarkPreview() {
-    CreatoraTheme(darkTheme = true) { GrowScreen(onConnectChannel = {}, onOpenCreate = {}) }
+    CreatoraTheme(darkTheme = true) { GrowEmptyPreview() }
+}
+
+/** The state with no account connected: the connect cards. */
+@Composable
+private fun GrowEmptyPreview() {
+    TabScreen {
+        ScreenHeader(title = stringResource(R.string.tab_grow), subtitle = stringResource(R.string.grow_subtitle))
+        Column(Modifier.padding(horizontal = CreatoraTheme.spacing.lg), verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.md)) {
+            FeatureCard(Icons.Outlined.BarChart, stringResource(R.string.grow_analytics), stringResource(R.string.grow_analytics_body), stringResource(R.string.grow_action_connect), {})
+        }
+    }
 }

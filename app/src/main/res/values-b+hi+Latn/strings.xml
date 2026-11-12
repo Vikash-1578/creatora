@@ -28,10 +28,10 @@
     <string name="connect_input_label">Link, ID ya @handle paste karo</string>
     <string name="connect_button">Dhoondho aur jodo</string>
     <string name="connect_hint_full">Google tumhare account ke YouTube channels khud dhoondh leta hai. Link ya ID bhi paste kar sakte ho.</string>
-    <string name="connect_hint_instagram">Instagram ke liye professional (Business ya Creator) account chahiye. Badalne ke liye: Instagram, Settings, Account type and tools, Switch to professional account. Connect karna jaldi aa raha hai.</string>
-    <string name="connect_hint_coming_soon">Ye platform jaldi aa raha hai. Abhi kuch fetch nahi hota.</string>
+    <string name="connect_hint_instagram">Instagram ke liye professional (Business ya Creator) account chahiye; personal account nahi jud sakta. Badalne ke liye: Instagram, Settings, Account type and tools, Switch to professional account.</string>
+    <string name="connect_hint_facebook">Facebook se aapke Pages jude hote hain, personal profile nahi. Login par wo Pages chuniye jo Creatora ko dikhane hain.</string>
+    <string name="connect_hint_tiktok">TikTok login se aapki profile, followers aur har video ke numbers aate hain. TikTok time ke saath account ke numbers nahi deta.</string>
     <string name="connect_hint_link_only">Sirf link save hota hai. Is platform se kuch fetch nahi hota.</string>
-    <string name="connect_coming_soon">%1$s jaldi aa raha hai. Kuch save ya fetch nahi hua.</string>
     <string name="connect_link_saved">Link save ho gaya.</string>
     <string name="connect_plan_limit">Tumhare plan mein %1$d account jod sakte ho. Aur jodne ke liye upgrade karo.</string>
     <string name="connect_problem_not_authorized">YouTube ki permission nahi mili. Baad mein Settings mein de sakte ho.</string>
@@ -219,7 +219,6 @@
     <string name="home_error_network">Internet nahi hai. Phir try karo.</string>
     <string name="home_error_quota">YouTube abhi requests limit kar raha hai. Baad mein try karo.</string>
     <string name="home_error_not_found">Kuch nahi mila.</string>
-    <string name="home_error_coming_soon">Ye platform jaldi aa raha hai. Abhi kuch fetch nahi hota.</string>
     <string name="home_error_not_available">Ye is account ke liye abhi available nahi hai.</string>
     <string name="home_focus_title">Aaj ka focus</string>
     <string name="home_focus_fix">Fix karo</string>
@@ -239,7 +238,6 @@
     <string name="home_ideas_bad_reply">AI ka jawab use nahi ho saka. Baad mein phir try karo.</string>
     <string name="home_uploads_title">Recent uploads</string>
     <string name="home_uploads_empty">Abhi koi upload nahi mila.</string>
-    <string name="home_upload_numbers">%1$s %2$s views · CTR %3$s · dekha gaya %4$s</string>
     <string name="home_status_good">Tumhare usual videos ki tulna mein achha chal raha hai</string>
     <string name="home_status_average">Tumhare channel ke average jaisa</string>
     <string name="home_status_poor">Tumhare usual se kam</string>
@@ -257,18 +255,18 @@
     <string name="home_goals_empty">Abhi koi goal nahi. Progress dekhne ke liye ek banao.</string>
     <string name="home_goal_add">Goal jodo</string>
     <string name="home_goal_edit">Goal edit karo</string>
-    <string name="home_goal_line">%1$s: %2$d</string>
+    <string name="home_goal_line">%1$s: %2$s</string>
     <string name="home_goal_days">%1$d din</string>
     <string name="home_goal_days_left">%1$d din baaki</string>
     <string name="home_goal_reached">Pura hua</string>
-    <string name="home_goal_progress">%2$d mein se %1$d (%3$d%%)</string>
+    <string name="home_goal_progress">%2$s mein se %1$s (%3$d%%)</string>
     <string name="home_goal_no_start">Progress ke liye starting subscriber count chahiye, jo available nahi tha.</string>
     <string name="home_goal_no_data">Is goal ki progress abhi available nahi hai.</string>
     <string name="home_goal_plan">Is hafte ka plan</string>
     <string name="home_plan_title">Is hafte ka plan (ek aim, promise nahi)</string>
     <string name="home_plan_refresh">Phir se plan banao</string>
     <string name="home_goal_celebrate_title">Goal pura hua!</string>
-    <string name="home_goal_celebrate_body">Tumne %1$s ka %2$d ka goal pura kar liya. Shabaash.</string>
+    <string name="home_goal_celebrate_body">Tumne %1$s ka %2$s ka goal pura kar liya. Shabaash.</string>
     <string name="home_goals_note">Goals ek aim hain. Progress tumhare asli numbers se aati hai.</string>
     <string name="home_streak_title">Upload streak</string>
     <string name="home_streak_best">Best: %1$s</string>
@@ -288,7 +286,6 @@
     <string name="home_trending_stale">Refresh nahi ho saka. %1$s ka data dikha rahe hain.</string>
     <string name="home_action_keywords">Keyword search</string>
     <string name="home_action_thumbnail">Thumbnail</string>
-    <string name="home_keyword_soon">Keyword search baad ke update mein aayegi.</string>
     <string name="home_thumbnail_needs_project">Pehle ek video shuru karo ya continue karo, phir uska thumbnail banao.</string>
     <string name="home_connect_title">Apna channel jodo</string>
     <string name="home_connect_body">Apne numbers, aaj ka focus aur daily ideas dekhne ke liye account jodo. Tab tak dekho kya trend kar raha hai.</string>
@@ -312,7 +309,7 @@
     <string name="research_loading">Load ho raha hai…</string>
     <string name="research_thinking">Soch raha hai…</string>
     <string name="research_pick_one">Upar se ek account chuno. Outlier score ek baar mein ek channel ke liye nikalta hai.</string>
-    <string name="research_unsupported">Is platform ke liye research abhi available nahi hai. Abhi sirf YouTube chalta hai.</string>
+    <string name="research_unsupported">Research YouTube channels ke liye hai. Instagram, Facebook aur TikTok apne API se public search ya dusron ke numbers nahi dete.</string>
     <string name="research_not_enough">Tulna ke liye Creatora ko 2 din se purane kam se kam 5 videos chahiye. Tumhare channel se kul %1$d videos mile.</string>
     <string name="research_outlier_title">Outlier score</string>
     <string name="research_estimate">Estimate</string>
@@ -542,4 +539,23 @@
         <item quantity="other">%1$d credits lagte hain</item>
     </plurals>
     <string name="connect_problem_save_failed">Tumhara channel save nahi ho saka. Connection check karo aur phir koshish karo.</string>
+    <string name="home_error_permission">YouTube Analytics ki permission nahi mili. Try again par tap karo aur “YouTube Analytics reports dekhna” allow karo.</string>
+    <string name="home_error_platform_said">YouTube ne kaha: %1$s</string>
+    <string name="home_upload_ctr">CTR %1$s</string>
+    <string name="home_upload_viewed">dekha gaya %1$s</string>
+    <string name="settings_appcheck_secret">App Check debug secret</string>
+    <string name="settings_appcheck_note">Sirf test builds ke liye. Ise Firebase console, App Check, Manage debug tokens mein jodo, ya Firebase AI Logic ke liye App Check enforcement band karo, warna AI calls refuse ho jate hain.</string>
+    <string name="unit_lakh">lakh</string>
+    <string name="unit_crore">crore</string>
+    <string name="goal_advice_title">Ye goal bahut bada lagta hai</string>
+    <string name="goal_advice_static">Tumhari haal ki raftaar se is deadline mein %1$s bahut badi chhalaang hai. %2$s ek realistic pehla kadam hai.</string>
+    <string name="goal_advice_suggested">Suggested target: %1$s</string>
+    <string name="goal_advice_use">Suggested target rakho</string>
+    <string name="goal_advice_keep">Mera target rakho</string>
+    <string name="connect_problem_not_configured">Is build mein %1$s login set nahi hai. Ye build settings khali hain: %2$s.</string>
+    <string name="connect_problem_login_failed">%1$s login poora nahi hua: %2$s</string>
+    <string name="see_all">Sab dekhein</string>
+    <string name="info_toggle">%1$s ke baare mein aur</string>
+    <string name="home_upload_views_only">%1$s views</string>
+    <string name="home_chart_views">Pichhle 28 dino mein roz ke views</string>
 </resources>

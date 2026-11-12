@@ -110,6 +110,7 @@ fun CreatoraNavHost(
                     onOpenCoach = dropUnlessResumed { navController.navigate(Routes.COACH) },
                     onProjectOpened = { id -> navController.navigate(Routes.wizard(id)) },
                     onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
+                    onOpenResearch = { navController.navigateToTab(TopLevelTab.RESEARCH) },
                     onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
                     onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                 )

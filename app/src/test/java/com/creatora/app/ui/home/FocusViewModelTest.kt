@@ -116,8 +116,8 @@ class FocusViewModelTest {
         assertEquals(FocusState.AiFailed(listOf(AiError.LimitReached)), open().state.value)
 
         kit.accounts.byUser.value = emptyMap()
-        kit.accounts.save("uid1", ConnectedAccount(ConnectPlatform.INSTAGRAM, "ig", "Insta"))
-        assertEquals(FocusState.Unavailable(AdapterError.ComingSoon), open().state.value)
+        kit.accounts.save("uid1", ConnectedAccount(ConnectPlatform.MOJ, "m", "Moj", link = "https://mojapp.in/@m"))
+        assertTrue((open().state.value as FocusState.Unavailable).error is AdapterError.NotAvailable)
     }
 
     @Test

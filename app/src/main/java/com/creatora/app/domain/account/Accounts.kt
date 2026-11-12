@@ -2,14 +2,14 @@ package com.creatora.app.domain.account
 
 import java.net.URI
 
-/** How far a platform is supported. */
-enum class PlatformSupport { FULL, COMING_SOON, LINK_ONLY }
+/** FULL: Creatora signs in and reads data through the platform's API. LINK_ONLY: no public API, so only the link is saved. */
+enum class PlatformSupport { FULL, LINK_ONLY }
 
 enum class ConnectPlatform(val support: PlatformSupport) {
     YOUTUBE(PlatformSupport.FULL),
-    INSTAGRAM(PlatformSupport.COMING_SOON),
-    FACEBOOK(PlatformSupport.COMING_SOON),
-    TIKTOK(PlatformSupport.COMING_SOON),
+    INSTAGRAM(PlatformSupport.FULL),
+    FACEBOOK(PlatformSupport.FULL),
+    TIKTOK(PlatformSupport.FULL),
     MOJ(PlatformSupport.LINK_ONLY),
     JOSH(PlatformSupport.LINK_ONLY),
     SHARECHAT(PlatformSupport.LINK_ONLY),
@@ -82,6 +82,8 @@ data class ChannelPreview(
     val subscribers: Long? = null,
     val videoCount: Long? = null,
     val viewCount: Long? = null,
+    /** The channel's country code (like IN) when it set one. */
+    val country: String? = null,
 )
 
 /** A connected account, saved in the user's cloud profile. Link-only platforms only have a [link]. */
@@ -123,12 +125,14 @@ data class VideoStats(
  */
 data class PeriodMetrics(
     val views: Long,
-    val watchMinutes: Long,
-    val subscribersGained: Long,
-    val subscribersLost: Long,
+    /** Null when the platform gives no watch time for the whole account. */
+    val watchMinutes: Long?,
+    /** Null when the platform gives no follower changes. Some platforms give only the net change, shown as gained or lost. */
+    val subscribersGained: Long?,
+    val subscribersLost: Long?,
     val revenueUsd: Double? = null,
 ) {
-    val netSubscribers: Long get() = subscribersGained - subscribersLost
+    val netSubscribers: Long? get() = if (subscribersGained != null && subscribersLost != null) subscribersGained - subscribersLost else null
 }
 
 /** Analytics for one video. Each value is null when the platform did not return it (for example CTR, or revenue when not monetized). */
@@ -148,8 +152,8 @@ sealed interface AdapterError {
     data object Network : AdapterError
     data object QuotaExceeded : AdapterError
     data object NotFound : AdapterError
-    /** The platform is not built yet. Nothing is fetched. */
-    data object ComingSoon : AdapterError
+    /** The user did not grant the YouTube Analytics permission (Google lets people untick it). Retrying asks again. */
+    data object PermissionMissing : AdapterError
     /** The platform said no to this data for this account (for example revenue when not monetized). */
     data class NotAvailable(val reason: String) : AdapterError
 }
@@ -183,7 +187,7 @@ interface PlatformAdapter {
     suspend fun trending(region: String, categoryId: String?, limit: Int = 15): AdapterOutcome<List<VideoStats>>
 
     /** Recent videos matching a search, most viewed first. A search is expensive in quota. */
-    suspend fun searchVideos(query: String, limit: Int = 10): AdapterOutcome<List<VideoStats>>
+    suspend fun searchVideos(query: String, limit: Int = 10, region: String? = null): AdapterOutcome<List<VideoStats>>
 
     /** The top results for a keyword by relevance, any age (what a viewer sees). A search costs 100 quota units. */
     suspend fun keywordSearch(query: String, limit: Int = 25): AdapterOutcome<List<VideoStats>>
@@ -197,26 +201,30 @@ interface PlatformAdapter {
     /** Public details for several channels at once. */
     suspend fun channels(ids: List<String>): AdapterOutcome<List<ChannelPreview>>
 
+    /** Views for each day from [startDate] to [endDate] (inclusive, oldest first) of an owned channel, for the mini chart. Platforms that give no daily series say so. */
+    suspend fun dailyViews(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<List<Long>> =
+        AdapterOutcome.Failed(AdapterError.NotAvailable("No daily numbers from this platform"))
+
     /** The top comments of a video, plain text. Fails when the uploader turned comments off. */
     suspend fun topComments(videoId: String, limit: Int = 50): AdapterOutcome<List<String>>
 }
 
-/** Adapter for a platform that is not built yet: every call says so. */
-class ComingSoonAdapter(override val platform: ConnectPlatform) : PlatformAdapter {
-    private val soon = AdapterOutcome.Failed(AdapterError.ComingSoon)
-    override suspend fun ownChannels() = soon
-    override suspend fun lookup(ref: PlatformRef) = soon
-    override suspend fun recentVideos(channelId: String, limit: Int) = soon
-    override suspend fun analytics(channelId: String, videoIds: List<String>) = soon
-    override suspend fun channelMetrics(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate) = soon
-    override suspend fun videoMetrics(channelId: String, videoIds: List<String>) = soon
-    override suspend fun trending(region: String, categoryId: String?, limit: Int) = soon
-    override suspend fun searchVideos(query: String, limit: Int) = soon
-    override suspend fun keywordSearch(query: String, limit: Int) = soon
-    override suspend fun searchChannels(query: String, limit: Int) = soon
-    override suspend fun featuredChannels(channelId: String) = soon
-    override suspend fun channels(ids: List<String>) = soon
-    override suspend fun topComments(videoId: String, limit: Int) = soon
+/** Adapter for a platform with no public API (link-only platforms): every call says why nothing is fetched. */
+class UnavailableAdapter(override val platform: ConnectPlatform, reason: String = "This platform has no public API") : PlatformAdapter {
+    private val no = AdapterOutcome.Failed(AdapterError.NotAvailable(reason))
+    override suspend fun ownChannels() = no
+    override suspend fun lookup(ref: PlatformRef) = no
+    override suspend fun recentVideos(channelId: String, limit: Int) = no
+    override suspend fun analytics(channelId: String, videoIds: List<String>) = no
+    override suspend fun channelMetrics(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate) = no
+    override suspend fun videoMetrics(channelId: String, videoIds: List<String>) = no
+    override suspend fun trending(region: String, categoryId: String?, limit: Int) = no
+    override suspend fun searchVideos(query: String, limit: Int, region: String?) = no
+    override suspend fun keywordSearch(query: String, limit: Int) = no
+    override suspend fun searchChannels(query: String, limit: Int) = no
+    override suspend fun featuredChannels(channelId: String) = no
+    override suspend fun channels(ids: List<String>) = no
+    override suspend fun topComments(videoId: String, limit: Int) = no
 }
 
 object YouTubeScopes {

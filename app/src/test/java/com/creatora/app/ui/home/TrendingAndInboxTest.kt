@@ -29,9 +29,10 @@ class TrendingAndInboxTest {
     private val kit = HomeKit()
     private val trending = FakeTrendingRepository()
     private val ideas = FakeCreatorIdeaRepository()
+    private val settings = com.creatora.app.testutil.FakeSettingsRepository()
     private val video = VideoStats("t1", "A hot video", "2026-01-01T00:00:00Z", 9_000, channelTitle = "Big channel")
 
-    private fun open(): TrendingViewModel = TrendingViewModel(trending, kit.auth, kit.users, kit.prefs, ideas)
+    private fun open(): TrendingViewModel = TrendingViewModel(trending, kit.auth, kit.users, kit.prefs, ideas, kit.context, kit.loader, settings, com.creatora.app.testutil.FakeErrorReporter())
 
     @Test
     fun trending_usesTheNicheFromTheCreatorProfile_andTheChosenRegion() = runTest {
@@ -81,6 +82,49 @@ class TrendingAndInboxTest {
         assertEquals("trending", idea.source)
         assertEquals("A hot video", idea.title)
         assertEquals("Big channel", idea.reason)
+    }
+
+    @Test
+    fun theRegionComesFromTheChannelsCountry_notFromTheDevice() = runTest {
+        kit.youtube.lookupResult = com.creatora.app.domain.account.AdapterOutcome.Ok(com.creatora.app.testutil.preview("UC1").copy(country = "IN"))
+        kit.youtube.videos = com.creatora.app.domain.account.AdapterOutcome.Ok(emptyList())
+        kit.connect()
+
+        val state = open().state.value as TrendingState.Ready
+
+        assertEquals("IN", state.region)
+        assertEquals("IN", trending.calls.single().first)
+    }
+
+    @Test
+    fun withoutAProfile_theNicheComesFromTheChannelsOwnTags() = runTest {
+        val tagged = (1..4).map { VideoStats("v$it", "Video $it", "2026-01-0${it}T00:00:00Z", 100, tags = listOf("hacker", "coding", "x$it")) }
+        kit.youtube.videos = com.creatora.app.domain.account.AdapterOutcome.Ok(tagged)
+        kit.youtube.lookupResult = com.creatora.app.domain.account.AdapterOutcome.Ok(com.creatora.app.testutil.preview("UC1"))
+        kit.connect()
+
+        val state = open().state.value as TrendingState.Ready
+
+        assertEquals("coding hacker", state.niche)
+        assertEquals("coding hacker", trending.calls.single().second)
+    }
+
+    @Test
+    fun aHindiAppWithoutACountry_defaultsToIndia() = runTest {
+        settings.language.value = com.creatora.app.domain.account.AppLanguage.HINDI
+
+        val state = open().state.value as TrendingState.Ready
+
+        assertEquals("IN", state.region)
+    }
+
+    @Test
+    fun aSavedRegionAlwaysWins() = runTest {
+        kit.prefs.region.value = "GB"
+        kit.youtube.lookupResult = com.creatora.app.domain.account.AdapterOutcome.Ok(com.creatora.app.testutil.preview("UC1").copy(country = "IN"))
+        kit.connect()
+
+        assertEquals("GB", (open().state.value as TrendingState.Ready).region)
     }
 
     @Test

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creatora sign-in</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; min-height: 100vh; display: grid; place-items: center; background: #f7f7fb; color: #15151f; }
+  main { max-width: 22rem; padding: 1.5rem; text-align: center; }
+  a { display: inline-block; margin-top: 1rem; padding: .75rem 1.25rem; border-radius: 999px; background: #5b4bff; color: #fff; text-decoration: none; }
+  @media (prefers-color-scheme: dark) { body { background: #15151f; color: #f2f2f7; } }
+</style>
+</head>
+<body>
+<main>
+  <p>Going back to Creatora…</p>
+  <a id="open" href="#">Open Creatora</a>
+</main>
+<script>
+  // The platform sends the user here with ?code=…&state=… (or ?error=…). Pass it all on to the app unchanged.
+  var target = "creatora://oauth" + window.location.search;
+  document.getElementById("open").href = target;
+  window.location.replace(target);
+</script>
+</body>
+</html>

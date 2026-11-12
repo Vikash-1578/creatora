@@ -41,7 +41,7 @@ class CachedTrendingRepository(
                 ?: TrendingResult.Failed(result.error)
         }
         val wantsSearch = !niche.isNullOrBlank() && (category == null || chart.size < MIN_CHART)
-        val searched = if (wantsSearch) (adapter.searchVideos(niche!!.trim()) as? AdapterOutcome.Ok)?.value.orEmpty() else emptyList()
+        val searched = if (wantsSearch) (adapter.searchVideos(niche!!.trim(), region = region) as? AdapterOutcome.Ok)?.value.orEmpty() else emptyList()
         val items = (searched + chart).distinctBy { it.id }.take(MAX_ITEMS)
         val at = now()
         cache.put(uid, key, encode(items), at)

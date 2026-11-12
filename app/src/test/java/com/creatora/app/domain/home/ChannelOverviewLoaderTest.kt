@@ -81,7 +81,7 @@ class ChannelOverviewLoaderTest {
         val instagram = ConnectedAccount(ConnectPlatform.INSTAGRAM, "x", "Insta")
         val link = ConnectedAccount(ConnectPlatform.MOJ, "y", "Moj", link = "https://mojapp.in/@y")
 
-        assertEquals(AdapterError.ComingSoon, loader.overview(instagram).error)
+        assertTrue(loader.overview(instagram).error is AdapterError.NotAvailable)
         assertTrue(loader.overview(link).error is AdapterError.NotAvailable)
         assertTrue(youtube.lookups.isEmpty())
     }

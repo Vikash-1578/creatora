@@ -178,6 +178,7 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
     val metricCalls = mutableListOf<Pair<java.time.LocalDate, java.time.LocalDate>>()
     val trendingCalls = mutableListOf<Pair<String, String?>>()
     val searchCalls = mutableListOf<String>()
+    val searchRegions = mutableListOf<String?>()
     val videoCalls = mutableListOf<String>()
     var keywordResult: AdapterOutcome<List<VideoStats>> = AdapterOutcome.Ok(emptyList())
     var searchChannelsResult: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
@@ -213,8 +214,9 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
         return trendingResult
     }
 
-    override suspend fun searchVideos(query: String, limit: Int): AdapterOutcome<List<VideoStats>> {
+    override suspend fun searchVideos(query: String, limit: Int, region: String?): AdapterOutcome<List<VideoStats>> {
         searchCalls += query
+        searchRegions += region
         return searchResult
     }
 
@@ -434,4 +436,13 @@ class FakeDailyUsage : com.creatora.app.domain.repository.DailyUsageRepository {
 class FakeErrorReporter : com.creatora.app.domain.repository.ErrorReporter {
     val recorded = mutableListOf<Throwable>()
     override fun record(error: Throwable) { recorded += error }
+}
+
+/** A platform sign-in that answers with [outcome] and counts how often it was asked. */
+class FakePlatformLogin(
+    override val platform: ConnectPlatform,
+    var outcome: com.creatora.app.domain.platform.LoginOutcome = com.creatora.app.domain.platform.LoginOutcome.Cancelled,
+) : com.creatora.app.domain.platform.PlatformLogin {
+    var calls = 0
+    override suspend fun signIn(): com.creatora.app.domain.platform.LoginOutcome { calls++; return outcome }
 }

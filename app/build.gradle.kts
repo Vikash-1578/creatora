@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,6 +14,15 @@ if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
     apply(plugin = "com.google.firebase.crashlytics")
 }
+
+// Platform sign-in settings (Instagram, Facebook, TikTok). Read from local.properties or an environment variable
+// (a GitHub Actions secret in CI); never committed. A missing value just leaves that platform's sign-in unset.
+val localProps = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.reader().use { load(it) }
+}
+fun platformSetting(name: String): String =
+    (providers.environmentVariable(name).orNull ?: localProps.getProperty(name, "")).trim().replace("\\", "\\\\").replace("\"", "\\\"")
 
 android {
     namespace = "com.creatora.app"
@@ -28,6 +39,11 @@ android {
 
         // Dev fallback: use the user-entered AI keys (M7 providers) instead of Firebase AI Logic.
         // Off by default. Turn on with -PdevAiKeys=true.
+        listOf(
+            "OAUTH_REDIRECT_URL", "INSTAGRAM_APP_ID", "INSTAGRAM_APP_SECRET", "FACEBOOK_APP_ID", "FACEBOOK_APP_SECRET",
+            "FACEBOOK_CONFIG_ID", "TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET",
+        ).forEach { buildConfigField("String", it, "\"${platformSetting(it)}\"") }
+
         buildConfigField("boolean", "DEV_AI_KEYS", providers.gradleProperty("devAiKeys").orElse("false").get())
     }
 
@@ -137,6 +153,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
