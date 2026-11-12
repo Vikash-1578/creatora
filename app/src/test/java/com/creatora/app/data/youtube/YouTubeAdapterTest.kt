@@ -30,7 +30,7 @@ class YouTubeAdapterTest {
 
     private val transport = FakeTransport()
     private val authorizer = FakeYouTubeAuthorizer()
-    private val adapter = YouTubeAdapter(transport, authorizer)
+    private val adapter = YouTubeAdapter(transport, authorizer, com.creatora.app.testutil.FakeErrorReporter())
 
     @Test
     fun ownChannels_readsEveryChannel_andSendsTheToken() = runTest {
@@ -95,6 +95,9 @@ class YouTubeAdapterTest {
             200,
             """{"columnHeaders":[{"name":"video"},{"name":"views"},{"name":"averageViewDuration"},{"name":"averageViewPercentage"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],
                 "rows":[["v1",100,45.5,30.2,5000,2.4]]}""",
+        )
+        transport.getResponses["metrics=videoThumbnailImpressions"] = HttpResponse(
+            200, """{"columnHeaders":[{"name":"video"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],"rows":[["v1",5000,2.4]]}""",
         )
         transport.getResponses["metrics=estimatedRevenue"] = HttpResponse(403, """{"error":{"message":"Forbidden"}}""")
         transport.getResponses["insightTrafficSourceType"] = HttpResponse(
@@ -191,13 +194,18 @@ class YouTubeAdapterTest {
     fun videoMetrics_returnsOnlyTheCoreNumbers() = runTest {
         transport.getResponses["metrics=views,averageViewDuration"] = HttpResponse(
             200,
-            """{"columnHeaders":[{"name":"video"},{"name":"views"},{"name":"averageViewDuration"},{"name":"averageViewPercentage"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],"rows":[["v1",10,30.0,40.0,100,3.1]]}""",
+            """{"columnHeaders":[{"name":"video"},{"name":"views"},{"name":"averageViewDuration"},{"name":"averageViewPercentage"}],"rows":[["v1",10,30.0,40.0]]}""",
+        )
+        transport.getResponses["metrics=videoThumbnailImpressions"] = HttpResponse(
+            200,
+            """{"columnHeaders":[{"name":"video"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],"rows":[["v1",100,3.1]]}""",
         )
 
         val result = (adapter.videoMetrics("UC1", listOf("v1")) as AdapterOutcome.Ok).value.single()
 
         assertEquals(3.1, result.ctrPercent!!, 0.001)
-        assertEquals(1, transport.getUrls.size) // no revenue or traffic calls
+        assertEquals(40.0, result.averageViewPercent!!, 0.001)
+        assertEquals(2, transport.getUrls.size) // the core report and the separate CTR report; no revenue or traffic calls
         assertTrue(result.trafficSources.isEmpty())
     }
 }

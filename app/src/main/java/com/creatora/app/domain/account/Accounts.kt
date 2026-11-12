@@ -82,6 +82,8 @@ data class ChannelPreview(
     val subscribers: Long? = null,
     val videoCount: Long? = null,
     val viewCount: Long? = null,
+    /** The channel's country code (like IN) when it set one. */
+    val country: String? = null,
 )
 
 /** A connected account, saved in the user's cloud profile. Link-only platforms only have a [link]. */
@@ -148,6 +150,8 @@ sealed interface AdapterError {
     data object Network : AdapterError
     data object QuotaExceeded : AdapterError
     data object NotFound : AdapterError
+    /** The user did not grant the YouTube Analytics permission (Google lets people untick it). Retrying asks again. */
+    data object PermissionMissing : AdapterError
     /** The platform is not built yet. Nothing is fetched. */
     data object ComingSoon : AdapterError
     /** The platform said no to this data for this account (for example revenue when not monetized). */
@@ -183,7 +187,7 @@ interface PlatformAdapter {
     suspend fun trending(region: String, categoryId: String?, limit: Int = 15): AdapterOutcome<List<VideoStats>>
 
     /** Recent videos matching a search, most viewed first. A search is expensive in quota. */
-    suspend fun searchVideos(query: String, limit: Int = 10): AdapterOutcome<List<VideoStats>>
+    suspend fun searchVideos(query: String, limit: Int = 10, region: String? = null): AdapterOutcome<List<VideoStats>>
 
     /** The top results for a keyword by relevance, any age (what a viewer sees). A search costs 100 quota units. */
     suspend fun keywordSearch(query: String, limit: Int = 25): AdapterOutcome<List<VideoStats>>
@@ -211,7 +215,7 @@ class ComingSoonAdapter(override val platform: ConnectPlatform) : PlatformAdapte
     override suspend fun channelMetrics(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate) = soon
     override suspend fun videoMetrics(channelId: String, videoIds: List<String>) = soon
     override suspend fun trending(region: String, categoryId: String?, limit: Int) = soon
-    override suspend fun searchVideos(query: String, limit: Int) = soon
+    override suspend fun searchVideos(query: String, limit: Int, region: String?) = soon
     override suspend fun keywordSearch(query: String, limit: Int) = soon
     override suspend fun searchChannels(query: String, limit: Int) = soon
     override suspend fun featuredChannels(channelId: String) = soon

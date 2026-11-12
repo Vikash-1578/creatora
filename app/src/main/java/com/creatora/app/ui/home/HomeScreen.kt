@@ -79,6 +79,9 @@ class HomeActions(
     val continueProject: (Long) -> Unit = {},
     val addGoal: (com.creatora.app.domain.account.GoalMetric, Long, Int) -> Unit = { _, _, _ -> },
     val editGoal: (Goal, Long, Int) -> Unit = { _, _, _ -> },
+    val keywords: () -> Unit = {},
+    val goalAdvice: (Boolean) -> Unit = {},
+    val goalAdviceDismiss: () -> Unit = {},
     val deleteGoal: (Goal) -> Unit = {},
     val planGoal: (GoalItem, Boolean) -> Unit = { _, _ -> },
     val celebrated: () -> Unit = {},
@@ -101,6 +104,7 @@ fun HomeScreen(
     onOpenCoach: () -> Unit,
     onProjectOpened: (projectId: Long) -> Unit,
     onNewVideo: () -> Unit,
+    onOpenResearch: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
     onConnectChannel: () -> Unit,
     modifier: Modifier = Modifier,
@@ -131,10 +135,10 @@ fun HomeScreen(
             continueProject = onProjectOpened,
             addGoal = { metric, target, days -> goalsViewModel.add(metric, target, days, forAll = model.home.selection == AccountSelection.All, startValue = null) },
             editGoal = goalsViewModel::edit, deleteGoal = goalsViewModel::delete, planGoal = goalsViewModel::plan,
-            celebrated = goalsViewModel::dismissCelebration, streakUnit = cardsViewModel::setStreakUnit,
+            celebrated = goalsViewModel::dismissCelebration, goalAdvice = goalsViewModel::answerAdvice, goalAdviceDismiss = goalsViewModel::dismissAdvice, streakUnit = cardsViewModel::setStreakUnit,
             openVideo = { video -> runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${video.id}"))) } },
             useAsIdea = trendingViewModel::useAsIdea, refreshTrending = trendingViewModel::refresh,
-            newVideo = onNewVideo, ideasQuick = onOpenCoach,
+            newVideo = onNewVideo, keywords = onOpenResearch, ideasQuick = onOpenCoach,
             thumbnail = { model.home.continueProject?.let { onOpenThumbnail(it.id) } },
         ),
         onWhyClosed = cardsViewModel::closeWhy,
@@ -148,7 +152,6 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
     val spacing = CreatoraTheme.spacing
     var goalDialog by rememberSaveable { mutableStateOf(false) }
     var editing by rememberSaveable { mutableStateOf<String?>(null) }
-    var comingSoon by rememberSaveable { mutableStateOf(false) }
     var noProject by rememberSaveable { mutableStateOf(false) }
     val hasAccounts = model.home.hasAccounts
     TabScreen(modifier) {
@@ -173,7 +176,7 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
             if (hasAccounts) StreakSection(model.cards, actions.streakUnit)
             TrendingSection(model.trending, actions.openVideo, actions.useAsIdea, actions.refreshTrending)
             QuickActions(
-                actions.newVideo, actions.ideasQuick, { comingSoon = true },
+                actions.newVideo, actions.ideasQuick, actions.keywords,
                 {
                     if (model.home.continueProject != null) {
                         actions.thumbnail()
@@ -193,8 +196,8 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
         )
     }
     CelebrationDialog(model.goals.celebrating, actions.celebrated)
+    GoalAdviceDialog(model.goals.advice, actions.goalAdvice, actions.goalAdviceDismiss)
     WhyDialog(why, onWhyClosed)
-    if (comingSoon) InfoDialog(R.string.home_keyword_soon) { comingSoon = false }
     if (noProject) InfoDialog(R.string.home_thumbnail_needs_project) { noProject = false }
 }
 

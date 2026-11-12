@@ -12,6 +12,16 @@ import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 object AppCheckSetup {
     private const val TAG = "CreatoraAppCheck"
 
+    /**
+     * The debug secret this install generated, so a tester can read it in the app (Settings, Help) and register it in the
+     * Firebase console without logcat. Null until the first token request has created it.
+     */
+    fun debugSecret(context: android.content.Context): String? = runCatching {
+        val app = com.google.firebase.FirebaseApp.getInstance()
+        context.getSharedPreferences("com.google.firebase.appcheck.debug.store." + app.persistenceKey, android.content.Context.MODE_PRIVATE)
+            .getString("com.google.firebase.appcheck.debug.DEBUG_SECRET", null)
+    }.getOrNull()
+
     fun install() {
         val appCheck = FirebaseAppCheck.getInstance()
         appCheck.installAppCheckProviderFactory(DebugAppCheckProviderFactory.getInstance())
@@ -19,7 +29,7 @@ object AppCheckSetup {
             if (task.isSuccessful) {
                 Log.i(TAG, "App Check: debug token accepted.")
             } else {
-                Log.w(TAG, "App Check: debug token not accepted yet. Register the debug secret printed under tag DebugAppCheckProvider in the Firebase console.")
+                Log.w(TAG, "App Check: debug token not accepted yet (secret: ${debugSecret(com.google.firebase.FirebaseApp.getInstance().applicationContext)}). Register the debug secret printed under tag DebugAppCheckProvider in the Firebase console.")
             }
         }
     }

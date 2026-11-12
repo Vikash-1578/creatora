@@ -178,6 +178,7 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
     val metricCalls = mutableListOf<Pair<java.time.LocalDate, java.time.LocalDate>>()
     val trendingCalls = mutableListOf<Pair<String, String?>>()
     val searchCalls = mutableListOf<String>()
+    val searchRegions = mutableListOf<String?>()
     val videoCalls = mutableListOf<String>()
     var keywordResult: AdapterOutcome<List<VideoStats>> = AdapterOutcome.Ok(emptyList())
     var searchChannelsResult: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
@@ -213,8 +214,9 @@ class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatfo
         return trendingResult
     }
 
-    override suspend fun searchVideos(query: String, limit: Int): AdapterOutcome<List<VideoStats>> {
+    override suspend fun searchVideos(query: String, limit: Int, region: String?): AdapterOutcome<List<VideoStats>> {
         searchCalls += query
+        searchRegions += region
         return searchResult
     }
 

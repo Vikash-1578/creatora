@@ -53,6 +53,12 @@ fun HelpAboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
             SectionTitle(stringResource(R.string.settings_about))
             ListGroup { InfoListRow(stringResource(R.string.settings_version), version.ifEmpty { stringResource(R.string.profile_version_unknown) }) }
+            // Test builds only: the App Check secret to register in the Firebase console (Firebase AI calls are refused until then).
+            val secret = remember(context) { com.creatora.app.data.cloud.AppCheckSetup.debugSecret(context) }
+            if (secret != null) {
+                ListGroup { InfoListRow(stringResource(R.string.settings_appcheck_secret), secret) }
+                Text(stringResource(R.string.settings_appcheck_note), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
+            }
         }
     }
 }
