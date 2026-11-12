@@ -47,7 +47,18 @@ jobs:
       - name: Show the debug signing SHA-1 (register it in Firebase)
         run: keytool -list -v -keystore app/debug.keystore -storepass android | grep -E "SHA1|SHA256"
 
+      # Instagram, Facebook and TikTok sign-in settings come from repository secrets (see docs/platform-setup.md).
+      # Unset secrets are empty and leave that platform's sign-in unset. They end up inside the APK this job uploads.
       - name: Build debug APK, run unit tests and lint
+        env:
+          OAUTH_REDIRECT_URL: ${{ secrets.OAUTH_REDIRECT_URL }}
+          INSTAGRAM_APP_ID: ${{ secrets.INSTAGRAM_APP_ID }}
+          INSTAGRAM_APP_SECRET: ${{ secrets.INSTAGRAM_APP_SECRET }}
+          FACEBOOK_APP_ID: ${{ secrets.FACEBOOK_APP_ID }}
+          FACEBOOK_APP_SECRET: ${{ secrets.FACEBOOK_APP_SECRET }}
+          FACEBOOK_CONFIG_ID: ${{ secrets.FACEBOOK_CONFIG_ID }}
+          TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+          TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
         run: ./gradlew assembleDebug testDebugUnitTest lintDebug --continue --stacktrace
 
       # Room writes app/schemas/ during the build; schemas must be committed so future migrations work.

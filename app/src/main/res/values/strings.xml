@@ -438,10 +438,10 @@
     <string name="connect_input_label">Paste a link, ID or @handle</string>
     <string name="connect_button">Find and connect</string>
     <string name="connect_hint_full">Google finds the YouTube channels on your account. You can also paste a link or ID.</string>
-    <string name="connect_hint_instagram">Instagram needs a professional (Business or Creator) account. To switch: Instagram, Settings, Account type and tools, Switch to professional account. Connecting is coming soon.</string>
-    <string name="connect_hint_coming_soon">This platform is coming soon. Nothing is fetched yet.</string>
+    <string name="connect_hint_instagram">Instagram needs a professional (Business or Creator) account; a personal account cannot be connected. To switch: Instagram, Settings, Account type and tools, Switch to professional account.</string>
+    <string name="connect_hint_facebook">Facebook connects your Pages, not your personal profile. When you log in, choose the Pages you want Creatora to see.</string>
+    <string name="connect_hint_tiktok">TikTok login gives your profile, followers and each video\'s numbers. TikTok does not share account numbers over time.</string>
     <string name="connect_hint_link_only">Only the link is saved. Nothing is fetched from this platform.</string>
-    <string name="connect_coming_soon">%1$s is coming soon. Nothing was saved or fetched.</string>
     <string name="connect_link_saved">Link saved.</string>
     <string name="connect_plan_limit">Your plan allows %1$d connected account(s). Upgrade to add more.</string>
     <string name="connect_problem_not_authorized">YouTube access was not allowed. You can allow it later in Settings.</string>
@@ -629,7 +629,6 @@
     <string name="home_error_network">No connection. Try again.</string>
     <string name="home_error_quota">YouTube is limiting requests right now. Try again later.</string>
     <string name="home_error_not_found">Nothing was found.</string>
-    <string name="home_error_coming_soon">This platform is coming soon. Nothing is fetched yet.</string>
     <string name="home_error_not_available">This is not available for this account right now.</string>
     <string name="home_focus_title">Today’s focus</string>
     <string name="home_focus_fix">Fix it</string>
@@ -697,7 +696,6 @@
     <string name="home_trending_stale">Could not refresh. Showing data from %1$s.</string>
     <string name="home_action_keywords">Keyword search</string>
     <string name="home_action_thumbnail">Thumbnail</string>
-    <string name="home_keyword_soon">Keyword search arrives in a later update.</string>
     <string name="home_thumbnail_needs_project">Start or continue a video first, then make its thumbnail.</string>
     <string name="home_connect_title">Connect your channel</string>
     <string name="home_connect_body">Connect an account to see your numbers, today’s focus and daily ideas. Until then, here is what is trending.</string>
@@ -721,7 +719,7 @@
     <string name="research_loading">Loading…</string>
     <string name="research_thinking">Thinking…</string>
     <string name="research_pick_one">Pick one account above. Outlier scores are worked out for one channel at a time.</string>
-    <string name="research_unsupported">Research for this platform is not available yet. Only YouTube works for now.</string>
+    <string name="research_unsupported">Research works on YouTube channels. Instagram, Facebook and TikTok do not give public search or other accounts\' numbers through their APIs.</string>
     <string name="research_not_enough">Creatora needs at least 5 videos older than 2 days to compare them. Your channel returned %1$d videos in total.</string>
     <string name="research_outlier_title">Outlier score</string>
     <string name="research_estimate">Estimate</string>
@@ -962,4 +960,6 @@
     <string name="goal_advice_suggested">Suggested target: %1$s</string>
     <string name="goal_advice_use">Use the suggested target</string>
     <string name="goal_advice_keep">Keep my target</string>
+    <string name="connect_problem_not_configured">Login for %1$s is not set up in this build. These build settings are empty: %2$s.</string>
+    <string name="connect_problem_login_failed">%1$s login did not finish: %2$s</string>
 </resources>

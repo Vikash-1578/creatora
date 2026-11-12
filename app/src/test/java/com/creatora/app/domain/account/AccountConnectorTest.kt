@@ -34,8 +34,9 @@ class AccountConnectorTest {
     }
 
     @Test
-    fun lookup_ofAComingSoonPlatform_fetchesNothing() = runTest {
-        assertEquals(LookupResult.ComingSoon(ConnectPlatform.INSTAGRAM), connector.lookup("https://instagram.com/maya", null))
+    fun lookup_ofAPlatformWithoutAnAdapterHere_failsWithAReason_andNeverSaysComingSoon() = runTest {
+        val result = connector.lookup("https://instagram.com/maya", null)
+        assertTrue((result as LookupResult.Failed).error is AdapterError.NotAvailable)
     }
 
     @Test

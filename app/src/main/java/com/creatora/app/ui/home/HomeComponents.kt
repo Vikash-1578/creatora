@@ -71,7 +71,6 @@ fun AdapterError.message(): String {
         AdapterError.QuotaExceeded -> R.string.home_error_quota
         AdapterError.NotFound -> R.string.home_error_not_found
         AdapterError.PermissionMissing -> R.string.home_error_permission
-        AdapterError.ComingSoon -> R.string.home_error_coming_soon
         is AdapterError.NotAvailable -> R.string.home_error_not_available
     },
     )

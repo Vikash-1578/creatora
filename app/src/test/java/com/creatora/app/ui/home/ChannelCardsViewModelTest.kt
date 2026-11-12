@@ -151,11 +151,11 @@ class ChannelCardsViewModelTest {
     }
 
     @Test
-    fun accountsOfOtherPlatforms_saySo() = runTest {
-        kit.accounts.save("uid1", ConnectedAccount(ConnectPlatform.INSTAGRAM, "ig", "Insta"))
+    fun linkOnlyAccounts_saySo() = runTest {
+        kit.accounts.save("uid1", ConnectedAccount(ConnectPlatform.MOJ, "m", "Moj", link = "https://mojapp.in/@m"))
         val vm = open()
         assertEquals(CardsPhase.UNSUPPORTED, vm.state.value.phase)
-        assertEquals(AdapterError.ComingSoon, vm.state.value.error)
+        assertTrue(vm.state.value.error is AdapterError.NotAvailable)
     }
 
     @Test

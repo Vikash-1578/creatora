@@ -132,12 +132,18 @@ class AccountDomainTest {
         assertFalse(prefs.copy(enabled = emptySet()).isOn(NotificationCategory.DAILY_IDEAS))
     }
 
-    // ---- coming soon
+    // ---- platforms without an API
     @Test
-    fun comingSoonAdapter_saysSoon_forEverything() = kotlinx.coroutines.test.runTest {
-        val adapter = ComingSoonAdapter(ConnectPlatform.INSTAGRAM)
-        assertEquals(AdapterOutcome.Failed(AdapterError.ComingSoon), adapter.ownChannels())
-        assertEquals(AdapterOutcome.Failed(AdapterError.ComingSoon), adapter.recentVideos("x", 5))
-        assertEquals(ComingSoonAdapter(ConnectPlatform.TIKTOK).platform, PlatformRegistry(emptyList()).adapter(ConnectPlatform.TIKTOK).platform)
+    fun unavailableAdapter_givesItsReason_forEverything() = kotlinx.coroutines.test.runTest {
+        val adapter = UnavailableAdapter(ConnectPlatform.MOJ, "no public API")
+        assertEquals(AdapterOutcome.Failed(AdapterError.NotAvailable("no public API")), adapter.ownChannels())
+        assertEquals(AdapterOutcome.Failed(AdapterError.NotAvailable("no public API")), adapter.recentVideos("x", 5))
+        assertEquals(ConnectPlatform.TIKTOK, PlatformRegistry(emptyList()).adapter(ConnectPlatform.TIKTOK).platform)
+    }
+
+    @Test
+    fun everyPlatformWithAnApiIsFull_andOnlyTheLinkPlatformsAreLinkOnly() {
+        val full = ConnectPlatform.entries.filter { it.support == PlatformSupport.FULL }
+        assertEquals(listOf(ConnectPlatform.YOUTUBE, ConnectPlatform.INSTAGRAM, ConnectPlatform.FACEBOOK, ConnectPlatform.TIKTOK), full)
     }
 }

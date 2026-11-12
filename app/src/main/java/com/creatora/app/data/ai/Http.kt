@@ -16,6 +16,7 @@ data class HttpResponse(val code: Int, val body: String)
 interface HttpTransport {
     suspend fun post(url: String, headers: Map<String, String>, body: String): HttpResponse
     suspend fun get(url: String, headers: Map<String, String>): HttpResponse
+    suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse
 }
 
 class UrlConnectionTransport @Inject constructor() : HttpTransport {
@@ -29,6 +30,25 @@ class UrlConnectionTransport @Inject constructor() : HttpTransport {
                 connection.doOutput = true
                 headers.forEach { (name, value) -> connection.setRequestProperty(name, value) }
                 connection.outputStream.use { it.write(body.toByteArray()) }
+                val code = connection.responseCode
+                val stream = if (code in 200..299) connection.inputStream else connection.errorStream
+                HttpResponse(code, stream?.bufferedReader()?.use { it.readText() }.orEmpty())
+            } finally {
+                connection.disconnect()
+            }
+        }
+
+    override suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse =
+        withContext(Dispatchers.IO) {
+            val connection = URL(url).openConnection() as HttpURLConnection
+            try {
+                connection.requestMethod = "PUT"
+                connection.connectTimeout = TIMEOUT_MS
+                connection.readTimeout = UPLOAD_TIMEOUT_MS
+                connection.doOutput = true
+                connection.setFixedLengthStreamingMode(body.size)
+                headers.forEach { (name, value) -> connection.setRequestProperty(name, value) }
+                connection.outputStream.use { it.write(body) }
                 val code = connection.responseCode
                 val stream = if (code in 200..299) connection.inputStream else connection.errorStream
                 HttpResponse(code, stream?.bufferedReader()?.use { it.readText() }.orEmpty())
@@ -55,6 +75,7 @@ class UrlConnectionTransport @Inject constructor() : HttpTransport {
 
     private companion object {
         const val TIMEOUT_MS = 30_000
+        const val UPLOAD_TIMEOUT_MS = 5 * 60_000
     }
 }
 
