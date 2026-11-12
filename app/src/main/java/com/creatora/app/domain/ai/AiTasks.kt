@@ -153,6 +153,17 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         ).map { parseIdeas(it, 6) }
 
+    /** A kind, honest note that a goal looks out of reach for its deadline, with the realistic target given in the facts. */
+    suspend fun goalAdvice(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "A creator set a goal that looks too big for the time given. In two or three short, kind and encouraging " +
+                    "sentences say that it is ambitious for this deadline, why (use ONLY the numbers given), and that the suggested " +
+                    "target from the facts is a realistic first step. Never promise results; do not invent numbers. Plain text.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
     /** A week-by-week plan toward the goal, or this week's re-plan from [progress] (real results). Aims, never promises. */
     suspend fun weeklyPlan(goal: String, progress: String): AiOutcome<String> =
         ai.complete(

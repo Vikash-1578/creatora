@@ -91,7 +91,8 @@ interface GoalRepository {
 }
 
 sealed interface AuthorizationOutcome {
-    data class Granted(val accessToken: String) : AuthorizationOutcome
+    /** [grantedScopes] is what the user actually allowed; empty when Google did not say. */
+    data class Granted(val accessToken: String, val grantedScopes: Set<String> = emptySet()) : AuthorizationOutcome
     /** The user closed the permission screen or said no. */
     data object Denied : AuthorizationOutcome
     data object NotConfigured : AuthorizationOutcome

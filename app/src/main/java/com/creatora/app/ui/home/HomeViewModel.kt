@@ -66,7 +66,8 @@ class HomeViewModel @Inject constructor(
         val now = System.currentTimeMillis()
         HomeUiState(
             firstName = name,
-            photoUrl = photo,
+            // The Google photo, or the connected channel's own picture when the Google account has none.
+            photoUrl = photo ?: accounts.firstNotNullOfOrNull { it.photoUrl },
             language = language,
             accounts = accounts,
             selection = selection,

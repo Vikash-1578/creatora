@@ -131,7 +131,6 @@ private fun UploadStatus.labelRes() = when (this) {
 fun UploadsSection(cards: ChannelCardsState, onOpen: (UploadRow) -> Unit) {
     if (cards.phase != CardsPhase.READY) return
     val locale = Locale.getDefault()
-    val none = stringResource(R.string.home_not_available)
     HomeSection(R.string.home_uploads_title) {
         if (cards.uploads.isEmpty()) {
             HomeCard { BodyText(stringResource(R.string.home_uploads_empty)) }
@@ -145,14 +144,13 @@ fun UploadsSection(cards: ChannelCardsState, onOpen: (UploadRow) -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs),
                 ) {
                     Text(row.video.title, style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text, maxLines = 1)
-                    Text(
-                        stringResource(
-                            R.string.home_upload_numbers, row.status.dot(), compactCount(row.video.views, locale),
-                            metrics?.ctrPercent?.let { String.format(locale, "%.1f%%", it) } ?: none,
-                            metrics?.averageViewPercent?.let { String.format(locale, "%.0f%%", it) } ?: none,
-                        ),
-                        style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted,
+                    // Only what YouTube returned: a missing CTR or retention is left out, not written as "not available" on every row.
+                    val parts = listOfNotNull(
+                        stringResource(R.string.home_upload_views, row.status.dot(), compactCount(row.video.views, locale)),
+                        metrics?.ctrPercent?.let { stringResource(R.string.home_upload_ctr, String.format(locale, "%.1f%%", it)) },
+                        metrics?.averageViewPercent?.let { stringResource(R.string.home_upload_viewed, String.format(locale, "%.0f%%", it)) },
                     )
+                    Text(parts.joinToString(" · "), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
                     Text(stringResource(row.status.labelRes()), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
                 }
             }

@@ -86,3 +86,17 @@ fun categoryForNiche(niche: String): String? {
     )
     return table.firstOrNull { (words, _) -> words.any { it in n } }?.second
 }
+
+private val NICHE_STOP = setOf("with", "this", "that", "from", "your", "what", "when", "have", "will", "video", "videos", "shorts", "short", "best", "how")
+
+/**
+ * What a channel is about, worked out from its own recent uploads when no profile exists yet: the tags used by at least two
+ * videos, otherwise the title words used by at least two. At most three, most used first; null when nothing repeats.
+ */
+fun nicheFromVideos(videos: List<VideoStats>): String? {
+    fun top(items: List<String>) = items.groupingBy { it }.eachCount().filter { it.value >= 2 }.entries
+        .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key }).take(3).map { it.key }
+    val tags = top(videos.flatMap { v -> v.tags.map { it.trim().lowercase() }.filter { it.length >= 3 }.distinct() })
+    val words = top(videos.flatMap { v -> v.title.lowercase().split(Regex("[^\\p{L}\\p{N}]+")).filter { it.length >= 4 && it !in NICHE_STOP }.distinct() })
+    return (tags.ifEmpty { words }).takeIf { it.isNotEmpty() }?.joinToString(" ")
+}

@@ -11,6 +11,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -21,12 +22,20 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val settings: SettingsRepository,
-    auth: AuthService,
-    accounts: ConnectedAccountRepository,
+    private val auth: AuthService,
+    private val accounts: ConnectedAccountRepository,
 ) : ViewModel() {
 
-    val displayName: StateFlow<String> = settings.displayName
+    /** The name the user saved, or the Google account's name until they choose one. */
+    val displayName: StateFlow<String> = combine(settings.displayName, auth.user) { saved, user -> saved.ifBlank { user?.name.orEmpty() } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
+    /** The Google photo, or the connected channel's picture when there is none. */
+    val photoUrl: StateFlow<String?> = combine(
+        auth.user,
+        auth.user.flatMapLatest { user -> if (user == null) flowOf(emptyList()) else accounts.observe(user.uid) },
+    ) { user, list -> user?.photoUrl ?: list.firstNotNullOfOrNull { it.photoUrl } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     /** The name of the connected YouTube channel, or null when none is connected. */
     val channelTitle: StateFlow<String?> = auth.user

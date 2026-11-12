@@ -53,7 +53,8 @@ fun ProfileScreen(
 ) {
     val name by viewModel.displayName.collectAsStateWithLifecycle()
     val channel by viewModel.channelTitle.collectAsStateWithLifecycle()
-    ProfileContent(name, channel, viewModel::setDisplayName, appVersion(), onBack, onEarnClick, onSettingsClick, onHelpClick, modifier)
+    val photo by viewModel.photoUrl.collectAsStateWithLifecycle()
+    ProfileContent(name, channel, viewModel::setDisplayName, appVersion(), onBack, onEarnClick, onSettingsClick, onHelpClick, modifier, photoUrl = photo)
 }
 
 @Composable
@@ -75,10 +76,11 @@ fun ProfileContent(
     onSettingsClick: () -> Unit,
     onHelpClick: () -> Unit,
     modifier: Modifier = Modifier,
+    photoUrl: String? = null,
 ) {
     var editing by rememberSaveable { mutableStateOf(false) }
     SubScreenScaffold(title = stringResource(R.string.profile_title), onBack = onBack, modifier = modifier) {
-        ProfileHeader(displayName, onEdit = { editing = true })
+        ProfileHeader(displayName, photoUrl, onEdit = { editing = true })
         ListGroup {
             InfoListRow(stringResource(R.string.profile_channel), channelTitle ?: stringResource(R.string.profile_channel_not_connected))
             ListRowDivider()
@@ -106,7 +108,7 @@ fun ProfileContent(
 
 /** Avatar with the first letter of the name, the name itself and a way to change it. */
 @Composable
-private fun ProfileHeader(displayName: String, onEdit: () -> Unit) {
+private fun ProfileHeader(displayName: String, photoUrl: String?, onEdit: () -> Unit) {
     val colors = CreatoraTheme.colors
     val spacing = CreatoraTheme.spacing
     val shape = CreatoraTheme.shapes.radius16
@@ -122,16 +124,7 @@ private fun ProfileHeader(displayName: String, onEdit: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(spacing.lg),
     ) {
-        Box(
-            modifier = Modifier.size(CreatoraTheme.dimens.avatarSize).clip(CircleShape).background(colors.accentSoft),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (displayName.isBlank()) {
-                Icon(Icons.Outlined.Person, contentDescription = null, tint = colors.accentText)
-            } else {
-                Text(displayName.first().uppercase(), style = CreatoraTheme.typography.screenTitle, color = colors.accentText)
-            }
-        }
+        com.creatora.app.ui.accounts.Avatar(photoUrl, displayName)
         Column(Modifier.weight(1f)) {
             Text(
                 displayName.ifBlank { stringResource(R.string.profile_name_empty) },

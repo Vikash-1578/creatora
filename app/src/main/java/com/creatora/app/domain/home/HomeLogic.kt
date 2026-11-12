@@ -164,22 +164,24 @@ enum class GoalMissing { NO_START_VALUE, NO_DATA }
 /** The numbers a goal can be measured against, each null when the platform did not give it. */
 data class GoalInputs(val subscribersNow: Long?, val viewsSince: Long?, val uploadsSince: Int?, val earningsSince: Double?)
 
+/**
+ * A subscriber goal is the total to reach ("10,000,000 subscribers"), so [GoalProgress.current] is today's total and the bar
+ * runs from the starting count to the target. The other goals count what happened since the goal started.
+ */
 fun goalProgress(goal: Goal, inputs: GoalInputs): GoalProgress {
     val current: Long? = when (goal.metric) {
-        GoalMetric.SUBSCRIBERS -> {
-            val start = goal.startValue
-            val now = inputs.subscribersNow
-            if (start == null || now == null) null else (now - start).coerceAtLeast(0)
-        }
+        GoalMetric.SUBSCRIBERS -> inputs.subscribersNow
         GoalMetric.VIEWS -> inputs.viewsSince
         GoalMetric.UPLOADS -> inputs.uploadsSince?.toLong()
         GoalMetric.EARNINGS -> inputs.earningsSince?.toLong()
     }
-    if (current == null) {
-        val missing = if (goal.metric == GoalMetric.SUBSCRIBERS && goal.startValue == null) GoalMissing.NO_START_VALUE else GoalMissing.NO_DATA
-        return GoalProgress(null, goal.target, null, reached = false, missing = missing)
+    if (current == null) return GoalProgress(null, goal.target, null, reached = false, missing = GoalMissing.NO_DATA)
+    val fraction = if (goal.metric == GoalMetric.SUBSCRIBERS) {
+        val start = (goal.startValue ?: 0L).coerceAtMost(current)
+        if (goal.target > start) ((current - start).toFloat() / (goal.target - start)).coerceIn(0f, 1f) else if (current >= goal.target) 1f else 0f
+    } else {
+        (current.toFloat() / goal.target).coerceIn(0f, 1f)
     }
-    val fraction = (current.toFloat() / goal.target).coerceIn(0f, 1f)
     return GoalProgress(current, goal.target, fraction, reached = current >= goal.target, missing = null)
 }
 

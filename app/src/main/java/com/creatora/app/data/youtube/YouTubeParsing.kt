@@ -27,6 +27,7 @@ fun parseChannels(json: String): List<ChannelPreview> {
             subscribers = if (stats.optBoolean("hiddenSubscriberCount")) null else stats.longOrNull("subscriberCount"),
             videoCount = stats.longOrNull("videoCount"),
             viewCount = stats.longOrNull("viewCount"),
+            country = snippet.optString("country").ifEmpty { null },
         )
     }
 }

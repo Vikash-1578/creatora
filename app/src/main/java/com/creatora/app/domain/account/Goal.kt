@@ -57,7 +57,7 @@ fun newGoal(
 fun Goal.aimText(): String = buildString {
     append(
         when (metric) {
-            GoalMetric.SUBSCRIBERS -> "gain $target subscribers"
+            GoalMetric.SUBSCRIBERS -> "reach $target subscribers in total"
             GoalMetric.VIEWS -> "reach $target views"
             GoalMetric.UPLOADS -> "publish $target videos"
             GoalMetric.EARNINGS -> "earn $target (in the currency of their channel's earnings)"
