@@ -9,7 +9,7 @@ import com.creatora.app.domain.account.ConnectedAccount
 import com.creatora.app.domain.account.LookupResult
 
 /** Why something on the connect screens did not work, as a message the screen can show. */
-enum class ConnectProblem { NOT_AUTHORIZED, NETWORK, QUOTA, NOT_FOUND, NOT_AVAILABLE, UNRECOGNISED }
+enum class ConnectProblem { NOT_AUTHORIZED, NETWORK, QUOTA, NOT_FOUND, NOT_AVAILABLE, UNRECOGNISED, SAVE_FAILED }
 
 fun AdapterError.toProblem() = when (this) {
     AdapterError.NotAuthorized -> ConnectProblem.NOT_AUTHORIZED

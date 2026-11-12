@@ -46,13 +46,15 @@ class OnboardingViewModelTest {
     private val goals = com.creatora.app.testutil.FakeGoalRepository()
     private val ai = FakeAiService(okReply("NICHE: street food\nFORMATS: shorts\nLANGUAGE: Hindi\nSUMMARY: Food films."))
 
+    private val reporter = com.creatora.app.testutil.FakeErrorReporter()
+
     private fun viewModel(): OnboardingViewModel {
         val registry = PlatformRegistry(listOf(youtube))
         return OnboardingViewModel(
             settings, auth, users,
             AccountConnector(registry, accounts, users, billing),
             CreatorProfileService(registry, accounts, users, AiTasks(ai)),
-            prefs, billing, goals, accounts,
+            prefs, billing, goals, accounts, reporter,
         )
     }
 
@@ -315,5 +317,70 @@ class OnboardingViewModelTest {
 
         assertEquals(OnboardingStep.CONNECT, vm.state.value.step)
         assertEquals(1, vm.state.value.channels.size)
+    }
+
+    // ---------------------------------------------------------------- crash hotfix
+
+    @Test
+    fun aChannelThatCannotBeSaved_showsTryAgain_insteadOfCrashing() = runTest {
+        youtube.own = AdapterOutcome.Ok(listOf(preview("UC1")))
+        val vm = viewModel()
+        vm.signIn()
+        val channel = vm.state.value.channels.single()
+        accounts.failSave = true // the rules refuse the write
+
+        vm.confirmChannel(channel)
+
+        assertEquals(channel, vm.state.value.saveFailed)
+        assertEquals(listOf(channel), vm.state.value.channels) // still there to try again
+        assertTrue(vm.state.value.connectedTitles.isEmpty())
+        assertEquals(1, reporter.recorded.size) // reported to Crashlytics
+
+        accounts.failSave = false
+        vm.confirmChannel(channel)
+
+        assertEquals(null, vm.state.value.saveFailed)
+        assertEquals(listOf("My channel"), vm.state.value.connectedTitles)
+        assertTrue(vm.state.value.channels.isEmpty())
+    }
+
+    @Test
+    fun theScreenWaitsForTheSavedStep_beforeShowingAnything() = runTest {
+        val vm = viewModel()
+        assertTrue(vm.state.value.loaded)
+    }
+
+    @Test
+    fun everyStepIsRemembered_soARestartResumesThere() = runTest {
+        val vm = viewModel()
+
+        vm.next()
+        assertEquals(OnboardingStep.WELCOME.name, settings.onboardingStep.value)
+        vm.skipGoal()
+        assertEquals(OnboardingStep.NOTIFICATIONS.name, settings.onboardingStep.value)
+    }
+
+    @Test
+    fun signedIn_resumesAtTheSavedStep_andNeverGoesBackToLanguageOrWelcome() = runTest {
+        auth.current.value = TestUser
+        settings.language.value = AppLanguage.ENGLISH
+        settings.onboardingStep.value = OnboardingStep.GOAL.name
+        assertEquals(OnboardingStep.GOAL, viewModel().state.value.step)
+
+        settings.onboardingStep.value = OnboardingStep.LANGUAGE.name
+        assertEquals(OnboardingStep.CONNECT, viewModel().state.value.step)
+
+        settings.onboardingStep.value = null
+        assertEquals(OnboardingStep.CONNECT, viewModel().state.value.step) // signed in but nothing saved: the connect step
+    }
+
+    @Test
+    fun signedOut_neverSkipsSignIn_butKeepsAChosenLanguage() = runTest {
+        settings.language.value = AppLanguage.HINDI
+        settings.onboardingStep.value = OnboardingStep.PLAN.name
+        assertEquals(OnboardingStep.WELCOME, viewModel().state.value.step)
+
+        settings.onboardingStep.value = OnboardingStep.WELCOME.name
+        assertEquals(OnboardingStep.WELCOME, viewModel().state.value.step)
     }
 }

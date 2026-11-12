@@ -25,6 +25,11 @@ class FakeSettingsRepository(initial: ThemeMode = ThemeMode.Default) : SettingsR
         onboardingDone.value = done
     }
 
+    override val onboardingStep = MutableStateFlow<String?>(null)
+    override suspend fun setOnboardingStep(step: String) {
+        onboardingStep.value = step
+    }
+
     override val aiTone = MutableStateFlow(com.creatora.app.domain.repository.AiTone.FRIENDLY)
     override suspend fun setAiTone(tone: com.creatora.app.domain.repository.AiTone) {
         aiTone.value = tone

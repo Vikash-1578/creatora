@@ -429,4 +429,5 @@
     <string name="tab_research">Research</string>
     <string name="research_subtitle">Keywords, outliers, competitors aur trends</string>
     <string name="research_action_key">Apna channel jodo</string>
+    <string name="connect_problem_save_failed">Tumhara channel save nahi ho saka. Connection check karo aur phir koshish karo.</string>
 </resources>

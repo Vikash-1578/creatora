@@ -22,6 +22,10 @@ interface SettingsRepository {
     val onboardingDone: Flow<Boolean>
     suspend fun setOnboardingDone(done: Boolean)
 
+    /** The onboarding step the user reached (an `OnboardingStep` name), so a restart resumes there; null before the first step. */
+    val onboardingStep: Flow<String?>
+    suspend fun setOnboardingStep(step: String)
+
     /** How the AI should sound: friendly, professional or funny. */
     val aiTone: Flow<AiTone>
     suspend fun setAiTone(tone: AiTone)

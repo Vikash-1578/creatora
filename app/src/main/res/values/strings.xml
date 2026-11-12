@@ -836,4 +836,5 @@
     <string name="research_open_project">Open project</string>
     <string name="research_mark_planned">Mark as planned</string>
     <string name="research_remove">Remove</string>
+    <string name="connect_problem_save_failed">Your channel could not be saved. Check your connection and try again.</string>
 </resources>
