@@ -39,6 +39,7 @@ class RenderViewModelTest {
     private val probe = FakeMediaProbe()
     private val renderer = FakeVideoRenderer(listOf(RenderEvent.Progress(50), RenderEvent.Done("file:///out.mp4")))
     private val saver = FakeMediaSaver()
+    private val kit = com.creatora.app.testutil.PlanKit()
 
     private suspend fun script(project: Project = Project(title = "Video", format = VideoFormat.LONG_VIDEO, hook = "One. Two.", structure = "Three.", licensedFootageOnly = false)) =
         projects.save(project)
@@ -49,7 +50,7 @@ class RenderViewModelTest {
     private fun TestScope.open(projectId: Long): RenderViewModel {
         val viewModel = RenderViewModel(
             SavedStateHandle(mapOf(RenderViewModel.ARG_PROJECT_ID to projectId)),
-            projects, assets, licences, voices, narrator, probe, renderer, saver,
+            projects, assets, licences, voices, narrator, probe, renderer, saver, kit.auth, kit.plans, kit.daily,
         )
         keepActive(viewModel.uiState)
         return viewModel

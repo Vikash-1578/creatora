@@ -89,8 +89,8 @@ class FakeUserRepository : UserRepository {
 class FakeUsageRepository : UsageRepository {
     val counts = MutableStateFlow<Map<String, Int>>(emptyMap())
     override fun observe(uid: String, monthKey: String): Flow<Int> = counts.map { it["$uid/$monthKey"] ?: 0 }
-    override suspend fun increment(uid: String, monthKey: String) {
-        counts.value = counts.value + ("$uid/$monthKey" to ((counts.value["$uid/$monthKey"] ?: 0) + 1))
+    override suspend fun increment(uid: String, monthKey: String, amount: Int) {
+        counts.value = counts.value + ("$uid/$monthKey" to ((counts.value["$uid/$monthKey"] ?: 0) + amount))
     }
 
     fun set(uid: String, monthKey: String, value: Int) {
@@ -416,4 +416,14 @@ class FakeCompetitorRepository : com.creatora.app.domain.repository.CompetitorRe
 class FakeSearchLog : com.creatora.app.domain.repository.SearchLogRepository {
     val queries = mutableListOf<String>()
     override suspend fun record(uid: String, query: String, at: Long) { queries += query }
+}
+
+
+class FakeDailyUsage : com.creatora.app.domain.repository.DailyUsageRepository {
+    val byDay = MutableStateFlow<Map<String, com.creatora.app.domain.repository.DailyUsage>>(emptyMap())
+    override fun observe(uid: String, day: String): Flow<com.creatora.app.domain.repository.DailyUsage> = byDay.map { it[day] ?: com.creatora.app.domain.repository.DailyUsage() }
+    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int) {
+        val now = byDay.value[day] ?: com.creatora.app.domain.repository.DailyUsage()
+        byDay.value = byDay.value + (day to now.copy(videos = now.videos + videos, aiImages = now.aiImages + aiImages))
+    }
 }

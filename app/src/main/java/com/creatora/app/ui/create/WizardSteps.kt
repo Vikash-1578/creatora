@@ -22,17 +22,31 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import com.creatora.app.R
+import com.creatora.app.domain.account.PlanLimits
+import com.creatora.app.domain.create.ImageOutcome
+import com.creatora.app.domain.create.scriptLines
 import com.creatora.app.domain.model.Project
 import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.VoicePreset
 import com.creatora.app.domain.model.readingSeconds
+import com.creatora.app.domain.render.splitSentences
+import com.creatora.app.domain.score.CheckId
+import com.creatora.app.domain.score.CheckStatus
+import com.creatora.app.domain.score.Reason
+import com.creatora.app.domain.score.VideoScore
 import com.creatora.app.ui.ai.AiErrors
 import com.creatora.app.ui.components.ChoiceChip
 import com.creatora.app.ui.components.EmptyState
@@ -75,7 +89,7 @@ private fun durationText(seconds: Int): String =
     }
 
 @Composable
-fun BriefStep(project: Project, actions: WizardActions) {
+fun BriefStep(project: Project, state: WizardUiState, actions: WizardActions) {
     Field(stringResource(R.string.wizard_title_label), project.title, actions.onTitle)
     Field(
         label = stringResource(R.string.wizard_brief_label),
@@ -84,6 +98,22 @@ fun BriefStep(project: Project, actions: WizardActions) {
         hint = stringResource(R.string.wizard_brief_hint),
         minLines = 4,
     )
+    if (project.sourceLink.isNotBlank()) Intro(stringResource(R.string.wizard_inspired_by, project.sourceLink))
+    AiAction(stringResource(R.string.wizard_brief_ai), project.title.isNotBlank(), state, actions, actions.onSuggestBrief)
+    CreditHint(PlanLimits.costs.text)
+    Field(stringResource(R.string.wizard_angle_label), project.angle, actions.onAngle)
+    Field(stringResource(R.string.wizard_tone_label), project.tone, actions.onTone)
+    Field(stringResource(R.string.wizard_audience_label), project.audience, actions.onAudience)
+    val max = state.plan.limits.maxVideoSeconds
+    Field(
+        label = stringResource(R.string.wizard_length_label),
+        value = project.targetSeconds.takeIf { it > 0 }?.toString().orEmpty(),
+        onChange = { actions.onTarget(it.filter { c -> c.isDigit() }.take(4).toIntOrNull() ?: 0) },
+        hint = stringResource(R.string.wizard_length_hint, max),
+    )
+    if (project.targetSeconds > max) {
+        Text(stringResource(R.string.wizard_length_over, max), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.warning)
+    }
     Text(stringResource(R.string.wizard_format_label), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.text)
     Row(
         modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -97,7 +127,7 @@ fun BriefStep(project: Project, actions: WizardActions) {
 
 /** A button that calls the AI, with a progress line while it works and the errors if it fails. */
 @Composable
-private fun AiAction(label: String, enabled: Boolean, state: WizardUiState, actions: WizardActions, onClick: () -> Unit) {
+internal fun AiAction(label: String, enabled: Boolean, state: WizardUiState, actions: WizardActions, onClick: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
         SecondaryButton(
             text = if (state.ai.busy) stringResource(R.string.wizard_ai_working) else label,
@@ -133,9 +163,61 @@ fun ScriptStep(project: Project, state: WizardUiState, actions: WizardActions) {
         style = CreatoraTheme.typography.bodySemiBold,
         color = CreatoraTheme.colors.accentText,
     )
+    if (state.overPlanLength) {
+        Text(
+            stringResource(R.string.wizard_script_over, durationText(state.seconds), state.plan.limits.maxVideoSeconds),
+            style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.warning,
+        )
+        AiAction(stringResource(R.string.wizard_script_shorten), state.words > 0, state, actions, actions.onShorten)
+        CreditHint(PlanLimits.costs.text)
+    }
+    ScriptLines(project, state, actions)
     Field(
         stringResource(R.string.wizard_pronunciations), project.pronunciations, actions.onPronunciations,
         hint = stringResource(R.string.wizard_pronunciations_hint), minLines = 3,
+    )
+}
+
+/** Each sentence of the script with AI actions to rewrite it, shorten it, lengthen it or change its tone. */
+@Composable
+private fun ScriptLines(project: Project, state: WizardUiState, actions: WizardActions) {
+    val lines = scriptLines(project.script)
+    if (lines.isEmpty()) return
+    Text(stringResource(R.string.wizard_lines_title), style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text)
+    CreditHint(PlanLimits.costs.text)
+    val tone = project.tone.ifBlank { stringResource(R.string.wizard_tone_default) }
+    val instructions = listOf(
+        R.string.wizard_line_rewrite to "rewrite it with different words",
+        R.string.wizard_line_shorter to "make it shorter",
+        R.string.wizard_line_longer to "make it a little longer",
+    )
+    lines.take(MAX_LINES).forEach { line ->
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs)) {
+            Text(line, style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.text)
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs)) {
+                instructions.forEach { (label, how) ->
+                    TextButton(onClick = { actions.onRewriteLine(line, how) }, enabled = !state.ai.busy, modifier = Modifier.heightIn(min = CreatoraTheme.dimens.minTouchTarget)) {
+                        Text(stringResource(label))
+                    }
+                }
+                TextButton(onClick = { actions.onRewriteLine(line, "change the tone to: $tone") }, enabled = !state.ai.busy, modifier = Modifier.heightIn(min = CreatoraTheme.dimens.minTouchTarget)) {
+                    Text(stringResource(R.string.wizard_line_tone))
+                }
+            }
+        }
+    }
+    if (state.ai.busy) Text(stringResource(R.string.wizard_ai_working), style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted)
+    state.ai.errors?.let { AiErrors(it, actions.onOpenAiProviders) }
+}
+
+private const val MAX_LINES = 30
+
+/** What an AI action costs in credits, shown before the button is tapped. */
+@Composable
+internal fun CreditHint(credits: Int) {
+    Text(
+        pluralStringResource(R.plurals.create_credit_cost, credits, credits),
+        style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted,
     )
 }
 
@@ -216,6 +298,13 @@ fun VoiceStep(project: Project, state: WizardUiState, actions: WizardActions) {
             onPreview = actions.onPreview,
         )
     }
+    // Premium voices and recording need a server and a recorder; they are shown as coming later, never faked.
+    ListGroup {
+        InfoRow(stringResource(R.string.wizard_voice_premium), stringResource(if (state.plan.limits.premiumVoices) R.string.wizard_coming_later else R.string.wizard_pro_only))
+        ListRowDivider()
+        InfoRow(stringResource(R.string.wizard_voice_record), stringResource(R.string.wizard_coming_later))
+    }
+    Intro(stringResource(R.string.wizard_voice_later_note))
 }
 
 @Composable
@@ -270,6 +359,36 @@ fun FootageStep(project: Project, state: WizardUiState, actions: WizardActions) 
         style = CreatoraTheme.typography.body,
         color = CreatoraTheme.colors.textMuted,
     )
+    AiImageSection(project, state, actions)
+}
+
+/** Makes one AI picture for the project: the daily allowance and the credit cost are shown before the tap. */
+@Composable
+private fun AiImageSection(project: Project, state: WizardUiState, actions: WizardActions) {
+    val firstSentence = splitSentences(project.script).firstOrNull().orEmpty()
+    var prompt by rememberSaveable(firstSentence) { mutableStateOf(firstSentence) }
+    val limit = state.plan.limits.aiImagesPerDay
+    Text(stringResource(R.string.wizard_image_title), style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text)
+    Field(stringResource(R.string.wizard_image_prompt), prompt, { prompt = it }, hint = stringResource(R.string.wizard_image_hint), minLines = 2)
+    Text(
+        stringResource(R.string.wizard_image_left, (limit - state.usage.aiImages).coerceAtLeast(0), limit),
+        style = CreatoraTheme.typography.caption, color = CreatoraTheme.colors.textMuted,
+    )
+    CreditHint(PlanLimits.costs.image)
+    SecondaryButton(
+        text = stringResource(if (state.image.busy) R.string.wizard_ai_working else R.string.wizard_image_make),
+        onClick = { actions.onMakeImage(prompt) },
+        enabled = prompt.isNotBlank() && !state.image.busy,
+        modifier = Modifier.fillMaxWidth(),
+    )
+    when (val outcome = state.image.outcome) {
+        null -> Unit
+        is ImageOutcome.Ok -> Text(stringResource(R.string.wizard_image_done), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.success)
+        is ImageOutcome.DailyLimit -> Text(stringResource(R.string.wizard_image_daily, outcome.max), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.warning)
+        ImageOutcome.CreditsUsedUp -> Text(stringResource(R.string.wizard_image_credits), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.warning)
+        ImageOutcome.SignInRequired -> Text(stringResource(R.string.ai_error_sign_in), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.warning)
+        ImageOutcome.Failed -> Text(stringResource(R.string.wizard_image_failed), style = CreatoraTheme.typography.body, color = CreatoraTheme.colors.danger)
+    }
 }
 
 @Composable
@@ -301,6 +420,7 @@ private fun PolicyRow(title: String, body: String, selected: Boolean, onClick: (
 @Composable
 fun ReviewStep(project: Project, state: WizardUiState, actions: WizardActions) {
     val cast = state.cast.size
+    state.score?.let { VideoScoreCard(it, actions.onFixStep) }
     ListGroup {
         InfoRow(stringResource(R.string.wizard_review_project), project.title)
         ListRowDivider()
@@ -356,4 +476,81 @@ fun GenerateStep(state: WizardUiState, panel: @Composable () -> Unit) {
         Text(stringResource(R.string.wizard_blocker_script), style = CreatoraTheme.typography.bodySemiBold, color = CreatoraTheme.colors.warning)
     }
     panel()
+}
+
+@Composable
+private fun CheckId.titleRes() = when (this) {
+    CheckId.TITLE -> R.string.score_title
+    CheckId.HOOK -> R.string.score_hook
+    CheckId.LENGTH -> R.string.score_length
+    CheckId.KEYWORD -> R.string.score_keyword
+    CheckId.LICENCES -> R.string.score_licences
+    CheckId.THUMBNAIL -> R.string.score_thumbnail
+}
+
+@Composable
+private fun Reason.text(): String = when (this) {
+    is Reason.TitleLength -> stringResource(R.string.score_r_title_length, length)
+    Reason.TitleCaps -> stringResource(R.string.score_r_title_caps)
+    Reason.TitleOk -> stringResource(R.string.score_r_title_ok)
+    is Reason.HookLong -> stringResource(R.string.score_r_hook_long, words)
+    Reason.HookNoPromise -> stringResource(R.string.score_r_hook_no_promise)
+    Reason.HookOk -> stringResource(R.string.score_r_hook_ok)
+    Reason.NoScript -> stringResource(R.string.score_r_no_script)
+    is Reason.LengthOverPlan -> stringResource(R.string.score_r_length_over, seconds, max)
+    is Reason.LengthOutsideGuide -> stringResource(R.string.score_r_length_guide, seconds, min, max)
+    is Reason.LengthOk -> stringResource(R.string.score_r_length_ok, seconds)
+    is Reason.KeywordMissing -> stringResource(R.string.score_r_keyword_missing, keyword)
+    is Reason.KeywordFound -> stringResource(R.string.score_r_keyword_found, keyword)
+    Reason.KeywordUnknown -> stringResource(R.string.score_r_keyword_unknown)
+    is Reason.LicencesMissing -> stringResource(R.string.score_r_licences_missing, missing)
+    Reason.LicencesOk -> stringResource(R.string.score_r_licences_ok)
+    Reason.ThumbnailNotChecked -> stringResource(R.string.score_r_thumbnail)
+}
+
+/** Creatora's checks of the video with the reason for each and a Fix it that opens the step with the problem. */
+@Composable
+fun VideoScoreCard(score: VideoScore, onFix: (Int) -> Unit) {
+    val colors = CreatoraTheme.colors
+    Column(
+        Modifier.fillMaxWidth().clip(CreatoraTheme.shapes.radius16).background(colors.surface)
+            .border(CreatoraTheme.dimens.borderWidth, colors.border, CreatoraTheme.shapes.radius16).padding(CreatoraTheme.spacing.lg),
+        verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm),
+    ) {
+        Text(stringResource(R.string.score_title_card), style = CreatoraTheme.typography.sectionTitle, color = colors.text)
+        Text(
+            score.percent?.let { stringResource(R.string.score_value, it) } ?: stringResource(R.string.score_none),
+            style = CreatoraTheme.typography.screenTitle, color = colors.text,
+        )
+        Text(stringResource(R.string.score_note), style = CreatoraTheme.typography.caption, color = colors.textMuted)
+        score.checks.forEach { check ->
+            val tint = when (check.status) {
+                CheckStatus.PASS -> colors.success
+                CheckStatus.WARN -> colors.warning
+                CheckStatus.FAIL -> colors.danger
+                CheckStatus.NOT_CHECKED -> colors.textMuted
+            }
+            val label = stringResource(
+                when (check.status) {
+                    CheckStatus.PASS -> R.string.score_pass
+                    CheckStatus.WARN -> R.string.score_warn
+                    CheckStatus.FAIL -> R.string.score_fail
+                    CheckStatus.NOT_CHECKED -> R.string.score_not_checked
+                },
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.xs)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm)) {
+                    Text(stringResource(check.id.titleRes()), style = CreatoraTheme.typography.bodySemiBold, color = colors.text)
+                    Text(label, style = CreatoraTheme.typography.bodySemiBold, color = tint)
+                }
+                Text(check.reason.text(), style = CreatoraTheme.typography.caption, color = colors.textMuted)
+                val fix = check.fix
+                if (fix != null && check.status != CheckStatus.PASS) {
+                    TextButton(onClick = { onFix(fix.ordinal) }, modifier = Modifier.heightIn(min = CreatoraTheme.dimens.minTouchTarget)) {
+                        Text(stringResource(R.string.score_fix))
+                    }
+                }
+            }
+        }
+    }
 }

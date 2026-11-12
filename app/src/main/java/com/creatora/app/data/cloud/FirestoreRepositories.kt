@@ -15,6 +15,8 @@ import com.creatora.app.domain.repository.ConnectedAccountRepository
 import com.creatora.app.domain.repository.CacheRepository
 import com.creatora.app.domain.repository.CachedText
 import com.creatora.app.domain.repository.CreatorIdeaRepository
+import com.creatora.app.domain.repository.DailyUsage
+import com.creatora.app.domain.repository.DailyUsageRepository
 import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.repository.UpcomingPost
 import com.creatora.app.domain.repository.UpcomingPostRepository
@@ -139,8 +141,30 @@ class FirestoreUsageRepository @Inject constructor(private val config: CloudConf
             awaitClose { registration.remove() }
         }
 
-    override suspend fun increment(uid: String, monthKey: String) {
-        doc(uid, monthKey).set(mapOf("aiCalls" to FieldValue.increment(1)), SetOptions.merge()).await()
+    override suspend fun increment(uid: String, monthKey: String, amount: Int) {
+        doc(uid, monthKey).set(mapOf("aiCalls" to FieldValue.increment(amount.toLong())), SetOptions.merge()).await()
+    }
+}
+
+class FirestoreDailyUsageRepository @Inject constructor(private val config: CloudConfig) : DailyUsageRepository {
+
+    private fun doc(uid: String, day: String) = userDoc(uid).collection("usage").document("daily_$day")
+
+    override fun observe(uid: String, day: String): Flow<DailyUsage> =
+        if (!config.isConfigured) flowOf(DailyUsage()) else callbackFlow {
+            val registration = doc(uid, day).addSnapshotListener { snapshot, _ ->
+                trySend(DailyUsage((snapshot?.getLong("videos") ?: 0L).toInt(), (snapshot?.getLong("aiImages") ?: 0L).toInt()))
+            }
+            awaitClose { registration.remove() }
+        }
+
+    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int) {
+        if (!config.isConfigured) return
+        val fields = buildMap<String, Any> {
+            if (videos != 0) put("videos", FieldValue.increment(videos.toLong()))
+            if (aiImages != 0) put("aiImages", FieldValue.increment(aiImages.toLong()))
+        }
+        if (fields.isNotEmpty()) doc(uid, day).set(fields, SetOptions.merge()).await()
     }
 }
 

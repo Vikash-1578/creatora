@@ -29,6 +29,21 @@ data class Project(
     val isReady: Boolean = false,
     /** file:// URI of the last finished render in app storage, if any. */
     val renderUri: String? = null,
+    /** How the user chose to make it: step by step, or Auto mode where the AI does every step. */
+    val mode: CreateMode = CreateMode.STEP_BY_STEP,
+    val startedFrom: StartSource? = null,
+    /** The link a "make my own version" project was inspired by (the link only, never its text). */
+    val sourceLink: String = "",
+    /** The idea behind the video in one sentence. */
+    val concept: String = "",
+    val angle: String = "",
+    val tone: String = "",
+    val audience: String = "",
+    /** Wanted length in seconds; 0 means not set. */
+    val targetSeconds: Int = 0,
+    val stepStates: Map<WizardStep, StepState> = emptyMap(),
+    /** True once this project's render was counted against the plan's videos-a-day limit. */
+    val counted: Boolean = false,
 ) {
     /** The whole script in reading order. */
     val script: String get() = listOf(hook, structure, callToAction).filter { it.isNotBlank() }.joinToString("\n\n")
@@ -42,6 +57,13 @@ enum class VideoFormat { LONG_VIDEO, SHORTS_REELS, CARTOON_STORY, VIDEO_AD, AVAT
 
 /** The steps of the Create wizard, in order. The ordinal is the step index stored on the project. */
 enum class WizardStep { BRIEF, SCRIPT, CAST, VOICE, FOOTAGE, REVIEW, GENERATE }
+
+enum class CreateMode { STEP_BY_STEP, AUTO }
+
+enum class StartSource { IDEA, TOPIC, LINK }
+
+/** Where a step stands. OUT_OF_DATE marks a later step whose input was changed after it was done. */
+enum class StepState { EMPTY, AI_DRAFT, EDITED, APPROVED, OUT_OF_DATE }
 
 data class Idea(
     val id: Long = 0,
