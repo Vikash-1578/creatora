@@ -93,6 +93,66 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         )
 
+    /** What is not working in one of the creator's weaker videos and what to change, from its real numbers only. */
+    suspend fun fixVideo(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You explain in three or four sentences why one video got fewer views than the creator's usual. " +
+                    "Use ONLY the numbers given and quote them; if a number is marked not available, say so instead of " +
+                    "guessing; do not comment on the thumbnail if it is marked not analysed. End with one or two concrete " +
+                    "changes to try. Plain text.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** Follow-up ideas in the pattern of a winning video. Same line format as the daily ideas. */
+    suspend fun moreLikeThis(facts: String, count: Int): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "A creator's video did far better than usual. Suggest exactly $count follow-up video ideas in the same " +
+                    "pattern (topic, title style, format) for the same audience. Reply with one idea per line in this format " +
+                    "and nothing else:\nIDEA: <a specific title-style sentence> | SCORE: <0 to 100, an estimate of its potential> " +
+                    "| WHY: <one sentence that quotes the winner's numbers>\nUse only the facts given; never invent numbers.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** Why another channel's video went far beyond its usual, plus a concept the creator can make their own way. */
+    suspend fun competitorViral(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You explain why a video from another creator did far better than that channel's usual. Use ONLY the " +
+                    "facts given; you only have the title, public numbers, publish time and the top comments, so say that " +
+                    "retention and the thumbnail are unknown. Summarise the mood of the comments as a summary of the top " +
+                    "comments only. Do not suggest copying the video. Reply in exactly this format:\n" +
+                    "CONCEPT: <the idea behind it in one sentence, in new words, not the original title>\n" +
+                    "WHY: <three or four sentences: concept, hook from the title, timing, what the comments say>",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** Three "upload this next" suggestions built from real trending titles and competitor outliers. */
+    suspend fun uploadNext(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You suggest exactly 3 videos this creator could upload next, based only on the sources given. Reply " +
+                    "with one per line in this format and nothing else:\nIDEA: <a specific title-style sentence> | SCORE: " +
+                    "<0 to 100, an estimate of its potential> | WHY: <one sentence naming which sources it comes from>\n" +
+                    "The score is an estimate; keep it modest. Never invent numbers.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
+    /** Questions people might ask about a keyword. Suggestions only; no data is claimed. */
+    suspend fun keywordQuestions(keyword: String): AiOutcome<List<String>> =
+        ai.complete(
+            AiRequest(
+                system = "You suggest questions people might ask about a topic. Reply with exactly 6 questions, one per line, " +
+                    "each starting with \"- \". No other text.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Topic: $keyword")),
+            ),
+        ).map { parseIdeas(it, 6) }
+
     /** A week-by-week plan toward the goal, or this week's re-plan from [progress] (real results). Aims, never promises. */
     suspend fun weeklyPlan(goal: String, progress: String): AiOutcome<String> =
         ai.complete(

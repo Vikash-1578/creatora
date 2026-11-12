@@ -14,8 +14,8 @@ reviewer merges PRs.
 | UI polish | Home, Research, Grow, Profile, Settings, Library, Create | Merged (#14) |
 | M9–M13 | Old local-first plan (Research, Publish, Grow, Home, Profile and Earn) | Superseded. PRs #10 to #13 stay open, untouched; to be mined later |
 | Phase A | Onboarding, accounts, settings, Firebase, Creatora AI, plans and usage | Merged (#15) |
-| **Phase B** | Home: account switcher, snapshot, focus, daily ideas, uploads, goals, streak, trending | In progress: spec in `docs/spec/02-home.md` |
-| Phase C | Research (spec in `docs/spec/03-research.md`) | Not started |
+| Phase B | Home: account switcher, snapshot, focus, daily ideas, uploads, goals, streak, trending | Merged (#16) |
+| **Phase C** | Research: My channel, Competitors, Trends, Keywords, Idea bank | In progress: spec in `docs/spec/03-research.md` |
 | Phase D+ | Next screens, from the manager's approved specs | Not started |
 | Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
 
@@ -45,6 +45,16 @@ built from an approved spec in `docs/spec/`.
 - [ ] Keyword search and Thumbnail quick actions open real screens (later phases)
 - [ ] Region choice in Settings (Home uses the saved region, default from the device)
 
+### Phase C checklist
+- [x] My channel: outlier score by age band (estimate), winners, what's not working, AI reasons, "Make more like this"
+- [x] Competitors: Free 3 / Pro 20, add by link, suggestions (niche search plus featured channels), detail, growth from our own snapshots, viral videos with comment summary, "Use this concept" / "Let AI make it"
+- [x] Trends: Home's chart, competitor outliers of the last 7 days (cache only), "Upload this next"
+- [x] Keywords: demand and competition estimate with a visible formula, related tags, AI questions
+- [x] Idea bank: New / Planned / Made, filter by status and account
+- [x] Cloud cache with time to live and "updated" time; refresh buttons show their quota cost
+- [ ] Rising searches (needs a Cloud Function that aggregates `users/*/searches`)
+- [ ] Thumbnail analysis (needs image input in the AI layer), audience and first-30-seconds retention for "why it did well"
+
 ## Deferred: rework M9–M12
 
 PRs #10 to #13 were closed without merging because they were built for the old local-first plan. The branches are
@@ -53,7 +63,7 @@ app (Firebase, Google sign-in, Firebase AI Logic):
 
 | Branch | Was | Useful code to reuse |
 |--------|-----|----------------------|
-| `m9-research` | M9 Research | Keyword search, outliers, rivals (competitors), trends, idea bank, swipe file |
+| `m9-research` | M9 Research | Mined for Phase C (merged as Research); its Room tables and API-key client were not carried. Swipe file and study screen are still unused |
 | `m10-publish` | M10 Publish | Publish checklist, content calendar, post reminders |
 | `m11-grow` | M11 Grow | Channel snapshots, reply drafts, A/B test log |
 | `m12-home` | M12 Home | Home cards (continue, next post, ideas, channel snapshot) and notices |

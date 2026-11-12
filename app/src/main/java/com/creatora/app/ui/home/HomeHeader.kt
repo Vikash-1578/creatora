@@ -74,25 +74,25 @@ private const val DROPDOWN_FROM = 5
  * choice. Up to four accounts are chips; more than that is a dropdown.
  */
 @Composable
-fun AccountSwitcher(state: HomeUiState, onSelect: (AccountSelection) -> Unit, modifier: Modifier = Modifier) {
+fun AccountSwitcher(accounts: List<ConnectedAccount>, selection: AccountSelection, onSelect: (AccountSelection) -> Unit, modifier: Modifier = Modifier) {
     val spacing = CreatoraTheme.spacing
     val colors = CreatoraTheme.colors
-    val grouped: Map<ConnectPlatform, List<ConnectedAccount>> = state.accounts.groupBy { it.platform }
-    if (state.accounts.size < DROPDOWN_FROM) {
+    val grouped: Map<ConnectPlatform, List<ConnectedAccount>> = accounts.groupBy { it.platform }
+    if (accounts.size < DROPDOWN_FROM) {
         Row(modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(spacing.md), verticalAlignment = Alignment.CenterVertically) {
-            if (state.accounts.size > 1) {
-                ChoiceChip(stringResource(R.string.home_all_accounts), state.selection == AccountSelection.All, { onSelect(AccountSelection.All) })
+            if (accounts.size > 1) {
+                ChoiceChip(stringResource(R.string.home_all_accounts), selection == AccountSelection.All, { onSelect(AccountSelection.All) })
             }
             grouped.forEach { (platform, accounts) ->
                 Text(stringResource(platform.labelRes()), style = CreatoraTheme.typography.caption, color = colors.textMuted)
                 accounts.forEach { account ->
-                    ChoiceChip(account.title, state.selection == AccountSelection.One(account.key), { onSelect(AccountSelection.One(account.key)) })
+                    ChoiceChip(account.title, selection == AccountSelection.One(account.key), { onSelect(AccountSelection.One(account.key)) })
                 }
             }
         }
     } else {
         var open by remember { mutableStateOf(false) }
-        val current = (state.selection as? AccountSelection.One)?.let { sel -> state.accounts.firstOrNull { it.key == sel.key }?.title } ?: stringResource(R.string.home_all_accounts)
+        val current = (selection as? AccountSelection.One)?.let { sel -> accounts.firstOrNull { it.key == sel.key }?.title } ?: stringResource(R.string.home_all_accounts)
         ChoiceChip(current, selected = true, onClick = { open = true }, modifier = modifier)
         DropdownMenu(expanded = open, onDismissRequest = { open = false }, containerColor = colors.surface) {
             DropdownMenuItem(text = { Text(stringResource(R.string.home_all_accounts)) }, onClick = { open = false; onSelect(AccountSelection.All) })

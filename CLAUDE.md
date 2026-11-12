@@ -39,7 +39,8 @@ com.creatora.app
 │   ├── components/      # shared UI: ScreenHeader, TabScreen, SubScreenScaffold, list rows, icon buttons
 │   ├── theme/           # Color.kt, Type.kt, Dimens.kt, Theme.kt (design tokens)
 │   ├── home/            # Home tab: HomeScreen plus one ViewModel per card (channel cards, focus, ideas, goals, trending, inbox)
-│   ├── research/ create/ grow/                  # tab screens (placeholders until their milestone)
+│   ├── research/        # Research tab: five tabs (My channel, Competitors, Trends, Keywords, Idea bank), competitor page, one ViewModel each
+│   ├── create/ grow/                            # tab screens (placeholders until their milestone)
 │   ├── create/          # Create tab (format tiles) and the 7-step wizard: WizardViewModel, WizardScreen, WizardSteps
 │   ├── ai/ coach/       # Settings > AI providers screen, AI error display, AI Coach chat
 │   ├── render/ thumbnail/                       # Generate-step render panel, thumbnail maker

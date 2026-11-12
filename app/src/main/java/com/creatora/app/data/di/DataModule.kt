@@ -56,6 +56,12 @@ import com.creatora.app.data.cloud.FirebaseAiService
 import com.creatora.app.data.cloud.FirebaseAuthService
 import com.creatora.app.data.cloud.FirestoreAiHistoryRepository
 import com.creatora.app.data.cloud.FirestoreCacheRepository
+import com.creatora.app.data.cloud.FirestoreCompetitorRepository
+import com.creatora.app.data.cloud.FirestoreSearchLogRepository
+import com.creatora.app.data.research.CachedResearchRepository
+import com.creatora.app.domain.repository.CompetitorRepository
+import com.creatora.app.domain.repository.SearchLogRepository
+import com.creatora.app.domain.research.ResearchRepository
 import com.creatora.app.data.cloud.FirestoreConnectedAccountRepository
 import com.creatora.app.data.cloud.FirestoreCreatorIdeaRepository
 import com.creatora.app.data.cloud.FirestoreUpcomingPostRepository
@@ -153,6 +159,9 @@ abstract class CloudBindingsModule {
     @Binds abstract fun homePrefs(impl: DataStoreHomePrefs): HomePrefsRepository
     @Binds abstract fun notificationInbox(impl: DataStoreNotificationInbox): NotificationInboxRepository
     @Binds abstract fun trending(impl: CachedTrendingRepository): TrendingRepository
+    @Binds abstract fun research(impl: CachedResearchRepository): ResearchRepository
+    @Binds abstract fun competitors(impl: FirestoreCompetitorRepository): CompetitorRepository
+    @Binds abstract fun searchLog(impl: FirestoreSearchLogRepository): SearchLogRepository
     @Binds abstract fun aiHistory(impl: FirestoreAiHistoryRepository): AiHistoryRepository
     @Binds abstract fun youTubeAuthorizer(impl: GoogleYouTubeAuthorizer): YouTubeAuthorizer
     @Binds abstract fun billing(impl: PlayBillingRepository): BillingRepository
