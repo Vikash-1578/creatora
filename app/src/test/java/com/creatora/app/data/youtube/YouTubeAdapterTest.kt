@@ -194,13 +194,18 @@ class YouTubeAdapterTest {
     fun videoMetrics_returnsOnlyTheCoreNumbers() = runTest {
         transport.getResponses["metrics=views,averageViewDuration"] = HttpResponse(
             200,
-            """{"columnHeaders":[{"name":"video"},{"name":"views"},{"name":"averageViewDuration"},{"name":"averageViewPercentage"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],"rows":[["v1",10,30.0,40.0,100,3.1]]}""",
+            """{"columnHeaders":[{"name":"video"},{"name":"views"},{"name":"averageViewDuration"},{"name":"averageViewPercentage"}],"rows":[["v1",10,30.0,40.0]]}""",
+        )
+        transport.getResponses["metrics=videoThumbnailImpressions"] = HttpResponse(
+            200,
+            """{"columnHeaders":[{"name":"video"},{"name":"videoThumbnailImpressions"},{"name":"videoThumbnailImpressionsClickRate"}],"rows":[["v1",100,3.1]]}""",
         )
 
         val result = (adapter.videoMetrics("UC1", listOf("v1")) as AdapterOutcome.Ok).value.single()
 
         assertEquals(3.1, result.ctrPercent!!, 0.001)
-        assertEquals(1, transport.getUrls.size) // no revenue or traffic calls
+        assertEquals(40.0, result.averageViewPercent!!, 0.001)
+        assertEquals(2, transport.getUrls.size) // the core report and the separate CTR report; no revenue or traffic calls
         assertTrue(result.trafficSources.isEmpty())
     }
 }
