@@ -17,6 +17,8 @@ reviewer merges PRs.
 | Phase B | Home: account switcher, snapshot, focus, daily ideas, uploads, goals, streak, trending | Merged (#16) |
 | **Phase C** | Research: My channel, Competitors, Trends, Keywords, Idea bank | In progress: spec in `docs/spec/03-research.md` |
 | Phase QA | Device-test fixes, emulator smoke test, Instagram / Facebook Pages / TikTok sign-in, data and publishers | In progress: see `docs/platform-setup.md` |
+| Phase E | Publish and Schedule (spec 05) | In review |
+| Phase F | Grow and Studio-style features (spec 06). First slice: Analytics (Overview, Content, Audience), Earnings, Monetization journey. Still to build: comments inbox, content manager, channel defaults, audit, A/B tests, new notification categories | In progress |
 | Phase D+ | Next screens, from the manager's approved specs | Not started |
 | Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
 

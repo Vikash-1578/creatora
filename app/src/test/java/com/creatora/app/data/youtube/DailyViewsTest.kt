@@ -66,3 +66,30 @@ class DailyViewsTest {
         assertNull(sumSeries(emptyList()))
     }
 }
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35], application = Application::class)
+class YouTubeReportTest {
+    private val transport = FakeTransport()
+    private val adapter = YouTubeAdapter(transport, FakeYouTubeAuthorizer(), FakeErrorReporter())
+
+    @Test
+    fun aReportQueryBecomesOneAnalyticsRequest_withItsDimensionsFiltersAndSort() = runTest {
+        transport.getResponses["dimensions=insightTrafficSourceDetail"] = HttpResponse(200, """{"columnHeaders":[{"name":"insightTrafficSourceDetail"},{"name":"views"}],"rows":[["python tutorial",40],["kotlin",10]]}""")
+
+        val rows = (adapter.report("UC1", com.creatora.app.domain.grow.Reports.searchTerms, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 28)) as AdapterOutcome.Ok).value
+
+        assertEquals("python tutorial", rows.first()["insightTrafficSourceDetail"])
+        val url = transport.getUrls.single()
+        assertTrue(url.contains("ids=channel==UC1&startDate=2026-10-01&endDate=2026-10-28&metrics=views"))
+        assertTrue(url.contains("filters=insightTrafficSourceType%3D%3DYT_SEARCH"))
+        assertTrue(url.contains("sort=-views") && url.contains("maxResults=25"))
+    }
+
+    @Test
+    fun aRefusedReport_keepsYouTubesReason() = runTest {
+        transport.getResponses["reports"] = HttpResponse(400, """{"error":{"message":"Unknown identifier (creatorContentType) given in field parameters.dimensions."}}""")
+        val result = adapter.report("UC1", com.creatora.app.domain.grow.Reports.contentType, LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 28)) as AdapterOutcome.Failed
+        assertTrue(result.error.toString().contains("Unknown identifier"))
+    }
+}

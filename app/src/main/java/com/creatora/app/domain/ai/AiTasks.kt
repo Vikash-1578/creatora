@@ -203,6 +203,17 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         )
 
+    /** One short line per chart: what the number means and one thing to try, from the given numbers only. */
+    suspend fun explainNumbers(facts: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You explain a creator's own analytics to them. Use ONLY the numbers given and quote them. Write one short " +
+                    "line per item in the same order: what it means and one thing to try. Never promise views, growth or " +
+                    "earnings, and do not invent numbers or compare with other channels. Plain text, no markdown.",
+                messages = listOf(ChatMessage(ChatRole.USER, facts)),
+            ),
+        )
+
     /** A kind, honest note that a goal looks out of reach for its deadline, with the realistic target given in the facts. */
     suspend fun goalAdvice(facts: String): AiOutcome<String> =
         ai.complete(

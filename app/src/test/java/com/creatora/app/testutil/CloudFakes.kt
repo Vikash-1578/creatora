@@ -165,6 +165,14 @@ class FakeYouTubeAuthorizer(var outcome: AuthorizationOutcome = AuthorizationOut
 
 /** A platform adapter with canned answers. */
 class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatform.YOUTUBE) : PlatformAdapter {
+    /** Analytics reports by query; a query without an entry is refused. */
+    val reports = mutableMapOf<com.creatora.app.domain.grow.ReportQuery, AdapterOutcome<List<Map<String, Any?>>>>()
+    val reportCalls = mutableListOf<Triple<com.creatora.app.domain.grow.ReportQuery, java.time.LocalDate, java.time.LocalDate>>()
+    override suspend fun report(channelId: String, query: com.creatora.app.domain.grow.ReportQuery, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<List<Map<String, Any?>>> {
+        reportCalls += Triple(query, startDate, endDate)
+        return reports[query] ?: AdapterOutcome.Failed(AdapterError.NotAvailable("refused"))
+    }
+
     var own: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
     var lookupResult: AdapterOutcome<ChannelPreview> = AdapterOutcome.Failed(AdapterError.NotFound)
     var videos: AdapterOutcome<List<VideoStats>> = AdapterOutcome.Ok(emptyList())

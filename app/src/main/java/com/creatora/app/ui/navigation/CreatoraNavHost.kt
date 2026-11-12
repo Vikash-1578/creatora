@@ -18,6 +18,7 @@ import com.creatora.app.ui.create.CreateScreen
 import com.creatora.app.ui.create.WizardScreen
 import com.creatora.app.ui.create.WizardViewModel
 import com.creatora.app.ui.earn.EarnScreen
+import com.creatora.app.ui.grow.AnalyticsScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.help.HelpScreen
 import com.creatora.app.ui.home.HomeScreen
@@ -50,6 +51,8 @@ object Routes {
     const val RESEARCH = "research"
     const val CREATE = "create"
     const val GROW = "grow"
+    const val GROW_ANALYTICS = "grow/analytics"
+    const val GROW_EARN = "grow/earn"
     const val LIBRARY = "library"
 
     // Screens shown without the bottom bar
@@ -156,8 +159,13 @@ fun CreatoraNavHost(
                 GrowScreen(
                     onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                     onOpenCreate = { navController.navigateToTab(TopLevelTab.CREATE) },
+                    onOpenAnalytics = dropUnlessResumed { navController.navigate(Routes.GROW_ANALYTICS) },
+                    onOpenEarn = dropUnlessResumed { navController.navigate(Routes.GROW_EARN) },
                 )
             }
+            // Inside the Grow graph, so the bottom bar stays.
+            composable(Routes.GROW_ANALYTICS) { AnalyticsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+            composable(Routes.GROW_EARN) { EarnScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         }
         navigation(route = TopLevelTab.LIBRARY.graphRoute, startDestination = Routes.LIBRARY) {
             composable(Routes.LIBRARY) {

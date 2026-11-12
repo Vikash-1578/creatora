@@ -192,6 +192,14 @@ class YouTubeAdapter @Inject constructor(
         }
     }
 
+    override suspend fun report(channelId: String, query: com.creatora.app.domain.grow.ReportQuery, startDate: LocalDate, endDate: LocalDate): AdapterOutcome<List<Map<String, Any?>>> {
+        val end = minOf(endDate, lastReportDay())
+        val extras = listOfNotNull(
+            query.dimensions?.let { "dimensions=$it" }, query.filters?.let { "filters=${encode(it)}" }, query.sort?.let { "sort=$it" }, query.maxResults?.let { "maxResults=$it" },
+        ).joinToString("") { "&$it" }
+        return get("$ANALYTICS/reports?ids=channel==$channelId&startDate=$startDate&endDate=$end&metrics=${query.metrics}$extras", ::parseReport)
+    }
+
     override suspend fun trending(region: String, categoryId: String?, limit: Int): AdapterOutcome<List<VideoStats>> {
         val category = categoryId?.let { "&videoCategoryId=$it" }.orEmpty()
         return get("$DATA/videos?part=snippet,statistics&chart=mostPopular&regionCode=${encode(region)}$category&maxResults=${limit.coerceIn(1, 50)}", ::parseVideos)
