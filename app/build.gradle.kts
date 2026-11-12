@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,9 +17,12 @@ if (file("google-services.json").exists()) {
 
 // Platform sign-in settings (Instagram, Facebook, TikTok). Read from local.properties or an environment variable
 // (a GitHub Actions secret in CI); never committed. A missing value just leaves that platform's sign-in unset.
-val localProps = java.util.Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use(::load) }
+val localProps = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.reader().use { load(it) }
+}
 fun platformSetting(name: String): String =
-    (providers.environmentVariable(name).orNull ?: localProps.getProperty(name) ?: "").trim().replace("\\", "\\\\").replace("\"", "\\\"")
+    (providers.environmentVariable(name).orNull ?: localProps.getProperty(name, "")).trim().replace("\\", "\\\\").replace("\"", "\\\"")
 
 android {
     namespace = "com.creatora.app"
