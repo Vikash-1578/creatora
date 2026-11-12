@@ -84,16 +84,6 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # Pictures of the main screens in light and dark, drawn by a unit test with sample numbers (not from a phone).
-      - name: Upload screenshots
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: screenshots
-          path: app/build/screenshots/*.png
-          if-no-files-found: ignore
-          retention-days: 14
-
       - name: Upload debug APK
         uses: actions/upload-artifact@v7
         with:

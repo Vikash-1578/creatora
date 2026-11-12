@@ -16,7 +16,7 @@ import com.creatora.app.domain.home.UploadRow
 import com.creatora.app.domain.home.UploadStatus
 import com.creatora.app.ui.theme.CreatoraTheme
 
-// Sample data for previews and the screenshot test only. It lives in the debug source set, so none of it is in the release app.
+// Sample data for Android Studio previews only. It lives in the debug source set, so none of it is in the release app.
 
 private fun video(id: String, title: String, views: Long) = VideoStats(id, title, "2026-10-20T10:00:00Z", views)
 
