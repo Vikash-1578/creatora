@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedTextField
@@ -43,7 +45,7 @@ private const val DAY_MILLIS = 24L * 60 * 60 * 1000
 /** Goals with a real progress bar, edit and delete, a celebration when one is reached, and the weekly plan. */
 @Composable
 fun GoalsSection(state: GoalsState, canAdd: Boolean, onAdd: () -> Unit, onEdit: (Goal) -> Unit, onDelete: (Goal) -> Unit, onPlan: (GoalItem, Boolean) -> Unit) {
-    HomeSection(R.string.home_goals_title) {
+    HomeSection(R.string.home_goals_title, icon = Icons.Outlined.Flag) {
         if (state.goals.isEmpty() && !state.loading) HomeCard { BodyText(stringResource(R.string.home_goals_empty)) }
         state.goals.forEach { item ->
             val goal = item.goal

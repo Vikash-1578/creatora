@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
@@ -163,9 +165,9 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
             if (!hasAccounts) ConnectCard(actions.connect) else AccountSwitcher(model.home.accounts, model.home.selection, actions.select)
             if (hasAccounts) SnapshotSection(model.cards, actions.hideAmounts, actions.retry)
             if (hasAccounts) FocusSection(model.focus, actions.fix, actions.later)
-            if (hasAccounts) IdeasSection(model.ideas, actions.ideaCreate, actions.ideaSave, actions.ideaDismiss)
+            if (hasAccounts) IdeasSection(model.ideas, actions.ideaCreate, actions.ideaSave, actions.ideaDismiss, actions.keywords)
             model.home.continueProject?.let { ContinueCard(it, actions.continueProject) }
-            if (hasAccounts) UploadsSection(model.cards, actions.openUpload)
+            if (hasAccounts) UploadsSection(model.cards, actions.openUpload, actions.keywords)
             if (hasAccounts) UpcomingSection(model.home.upcoming, actions.newVideo)
             if (hasAccounts) GoalsSection(
                 model.goals, canAdd = true,
@@ -174,7 +176,7 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
                 onDelete = actions.deleteGoal, onPlan = actions.planGoal,
             )
             if (hasAccounts) StreakSection(model.cards, actions.streakUnit)
-            TrendingSection(model.trending, actions.openVideo, actions.useAsIdea, actions.refreshTrending)
+            TrendingSection(model.trending, actions.openVideo, actions.useAsIdea, actions.refreshTrending, actions.keywords)
             QuickActions(
                 actions.newVideo, actions.ideasQuick, actions.keywords,
                 {
@@ -224,7 +226,7 @@ private fun ConnectCard(onConnect: () -> Unit) {
 @Composable
 private fun ContinueCard(project: Project, onContinue: (Long) -> Unit) {
     val step = WizardStep.entries[project.step.coerceIn(0, WizardStep.entries.lastIndex)]
-    HomeSection(R.string.home_continue_title) {
+    HomeSection(R.string.home_continue_title, icon = Icons.Outlined.PlayArrow) {
         HomeCard {
             Text(project.title, style = CreatoraTheme.typography.cardTitle, color = CreatoraTheme.colors.text, maxLines = 1)
             BodyText(stringResource(R.string.home_continue_step, step.ordinal + 1, WizardStep.entries.size, stringResource(step.titleRes())))
@@ -235,7 +237,7 @@ private fun ContinueCard(project: Project, onContinue: (Long) -> Unit) {
 
 @Composable
 private fun UpcomingSection(posts: List<UpcomingPost>, onPlan: () -> Unit) {
-    HomeSection(R.string.home_upcoming_title) {
+    HomeSection(R.string.home_upcoming_title, icon = Icons.Outlined.Event) {
         HomeCard {
             if (posts.isEmpty()) {
                 BodyText(stringResource(R.string.home_upcoming_empty))
@@ -256,7 +258,7 @@ private fun UpcomingSection(posts: List<UpcomingPost>, onPlan: () -> Unit) {
 
 @Composable
 private fun QuickActions(onNew: () -> Unit, onIdeas: () -> Unit, onKeyword: () -> Unit, onThumbnail: () -> Unit) {
-    HomeSection(R.string.home_quick_actions) {
+    HomeSection(R.string.home_quick_actions, icon = Icons.Outlined.AutoAwesome) {
         Row(horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.md)) {
             QuickAction(Icons.Outlined.Add, R.string.home_action_new_video, onNew, Modifier.weight(1f))
             QuickAction(Icons.Outlined.AutoAwesome, R.string.home_action_ideas, onIdeas, Modifier.weight(1f))

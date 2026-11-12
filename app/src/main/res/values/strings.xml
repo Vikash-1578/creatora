@@ -948,7 +948,6 @@
     <string name="connect_problem_save_failed">Your channel could not be saved. Check your connection and try again.</string>
     <string name="home_error_permission">YouTube Analytics access is missing. Tap Try again and allow “View YouTube Analytics reports”.</string>
     <string name="home_error_platform_said">YouTube said: %1$s</string>
-    <string name="home_upload_views">%1$s %2$s views</string>
     <string name="home_upload_ctr">CTR %1$s</string>
     <string name="home_upload_viewed">viewed %1$s</string>
     <string name="settings_appcheck_secret">App Check debug secret</string>
@@ -962,4 +961,8 @@
     <string name="goal_advice_keep">Keep my target</string>
     <string name="connect_problem_not_configured">Login for %1$s is not set up in this build. These build settings are empty: %2$s.</string>
     <string name="connect_problem_login_failed">%1$s login did not finish: %2$s</string>
+    <string name="see_all">See all</string>
+    <string name="info_toggle">More about %1$s</string>
+    <string name="home_upload_views_only">%1$s views</string>
+    <string name="home_chart_views">Views per day, last 28 days</string>
 </resources>

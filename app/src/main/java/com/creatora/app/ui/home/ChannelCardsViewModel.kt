@@ -20,6 +20,7 @@ import com.creatora.app.domain.home.classifyUploads
 import com.creatora.app.domain.home.computeStreak
 import com.creatora.app.domain.home.parsePublished
 import com.creatora.app.domain.home.sumMetrics
+import com.creatora.app.domain.home.sumSeries
 import com.creatora.app.domain.home.uploadFacts
 import com.creatora.app.domain.model.AiError
 import com.creatora.app.domain.model.AiOutcome
@@ -157,7 +158,7 @@ class ChannelCardsViewModel @Inject constructor(
         _state.update {
             it.copy(
                 phase = CardsPhase.READY,
-                snapshot = buildSnapshot(subscribers, currentTotals, previousTotals),
+                snapshot = buildSnapshot(subscribers, currentTotals, previousTotals, sumSeries(ok.map { it.dailyViews })),
                 metricsError = ok.firstOrNull { o -> o.metricsError != null }?.metricsError,
                 uploads = rows,
                 uploadMetrics = metrics,

@@ -50,6 +50,10 @@ data class CreatoraDimens(
     val logoPreviewMaxHeight: Dp = 160.dp,
     /** Diameter of the avatar on the Profile screen. */
     val avatarSize: Dp = 56.dp,
+    /** Width of a video thumbnail in a list row (16:9). */
+    val thumbnailWidth: Dp = 96.dp,
+    /** Height of a mini chart in a metric tile. */
+    val sparklineHeight: Dp = 40.dp,
     /** Width of a recent-project card on Home. */
     val recentCardWidth: Dp = 160.dp,
     /** Width of the background-coloured ring around the Create button. */
