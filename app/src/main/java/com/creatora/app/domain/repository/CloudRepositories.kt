@@ -75,7 +75,7 @@ interface DailyUsageRepository {
 }
 
 /** The posts Creatora made or scheduled, one document per destination, in `users/{uid}/scheduledPosts`. */
-interface ScheduledPostRepository {
+interface PostRepository {
     fun observe(uid: String): Flow<List<com.creatora.app.domain.publish.ScheduledPost>>
     suspend fun get(uid: String, id: String): com.creatora.app.domain.publish.ScheduledPost?
     suspend fun save(uid: String, post: com.creatora.app.domain.publish.ScheduledPost)

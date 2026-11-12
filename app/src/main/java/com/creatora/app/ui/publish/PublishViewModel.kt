@@ -42,7 +42,7 @@ import com.creatora.app.domain.repository.DailyUsageRepository
 import com.creatora.app.domain.repository.LicenceRepository
 import com.creatora.app.domain.repository.AssetRepository
 import com.creatora.app.domain.repository.ProjectRepository
-import com.creatora.app.domain.repository.ScheduledPostRepository
+import com.creatora.app.domain.repository.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
@@ -122,7 +122,7 @@ class PublishViewModel @Inject constructor(
     private val auth: AuthService,
     private val plans: PlanResolver,
     private val daily: DailyUsageRepository,
-    private val posts: ScheduledPostRepository,
+    private val posts: PostRepository,
     private val ai: AiTasks,
     private val loader: ChannelOverviewLoader,
     private val registry: PlatformRegistry,

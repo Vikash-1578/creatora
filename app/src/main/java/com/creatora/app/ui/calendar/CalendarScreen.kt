@@ -56,8 +56,9 @@ import java.util.Locale
 fun CalendarScreen(onBack: () -> Unit, modifier: Modifier = Modifier, viewModel: CalendarViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     CalendarContent(
-        state, onBack, modifier,
+        state, onBack,
         CalendarActions(viewModel::setMode, viewModel::select, viewModel::step, viewModel::startMove, viewModel::cancelMove, viewModel::moveTo, viewModel::cancel, viewModel::retry, viewModel::dismissProblem),
+        modifier,
     )
 }
 

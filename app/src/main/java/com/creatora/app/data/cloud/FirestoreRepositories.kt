@@ -20,7 +20,7 @@ import com.creatora.app.domain.repository.DailyUsageRepository
 import com.creatora.app.domain.repository.GoalRepository
 import com.creatora.app.domain.publish.PostStatus
 import com.creatora.app.domain.publish.ScheduledPost
-import com.creatora.app.domain.repository.ScheduledPostRepository
+import com.creatora.app.domain.repository.PostRepository
 import com.creatora.app.domain.repository.UpcomingPost
 import com.creatora.app.domain.repository.UpcomingPostRepository
 import com.creatora.app.domain.home.CreatorIdea
@@ -357,7 +357,7 @@ class FirestoreUpcomingPostRepository @Inject constructor(private val config: Cl
     }
 }
 
-class FirestoreScheduledPostRepository @Inject constructor(private val config: CloudConfig) : ScheduledPostRepository {
+class FirestorePostRepository @Inject constructor(private val config: CloudConfig) : PostRepository {
     private fun collection(uid: String) = userDoc(uid).collection("scheduledPosts")
 
     override fun observe(uid: String): Flow<List<ScheduledPost>> =

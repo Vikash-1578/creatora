@@ -39,7 +39,7 @@ import com.creatora.app.domain.repository.ErrorReporter
 import com.creatora.app.domain.repository.NotificationInboxRepository
 import com.creatora.app.domain.repository.NotificationPrefsRepository
 import com.creatora.app.domain.repository.ProjectRepository
-import com.creatora.app.domain.repository.ScheduledPostRepository
+import com.creatora.app.domain.repository.PostRepository
 import com.creatora.app.domain.repository.SettingsRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.first
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface PublishEntryPoint {
-    fun posts(): ScheduledPostRepository
+    fun posts(): PostRepository
     fun projects(): ProjectRepository
     fun publishers(): PublisherRegistry
     fun uploader(): YouTubeUploader

@@ -455,7 +455,7 @@ class FakePlatformLogin(
     override suspend fun signIn(): com.creatora.app.domain.platform.LoginOutcome { calls++; return outcome }
 }
 
-class FakeScheduledPosts : com.creatora.app.domain.repository.ScheduledPostRepository {
+class FakeScheduledPosts : com.creatora.app.domain.repository.PostRepository {
     val posts = MutableStateFlow<Map<String, com.creatora.app.domain.publish.ScheduledPost>>(emptyMap())
     var failSave = false
     override fun observe(uid: String): Flow<List<com.creatora.app.domain.publish.ScheduledPost>> = posts.map { it.values.toList() }
