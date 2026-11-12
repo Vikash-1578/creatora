@@ -70,15 +70,26 @@ data class Snapshot(
     val watchHours: Change?,
     val subscribersNet: Change?,
     val earningsUsd: Change?,
+    /** Views per day for the mini chart; null when not available. */
+    val viewsSeries: List<Long>? = null,
 )
 
-fun buildSnapshot(subscribers: Long?, current: PeriodMetrics?, previous: PeriodMetrics?): Snapshot = Snapshot(
+fun buildSnapshot(subscribers: Long?, current: PeriodMetrics?, previous: PeriodMetrics?, viewsSeries: List<Long>? = null): Snapshot = Snapshot(
     subscribers = subscribers,
     views = current?.let { Change(it.views.toDouble(), previous?.views?.toDouble()) },
     watchHours = current?.watchMinutes?.let { Change(it / 60.0, previous?.watchMinutes?.let { p -> p / 60.0 }) },
     subscribersNet = current?.netSubscribers?.let { Change(it.toDouble(), previous?.netSubscribers?.toDouble()) },
     earningsUsd = current?.revenueUsd?.let { Change(it, previous?.revenueUsd) },
+    viewsSeries = viewsSeries,
 )
+
+/** Adds the daily series of several accounts day by day; null when any is missing or they differ in length (nothing is guessed). */
+fun sumSeries(list: List<List<Long>?>): List<Long>? {
+    if (list.isEmpty() || list.any { it == null }) return null
+    val all = list.filterNotNull()
+    if (all.map { it.size }.distinct().size != 1) return null
+    return all.first().indices.map { i -> all.sumOf { it[i] } }
+}
 
 // ---------------------------------------------------------------- recent uploads
 

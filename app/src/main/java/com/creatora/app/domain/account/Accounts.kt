@@ -201,6 +201,10 @@ interface PlatformAdapter {
     /** Public details for several channels at once. */
     suspend fun channels(ids: List<String>): AdapterOutcome<List<ChannelPreview>>
 
+    /** Views for each day from [startDate] to [endDate] (inclusive, oldest first) of an owned channel, for the mini chart. Platforms that give no daily series say so. */
+    suspend fun dailyViews(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<List<Long>> =
+        AdapterOutcome.Failed(AdapterError.NotAvailable("No daily numbers from this platform"))
+
     /** The top comments of a video, plain text. Fails when the uploader turned comments off. */
     suspend fun topComments(videoId: String, limit: Int = 50): AdapterOutcome<List<String>>
 }
