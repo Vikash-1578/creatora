@@ -205,6 +205,10 @@ interface PlatformAdapter {
     suspend fun dailyViews(channelId: String, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<List<Long>> =
         AdapterOutcome.Failed(AdapterError.NotAvailable("No daily numbers from this platform"))
 
+    /** One analytics report of an owned channel for [startDate] to [endDate], as rows of column name to value. Platforms without such reports say so. */
+    suspend fun report(channelId: String, query: com.creatora.app.domain.grow.ReportQuery, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<List<Map<String, Any?>>> =
+        AdapterOutcome.Failed(AdapterError.NotAvailable("No analytics reports from this platform"))
+
     /** The top comments of a video, plain text. Fails when the uploader turned comments off. */
     suspend fun topComments(videoId: String, limit: Int = 50): AdapterOutcome<List<String>>
 }
@@ -231,6 +235,12 @@ object YouTubeScopes {
     const val READ = "https://www.googleapis.com/auth/youtube.readonly"
     const val ANALYTICS = "https://www.googleapis.com/auth/yt-analytics.readonly"
     const val MONETARY = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
+
+    /** Asked for when the user first posts to YouTube. */
+    const val UPLOAD = "https://www.googleapis.com/auth/youtube.upload"
+
+    /** Needed only to change the time of a post that is already uploaded (`videos.update`). */
+    const val MANAGE = "https://www.googleapis.com/auth/youtube"
 
     /** Asked for at sign-in. `youtube.upload` is asked later, when publishing needs it. */
     val SIGN_IN = listOf(READ, ANALYTICS, MONETARY)

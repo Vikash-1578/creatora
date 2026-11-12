@@ -39,6 +39,7 @@ class WizardViewModelTest {
     private val assets = FakeAssetRepository()
     private val licences = FakeLicenceRepository()
     private val speech = FakeSpeechPlayer()
+    private val kit = com.creatora.app.testutil.PlanKit()
     private val aiService = com.creatora.app.testutil.FakeAiService(com.creatora.app.testutil.okReply("HOOK: Hook text\nSTRUCTURE: Body text\nCTA: Call text"))
 
     private suspend fun newProject(project: Project = Project(title = "Video", format = VideoFormat.LONG_VIDEO)): Long =
@@ -47,6 +48,8 @@ class WizardViewModelTest {
     private fun viewModel(projectId: Long) = WizardViewModel(
         SavedStateHandle(mapOf(WizardViewModel.ARG_PROJECT_ID to projectId)),
         projects, characters, voices, assets, licences, speech, com.creatora.app.domain.ai.AiTasks(aiService),
+        kit.auth, kit.plans, kit.daily, kit.usage,
+        com.creatora.app.domain.create.AiImages(kit.generator, assets, licences, kit.usage, kit.daily, kit.plans, kit.auth),
     )
 
     private fun TestScope.open(projectId: Long): WizardViewModel {

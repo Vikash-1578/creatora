@@ -38,10 +38,21 @@ fun AppearanceSettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
     languageViewModel: LanguageViewModel = hiltViewModel(),
+    regionViewModel: RegionViewModel = hiltViewModel(),
 ) {
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val language by languageViewModel.language.collectAsStateWithLifecycle()
-    AppearanceContent(themeMode, viewModel::onThemeModeSelected, language, languageViewModel::choose, onBack, modifier)
+    val region by regionViewModel.region.collectAsStateWithLifecycle()
+    AppearanceContent(
+        themeMode = themeMode,
+        onThemeMode = viewModel::onThemeModeSelected,
+        language = language,
+        onLanguage = languageViewModel::choose,
+        region = region,
+        onRegion = regionViewModel::select,
+        onBack = onBack,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -50,6 +61,8 @@ fun AppearanceContent(
     onThemeMode: (ThemeMode) -> Unit,
     language: AppLanguage?,
     onLanguage: (AppLanguage) -> Unit,
+    region: String = DEFAULT_REGION,
+    onRegion: (String) -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -83,8 +96,40 @@ fun AppearanceContent(
                 }
             }
         }
+        Column {
+            SectionTitle(text = stringResource(R.string.settings_region))
+            Text(
+                text = stringResource(R.string.settings_region_description),
+                style = CreatoraTheme.typography.body,
+                color = CreatoraTheme.colors.textMuted,
+                modifier = Modifier.padding(bottom = CreatoraTheme.spacing.md),
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(CreatoraTheme.spacing.sm),
+            ) {
+                REGION_OPTIONS.forEach { option ->
+                    ChoiceChip(
+                        label = stringResource(option.label),
+                        selected = region == option.code,
+                        onClick = { onRegion(option.code) },
+                    )
+                }
+            }
+        }
     }
 }
+
+private data class RegionOption(val code: String, @StringRes val label: Int)
+
+private val REGION_OPTIONS = listOf(
+    RegionOption("IN", R.string.region_india),
+    RegionOption("US", R.string.region_united_states),
+    RegionOption("GB", R.string.region_united_kingdom),
+    RegionOption("AU", R.string.region_australia),
+)
 
 /** Segmented System / Light / Dark choice. */
 @Composable
@@ -149,11 +194,15 @@ internal fun ThemeMode.labelRes(): Int = when (this) {
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun AppearanceLightPreview() {
-    CreatoraTheme(darkTheme = false) { AppearanceContent(ThemeMode.LIGHT, {}, AppLanguage.ENGLISH, {}, {}) }
+    CreatoraTheme(darkTheme = false) {
+        AppearanceContent(ThemeMode.LIGHT, {}, AppLanguage.ENGLISH, {}, DEFAULT_REGION, {}, {})
+    }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun AppearanceDarkPreview() {
-    CreatoraTheme(darkTheme = true) { AppearanceContent(ThemeMode.DARK, {}, AppLanguage.HINDI, {}, {}) }
+    CreatoraTheme(darkTheme = true) {
+        AppearanceContent(ThemeMode.DARK, {}, AppLanguage.HINDI, {}, "IN", {}, {})
+    }
 }

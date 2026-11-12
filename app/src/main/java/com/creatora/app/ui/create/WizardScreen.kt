@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.creatora.app.R
 import com.creatora.app.domain.model.Character
 import com.creatora.app.domain.model.Project
+import com.creatora.app.domain.model.StepState
 import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.VoicePreset
 import com.creatora.app.domain.model.WizardStep
@@ -65,6 +66,18 @@ class WizardActions(
     val onPublishText: () -> Unit = {},
     val onDismissPublishText: () -> Unit = {},
     val onOpenAiProviders: () -> Unit = {},
+    val onAngle: (String) -> Unit = {},
+    val onTone: (String) -> Unit = {},
+    val onAudience: (String) -> Unit = {},
+    val onTarget: (Int) -> Unit = {},
+    val onSuggestBrief: () -> Unit = {},
+    val onRewriteLine: (String, String) -> Unit = { _, _ -> },
+    val onShorten: () -> Unit = {},
+    val onMakeImage: (String) -> Unit = {},
+    val onFixStep: (Int) -> Unit = {},
+    val onRunAuto: () -> Unit = {},
+    val onFinishAuto: () -> Unit = {},
+    val onCancelAuto: () -> Unit = {},
 )
 
 @Composable
@@ -74,6 +87,7 @@ fun WizardScreen(
     onOpenAiProviders: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenPublish: (projectId: Long) -> Unit = {},
     viewModel: WizardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -101,6 +115,18 @@ fun WizardScreen(
         onPublishText = viewModel::generatePublishText,
         onDismissPublishText = viewModel::dismissPublishText,
         onOpenAiProviders = onOpenAiProviders,
+        onAngle = viewModel::setAngle,
+        onTone = viewModel::setTone,
+        onAudience = viewModel::setAudience,
+        onTarget = viewModel::setTargetSeconds,
+        onSuggestBrief = viewModel::suggestBrief,
+        onRewriteLine = viewModel::rewriteLine,
+        onShorten = viewModel::shortenScript,
+        onMakeImage = viewModel::makeImage,
+        onFixStep = viewModel::goToStep,
+        onRunAuto = viewModel::runAuto,
+        onFinishAuto = viewModel::finishAuto,
+        onCancelAuto = viewModel::cancelAuto,
     )
     WizardContent(
         state = state,
@@ -111,7 +137,7 @@ fun WizardScreen(
             onClose()
         },
         onClose = onClose,
-        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail) },
+        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail, onOpenPublish = onOpenPublish, autoStart = state.autoRender) },
         modifier = modifier,
     )
 }
@@ -164,6 +190,16 @@ fun WizardContent(
                     color = CreatoraTheme.colors.text,
                     modifier = Modifier.semantics { heading() },
                 )
+                project?.stepStates?.get(state.step)?.let { stepState ->
+                    val label = when (stepState) {
+                        StepState.EMPTY -> null
+                        StepState.AI_DRAFT -> R.string.wizard_state_ai
+                        StepState.EDITED -> R.string.wizard_state_edited
+                        StepState.APPROVED -> R.string.wizard_state_approved
+                        StepState.OUT_OF_DATE -> R.string.wizard_state_out_of_date
+                    }
+                    label?.let { Text(stringResource(it), style = CreatoraTheme.typography.caption, color = if (stepState == StepState.OUT_OF_DATE) CreatoraTheme.colors.warning else CreatoraTheme.colors.accentText) }
+                }
             }
         }
         ProgressSegments(
@@ -184,7 +220,7 @@ fun WizardContent(
                     verticalArrangement = Arrangement.spacedBy(spacing.md),
                 ) {
                     when (state.step) {
-                        WizardStep.BRIEF -> BriefStep(project, actions)
+                        WizardStep.BRIEF -> BriefStep(project, state, actions)
                         WizardStep.SCRIPT -> ScriptStep(project, state, actions)
                         WizardStep.CAST -> CastStep(project, state, actions)
                         WizardStep.VOICE -> VoiceStep(project, state, actions)
@@ -218,6 +254,7 @@ fun WizardContent(
         }
     }
 
+    state.auto?.let { AutoDialog(it, actions) }
     state.ai.draft?.let { DraftDialog(it, actions.onApplyDraft, actions.onDismissDraft) }
     state.ai.publishText?.let { PublishTextDialog(it, actions.onDismissPublishText) }
 }

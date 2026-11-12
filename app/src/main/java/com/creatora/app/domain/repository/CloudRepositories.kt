@@ -63,7 +63,23 @@ interface UserRepository {
 interface UsageRepository {
     /** AI actions used in [monthKey]. */
     fun observe(uid: String, monthKey: String): Flow<Int>
-    suspend fun increment(uid: String, monthKey: String)
+    suspend fun increment(uid: String, monthKey: String, amount: Int = 1)
+}
+
+/** What was made today: finished videos and AI images (`users/{uid}/usage/daily_{yyyyMMdd}`). Counted on the phone for now. */
+data class DailyUsage(val videos: Int = 0, val aiImages: Int = 0, val publishes: Int = 0)
+
+interface DailyUsageRepository {
+    fun observe(uid: String, day: String): Flow<DailyUsage>
+    suspend fun add(uid: String, day: String, videos: Int = 0, aiImages: Int = 0, publishes: Int = 0)
+}
+
+/** The posts Creatora made or scheduled, one document per destination, in `users/{uid}/scheduledPosts`. */
+interface PostRepository {
+    fun observe(uid: String): Flow<List<com.creatora.app.domain.publish.ScheduledPost>>
+    suspend fun get(uid: String, id: String): com.creatora.app.domain.publish.ScheduledPost?
+    suspend fun save(uid: String, post: com.creatora.app.domain.publish.ScheduledPost)
+    suspend fun delete(uid: String, id: String)
 }
 
 interface ConnectedAccountRepository {

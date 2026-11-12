@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Science
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,6 +39,8 @@ fun GrowScreen(
     onConnectChannel: () -> Unit,
     onOpenCreate: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenAnalytics: () -> Unit = {},
+    onOpenEarn: () -> Unit = {},
     accountsViewModel: ResearchViewModel = hiltViewModel(),
     cardsViewModel: ChannelCardsViewModel = hiltViewModel(),
 ) {
@@ -56,11 +59,12 @@ fun GrowScreen(
             if (header != null && accounts.isEmpty()) {
                 val connect = stringResource(R.string.grow_action_connect)
                 FeatureCard(Icons.Outlined.BarChart, stringResource(R.string.grow_analytics), stringResource(R.string.grow_analytics_body), connect, onConnectChannel)
-                FeatureCard(Icons.Outlined.ChatBubbleOutline, stringResource(R.string.grow_comments), stringResource(R.string.grow_comments_body), connect, onConnectChannel)
-                FeatureCard(Icons.Outlined.Science, stringResource(R.string.grow_tests), stringResource(R.string.grow_tests_body), stringResource(R.string.grow_action_create), onOpenCreate)
-                FeatureCard(Icons.Outlined.Checklist, stringResource(R.string.grow_audit), stringResource(R.string.grow_audit_body), connect, onConnectChannel)
+                FeatureCard(Icons.Outlined.Payments, stringResource(R.string.earn_title), stringResource(R.string.grow_earn_body), connect, onConnectChannel)
             } else if (header != null) {
                 AccountSwitcher(accounts, header!!.selection, accountsViewModel::select)
+                val open = stringResource(R.string.grow_action_open)
+                FeatureCard(Icons.Outlined.BarChart, stringResource(R.string.grow_analytics), stringResource(R.string.grow_analytics_body), open, onOpenAnalytics)
+                FeatureCard(Icons.Outlined.Payments, stringResource(R.string.earn_title), stringResource(R.string.grow_earn_body), open, onOpenEarn)
                 SnapshotSection(cards, cardsViewModel::setHideAmounts, cardsViewModel::refresh)
                 UploadsSection(cards, cardsViewModel::explain)
                 StreakSection(cards, cardsViewModel::setStreakUnit)

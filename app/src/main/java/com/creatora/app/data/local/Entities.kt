@@ -12,7 +12,11 @@ import com.creatora.app.domain.model.Character
 import com.creatora.app.domain.model.Idea
 import com.creatora.app.domain.model.LicenceEntry
 import com.creatora.app.domain.model.Platform
+import com.creatora.app.domain.create.decodeStates
+import com.creatora.app.domain.create.encodeStates
+import com.creatora.app.domain.model.CreateMode
 import com.creatora.app.domain.model.Project
+import com.creatora.app.domain.model.StartSource
 import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.ScheduledPost
 import com.creatora.app.domain.model.VoicePreset
@@ -40,6 +44,28 @@ data class ProjectEntity(
     @ColumnInfo(defaultValue = "0") val step: Int,
     @ColumnInfo(defaultValue = "0") val isReady: Boolean,
     val renderUri: String?,
+    // Phase D. Text columns are nullable and the others have defaults, so Room can add them to existing rows.
+    val mode: String?,
+    val startedFrom: String?,
+    val sourceLink: String?,
+    val concept: String?,
+    val angle: String?,
+    val tone: String?,
+    val audience: String?,
+    @ColumnInfo(defaultValue = "0") val targetSeconds: Int,
+    val stepStates: String?,
+    @ColumnInfo(defaultValue = "0") val counted: Boolean,
+    // Phase E. Everything nullable so Room can add the columns to existing rows.
+    val publishTitle: String?,
+    val publishDescription: String?,
+    /** Hashtags and tags, newline-separated. */
+    val publishHashtags: String?,
+    val publishTags: String?,
+    val thumbnailUri: String?,
+    val aiContent: Boolean?,
+    val madeForKids: Boolean?,
+    /** Captions by platform as JSON. */
+    val captions: String?,
 )
 
 @Entity(
@@ -135,13 +161,30 @@ fun ProjectEntity.toModel() = Project(
     brief.orEmpty(), hook.orEmpty(), structure.orEmpty(), callToAction.orEmpty(), pronunciations.orEmpty(),
     castIds.orEmpty().split(',').mapNotNull { it.toLongOrNull() },
     narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
+    CreateMode.entries.firstOrNull { it.name == mode } ?: CreateMode.STEP_BY_STEP,
+    StartSource.entries.firstOrNull { it.name == startedFrom },
+    sourceLink.orEmpty(), concept.orEmpty(), angle.orEmpty(), tone.orEmpty(), audience.orEmpty(), targetSeconds,
+    decodeStates(stepStates), counted,
+    publishTitle.orEmpty(), publishDescription.orEmpty(), publishHashtags.orEmpty().lines().filter { it.isNotBlank() },
+    publishTags.orEmpty().lines().filter { it.isNotBlank() }, thumbnailUri, aiContent, madeForKids, decodeCaptions(captions),
 )
 
 fun Project.toEntity() = ProjectEntity(
     id, title, isTemplate, createdAt, updatedAt, format,
     brief, hook, structure, callToAction, pronunciations, castIds.joinToString(","),
     narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
+    mode.name, startedFrom?.name, sourceLink, concept, angle, tone, audience, targetSeconds, encodeStates(stepStates), counted,
+    publishTitle, publishDescription, publishHashtags.joinToString("\n"), publishTags.joinToString("\n"), thumbnailUri, aiContent, madeForKids,
+    encodeCaptions(captions),
 )
+
+private fun encodeCaptions(captions: Map<String, String>): String? =
+    if (captions.isEmpty()) null else org.json.JSONObject(captions as Map<*, *>).toString()
+
+private fun decodeCaptions(json: String?): Map<String, String> = runCatching {
+    val o = org.json.JSONObject(json ?: return emptyMap())
+    o.keys().asSequence().associateWith { o.getString(it) }
+}.getOrDefault(emptyMap())
 
 fun IdeaEntity.toModel() = Idea(id, title, notes, projectId, createdAt)
 fun Idea.toEntity() = IdeaEntity(id, title, notes, projectId, createdAt)
