@@ -57,6 +57,7 @@ com.creatora.app
 │   ├── settings/        # DataStore-backed SettingsRepository and BrandKitRepository
 │   └── di/              # Hilt modules: database, DataStore, repository bindings
 ├── domain/
+│   ├── create/ score/   # plan gating, start methods and Auto mode, AI pictures, Video Score (pure logic)
 │   ├── model/           # plain Kotlin models (Models.kt, ThemeMode)
 │   └── repository/      # repository interfaces (Repositories.kt, SettingsRepository)
 └── core/                # shared utilities (empty until needed)

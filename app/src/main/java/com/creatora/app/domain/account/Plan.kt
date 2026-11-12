@@ -3,10 +3,15 @@ package com.creatora.app.domain.account
 import java.util.Calendar
 import java.util.TimeZone
 
-/** The user's plan. The limits are placeholders for the manager to confirm. */
-enum class Plan(val aiLimit: Int, val maxAccounts: Int, val dailyIdeas: Int, val maxCompetitors: Int) {
-    FREE(aiLimit = 50, maxAccounts = 1, dailyIdeas = 3, maxCompetitors = 3),
-    PRO(aiLimit = 1000, maxAccounts = 5, dailyIdeas = 10, maxCompetitors = 20);
+/** The user's plan. Every number lives in [PlanLimits]. */
+enum class Plan {
+    FREE, PRO;
+
+    val limits: Limits get() = PlanLimits.of(this)
+    val aiLimit: Int get() = limits.aiActionsPerMonth
+    val maxAccounts: Int get() = limits.accounts
+    val dailyIdeas: Int get() = limits.dailyIdeas
+    val maxCompetitors: Int get() = limits.competitors
 
     companion object {
         fun fromName(name: String?): Plan = entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: FREE

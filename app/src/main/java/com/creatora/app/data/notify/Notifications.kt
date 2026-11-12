@@ -22,6 +22,7 @@ fun NotificationCategory.nameRes(): Int = when (this) {
     NotificationCategory.VIEW_MILESTONES -> R.string.notify_view_milestones
     NotificationCategory.EARNINGS -> R.string.notify_earnings
     NotificationCategory.PLAN_USAGE -> R.string.notify_plan_usage
+    NotificationCategory.POSTS -> R.string.notify_posts
 }
 
 object NotificationChannels {

@@ -16,6 +16,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,9 +44,15 @@ fun RenderPanel(
     onOpenLibrary: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenPublish: (projectId: Long) -> Unit = {},
+    autoStart: Boolean = false,
     viewModel: RenderViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // Auto mode: render once when the Generate step opens, unless a video already exists or one is running.
+    LaunchedEffect(autoStart, state.project?.id) {
+        if (autoStart && state.project != null && state.phase is RenderPhase.Idle && state.resultUri == null) viewModel.render()
+    }
     RenderContent(
         state = state,
         onRatio = viewModel::setRatio,
@@ -57,6 +64,7 @@ fun RenderPanel(
         onSaveTo = viewModel::saveTo,
         onOpenLibrary = onOpenLibrary,
         onOpenThumbnail = { state.project?.let { onOpenThumbnail(it.id) } },
+        onPublish = { state.project?.let { onOpenPublish(it.id) } },
         modifier = modifier,
     )
 }
@@ -74,6 +82,7 @@ fun RenderContent(
     onOpenLibrary: () -> Unit,
     onOpenThumbnail: () -> Unit,
     modifier: Modifier = Modifier,
+    onPublish: () -> Unit = {},
 ) {
     val spacing = CreatoraTheme.spacing
     val colors = CreatoraTheme.colors
@@ -171,6 +180,7 @@ fun RenderContent(
                 onSaveToGallery = { onSaveToGallery(File(uri).name) },
                 onSaveTo = onSaveTo,
             )
+            PrimaryButton(stringResource(R.string.publish_go), onPublish, Modifier.fillMaxWidth())
         }
 
         SecondaryButton(stringResource(R.string.thumbnail_make), onOpenThumbnail)
@@ -206,6 +216,9 @@ private fun RenderProblem.messageRes() = when (this) {
     RenderProblem.NO_FOOTAGE -> R.string.render_error_no_footage
     RenderProblem.NO_VOICE -> R.string.render_error_no_voice
     RenderProblem.RENDER_FAILED -> R.string.render_error_failed
+    RenderProblem.FORMAT_LOCKED -> R.string.render_error_format_locked
+    RenderProblem.TOO_LONG -> R.string.render_error_too_long
+    RenderProblem.DAILY_LIMIT -> R.string.render_error_daily_limit
 }
 
 @Composable

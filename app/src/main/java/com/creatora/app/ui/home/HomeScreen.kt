@@ -82,6 +82,7 @@ class HomeActions(
     val addGoal: (com.creatora.app.domain.account.GoalMetric, Long, Int) -> Unit = { _, _, _ -> },
     val editGoal: (Goal, Long, Int) -> Unit = { _, _, _ -> },
     val keywords: () -> Unit = {},
+    val calendar: () -> Unit = {},
     val goalAdvice: (Boolean) -> Unit = {},
     val goalAdviceDismiss: () -> Unit = {},
     val deleteGoal: (Goal) -> Unit = {},
@@ -107,6 +108,7 @@ fun HomeScreen(
     onProjectOpened: (projectId: Long) -> Unit,
     onNewVideo: () -> Unit,
     onOpenResearch: () -> Unit,
+    onOpenCalendar: () -> Unit = {},
     onOpenThumbnail: (projectId: Long) -> Unit,
     onConnectChannel: () -> Unit,
     modifier: Modifier = Modifier,
@@ -140,7 +142,7 @@ fun HomeScreen(
             celebrated = goalsViewModel::dismissCelebration, goalAdvice = goalsViewModel::answerAdvice, goalAdviceDismiss = goalsViewModel::dismissAdvice, streakUnit = cardsViewModel::setStreakUnit,
             openVideo = { video -> runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=${video.id}"))) } },
             useAsIdea = trendingViewModel::useAsIdea, refreshTrending = trendingViewModel::refresh,
-            newVideo = onNewVideo, keywords = onOpenResearch, ideasQuick = onOpenCoach,
+            newVideo = onNewVideo, keywords = onOpenResearch, calendar = onOpenCalendar, ideasQuick = onOpenCoach,
             thumbnail = { model.home.continueProject?.let { onOpenThumbnail(it.id) } },
         ),
         onWhyClosed = cardsViewModel::closeWhy,
@@ -168,7 +170,7 @@ fun HomeContent(model: HomeModel, actions: HomeActions, why: WhyState = WhyState
             if (hasAccounts) IdeasSection(model.ideas, actions.ideaCreate, actions.ideaSave, actions.ideaDismiss, actions.keywords)
             model.home.continueProject?.let { ContinueCard(it, actions.continueProject) }
             if (hasAccounts) UploadsSection(model.cards, actions.openUpload, actions.keywords)
-            if (hasAccounts) UpcomingSection(model.home.upcoming, actions.newVideo)
+            if (hasAccounts) UpcomingSection(model.home.upcoming, actions.newVideo, actions.calendar)
             if (hasAccounts) GoalsSection(
                 model.goals, canAdd = true,
                 onAdd = { editing = null; goalDialog = true },
@@ -236,8 +238,8 @@ private fun ContinueCard(project: Project, onContinue: (Long) -> Unit) {
 }
 
 @Composable
-private fun UpcomingSection(posts: List<UpcomingPost>, onPlan: () -> Unit) {
-    HomeSection(R.string.home_upcoming_title, icon = Icons.Outlined.Event) {
+private fun UpcomingSection(posts: List<UpcomingPost>, onPlan: () -> Unit, onSeeAll: () -> Unit) {
+    HomeSection(R.string.home_upcoming_title, icon = Icons.Outlined.Event, onSeeAll = onSeeAll) {
         HomeCard {
             if (posts.isEmpty()) {
                 BodyText(stringResource(R.string.home_upcoming_empty))

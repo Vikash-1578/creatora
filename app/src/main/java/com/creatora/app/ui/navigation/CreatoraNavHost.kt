@@ -18,6 +18,7 @@ import com.creatora.app.ui.create.CreateScreen
 import com.creatora.app.ui.create.WizardScreen
 import com.creatora.app.ui.create.WizardViewModel
 import com.creatora.app.ui.earn.EarnScreen
+import com.creatora.app.ui.grow.AnalyticsScreen
 import com.creatora.app.ui.grow.GrowScreen
 import com.creatora.app.ui.help.HelpScreen
 import com.creatora.app.ui.home.HomeScreen
@@ -38,6 +39,9 @@ import com.creatora.app.ui.settings.NotificationSettingsScreen
 import com.creatora.app.ui.settings.PrivacyScreen
 import com.creatora.app.ui.settings.SettingsDestinations
 import com.creatora.app.ui.settings.SettingsScreen
+import com.creatora.app.ui.calendar.CalendarScreen
+import com.creatora.app.ui.publish.PublishScreen
+import com.creatora.app.ui.publish.PublishViewModel
 import com.creatora.app.ui.thumbnail.ThumbnailScreen
 import com.creatora.app.ui.thumbnail.ThumbnailViewModel
 
@@ -47,6 +51,8 @@ object Routes {
     const val RESEARCH = "research"
     const val CREATE = "create"
     const val GROW = "grow"
+    const val GROW_ANALYTICS = "grow/analytics"
+    const val GROW_EARN = "grow/earn"
     const val LIBRARY = "library"
 
     // Screens shown without the bottom bar
@@ -65,6 +71,8 @@ object Routes {
     const val WIZARD = "wizard/{projectId}"
     const val AI_PROVIDERS = "ai_providers"
     const val THUMBNAIL = "thumbnail/{projectId}"
+    const val PUBLISH = "publish/{projectId}"
+    const val CALENDAR = "calendar"
     const val COACH = "coach"
     const val NOTIFICATIONS = "notifications"
     const val COMPETITOR = "research/competitor/{channelId}"
@@ -75,6 +83,8 @@ object Routes {
     fun competitor(channelId: String) = "research/competitor/$channelId"
 
     fun thumbnail(projectId: Long) = "thumbnail/$projectId"
+
+    fun publish(projectId: Long) = "publish/$projectId"
 
     fun licences(assetId: Long?) = "licences?assetId=${assetId ?: LicencesViewModel.ALL}"
 }
@@ -111,6 +121,7 @@ fun CreatoraNavHost(
                     onProjectOpened = { id -> navController.navigate(Routes.wizard(id)) },
                     onNewVideo = { navController.navigateToTab(TopLevelTab.CREATE) },
                     onOpenResearch = { navController.navigateToTab(TopLevelTab.RESEARCH) },
+                    onOpenCalendar = { navController.navigate(Routes.CALENDAR) },
                     onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
                     onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                 )
@@ -139,6 +150,7 @@ fun CreatoraNavHost(
                 CreateScreen(
                     onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) },
                     onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                    onUpgrade = dropUnlessResumed { navController.navigate(Routes.SETTINGS_BILLING) },
                 )
             }
         }
@@ -147,8 +159,13 @@ fun CreatoraNavHost(
                 GrowScreen(
                     onConnectChannel = dropUnlessResumed { navController.navigate(Routes.SETTINGS_ACCOUNT) },
                     onOpenCreate = { navController.navigateToTab(TopLevelTab.CREATE) },
+                    onOpenAnalytics = dropUnlessResumed { navController.navigate(Routes.GROW_ANALYTICS) },
+                    onOpenEarn = dropUnlessResumed { navController.navigate(Routes.GROW_EARN) },
                 )
             }
+            // Inside the Grow graph, so the bottom bar stays.
+            composable(Routes.GROW_ANALYTICS) { AnalyticsScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
+            composable(Routes.GROW_EARN) { EarnScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         }
         navigation(route = TopLevelTab.LIBRARY.graphRoute, startDestination = Routes.LIBRARY) {
             composable(Routes.LIBRARY) {
@@ -169,8 +186,20 @@ fun CreatoraNavHost(
                 onOpenLibrary = { navController.navigateToTab(TopLevelTab.LIBRARY) },
                 onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
                 onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
+                onOpenPublish = { id -> navController.navigate(Routes.publish(id)) },
             )
         }
+        composable(
+            route = Routes.PUBLISH,
+            arguments = listOf(navArgument(PublishViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),
+        ) {
+            PublishScreen(
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenThumbnail = { id -> navController.navigate(Routes.thumbnail(id)) },
+                onOpenCalendar = dropUnlessResumed { navController.navigate(Routes.CALENDAR) },
+            )
+        }
+        composable(Routes.CALENDAR) { CalendarScreen(onBack = dropUnlessResumed { navController.popBackStack() }) }
         composable(
             route = Routes.THUMBNAIL,
             arguments = listOf(navArgument(ThumbnailViewModel.ARG_PROJECT_ID) { type = NavType.LongType }),

@@ -58,6 +58,12 @@ import com.creatora.app.data.cloud.FirestoreAiHistoryRepository
 import com.creatora.app.data.cloud.CrashlyticsErrorReporter
 import com.creatora.app.domain.repository.ErrorReporter
 import com.creatora.app.data.cloud.FirestoreCacheRepository
+import com.creatora.app.data.cloud.FirebaseImageGenerator
+import com.creatora.app.data.create.HttpLinkReader
+import com.creatora.app.domain.create.ImageGenerator
+import com.creatora.app.domain.create.LinkReader
+import com.creatora.app.data.cloud.FirestoreDailyUsageRepository
+import com.creatora.app.domain.repository.DailyUsageRepository
 import com.creatora.app.data.cloud.FirestoreCompetitorRepository
 import com.creatora.app.data.cloud.FirestoreSearchLogRepository
 import com.creatora.app.data.research.CachedResearchRepository
@@ -147,10 +153,14 @@ abstract class CloudBindingsModule {
     @Binds abstract fun auth(impl: FirebaseAuthService): AuthService
     @Binds abstract fun users(impl: FirestoreUserRepository): UserRepository
     @Binds abstract fun usage(impl: FirestoreUsageRepository): UsageRepository
+    @Binds abstract fun dailyUsage(impl: FirestoreDailyUsageRepository): DailyUsageRepository
+    @Binds abstract fun linkReader(impl: HttpLinkReader): LinkReader
+    @Binds abstract fun imageGenerator(impl: FirebaseImageGenerator): ImageGenerator
     @Binds abstract fun accounts(impl: FirestoreConnectedAccountRepository): ConnectedAccountRepository
     @Binds abstract fun goals(impl: FirestoreGoalRepository): GoalRepository
     @Binds abstract fun creatorIdeas(impl: FirestoreCreatorIdeaRepository): CreatorIdeaRepository
     @Binds abstract fun upcomingPosts(impl: FirestoreUpcomingPostRepository): UpcomingPostRepository
+    @Binds abstract fun posts(impl: com.creatora.app.data.cloud.FirestorePostRepository): com.creatora.app.domain.repository.PostRepository
     @Binds abstract fun cache(impl: FirestoreCacheRepository): CacheRepository
     @Binds abstract fun homePrefs(impl: DataStoreHomePrefs): HomePrefsRepository
     @Binds abstract fun notificationInbox(impl: DataStoreNotificationInbox): NotificationInboxRepository

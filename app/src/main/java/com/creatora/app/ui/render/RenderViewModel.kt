@@ -3,6 +3,15 @@ package com.creatora.app.ui.render
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.creatora.app.domain.account.Plan
+import com.creatora.app.domain.account.PlanResolver
+import com.creatora.app.domain.create.RenderGate
+import com.creatora.app.domain.create.renderGate
+import com.creatora.app.domain.home.dayKey
+import com.creatora.app.domain.model.readingSeconds
+import com.creatora.app.domain.model.wordCount
+import com.creatora.app.domain.repository.AuthService
+import com.creatora.app.domain.repository.DailyUsageRepository
 import com.creatora.app.domain.model.Asset
 import com.creatora.app.domain.model.AssetType
 import com.creatora.app.domain.model.Project
@@ -44,7 +53,7 @@ data class RenderOptions(
 )
 
 /** Why a render could not start or finish. */
-enum class RenderProblem { NO_SCRIPT, NO_FOOTAGE, NO_VOICE, RENDER_FAILED }
+enum class RenderProblem { NO_SCRIPT, NO_FOOTAGE, NO_VOICE, RENDER_FAILED, FORMAT_LOCKED, TOO_LONG, DAILY_LIMIT }
 
 sealed interface RenderPhase {
     data object Idle : RenderPhase
@@ -81,6 +90,9 @@ class RenderViewModel @Inject constructor(
     private val probe: MediaProbe,
     private val renderer: VideoRenderer,
     private val saver: MediaSaver,
+    private val auth: AuthService,
+    private val plans: PlanResolver,
+    private val daily: DailyUsageRepository,
 ) : ViewModel() {
 
     private val projectId: Long = savedStateHandle[ARG_PROJECT_ID] ?: 0L
@@ -135,6 +147,16 @@ class RenderViewModel @Inject constructor(
     private suspend fun run(project: Project, state: RenderUiState): RenderProblem? {
         val sentences = splitSentences(project.script)
         if (sentences.isEmpty()) return RenderProblem.NO_SCRIPT
+        val uid = auth.user.first()?.uid
+        val day = dayKey(System.currentTimeMillis())
+        val plan = uid?.let { plans.plan(it) } ?: Plan.FREE
+        val videosToday = uid?.let { daily.observe(it, day).first().videos } ?: 0
+        when (renderGate(plan, project.format, readingSeconds(wordCount(project.script)), videosToday, project.counted)) {
+            RenderGate.Allowed -> Unit
+            RenderGate.FormatLocked -> return RenderProblem.FORMAT_LOCKED
+            is RenderGate.TooLong -> return RenderProblem.TOO_LONG
+            is RenderGate.DailyLimit -> return RenderProblem.DAILY_LIMIT
+        }
         val sources = state.footage.mapNotNull { asset ->
             when (asset.type) {
                 AssetType.IMAGE -> SceneSource(asset.uri, isVideo = false, durationMs = null)
@@ -166,7 +188,9 @@ class RenderViewModel @Inject constructor(
                 is RenderEvent.Progress -> phase.value = RenderPhase.Rendering(event.percent)
                 is RenderEvent.Failed -> problem = RenderProblem.RENDER_FAILED
                 is RenderEvent.Done -> {
-                    projects.save(project.copy(renderUri = event.uri, isReady = true, updatedAt = System.currentTimeMillis()))
+                    projects.save(project.copy(renderUri = event.uri, isReady = true, counted = true, updatedAt = System.currentTimeMillis()))
+                    // A re-render of the same project is not counted again.
+                    if (uid != null && !project.counted) daily.add(uid, day, videos = 1)
                     phase.value = RenderPhase.Done(event.uri)
                 }
             }

@@ -89,8 +89,8 @@ class FakeUserRepository : UserRepository {
 class FakeUsageRepository : UsageRepository {
     val counts = MutableStateFlow<Map<String, Int>>(emptyMap())
     override fun observe(uid: String, monthKey: String): Flow<Int> = counts.map { it["$uid/$monthKey"] ?: 0 }
-    override suspend fun increment(uid: String, monthKey: String) {
-        counts.value = counts.value + ("$uid/$monthKey" to ((counts.value["$uid/$monthKey"] ?: 0) + 1))
+    override suspend fun increment(uid: String, monthKey: String, amount: Int) {
+        counts.value = counts.value + ("$uid/$monthKey" to ((counts.value["$uid/$monthKey"] ?: 0) + amount))
     }
 
     fun set(uid: String, monthKey: String, value: Int) {
@@ -165,6 +165,14 @@ class FakeYouTubeAuthorizer(var outcome: AuthorizationOutcome = AuthorizationOut
 
 /** A platform adapter with canned answers. */
 class FakePlatformAdapter(override val platform: ConnectPlatform = ConnectPlatform.YOUTUBE) : PlatformAdapter {
+    /** Analytics reports by query; a query without an entry is refused. */
+    val reports = mutableMapOf<com.creatora.app.domain.grow.ReportQuery, AdapterOutcome<List<Map<String, Any?>>>>()
+    val reportCalls = mutableListOf<Triple<com.creatora.app.domain.grow.ReportQuery, java.time.LocalDate, java.time.LocalDate>>()
+    override suspend fun report(channelId: String, query: com.creatora.app.domain.grow.ReportQuery, startDate: java.time.LocalDate, endDate: java.time.LocalDate): AdapterOutcome<List<Map<String, Any?>>> {
+        reportCalls += Triple(query, startDate, endDate)
+        return reports[query] ?: AdapterOutcome.Failed(AdapterError.NotAvailable("refused"))
+    }
+
     var own: AdapterOutcome<List<ChannelPreview>> = AdapterOutcome.Ok(emptyList())
     var lookupResult: AdapterOutcome<ChannelPreview> = AdapterOutcome.Failed(AdapterError.NotFound)
     var videos: AdapterOutcome<List<VideoStats>> = AdapterOutcome.Ok(emptyList())
@@ -423,6 +431,16 @@ class FakeSearchLog : com.creatora.app.domain.repository.SearchLogRepository {
     override suspend fun record(uid: String, query: String, at: Long) { queries += query }
 }
 
+
+class FakeDailyUsage : com.creatora.app.domain.repository.DailyUsageRepository {
+    val byDay = MutableStateFlow<Map<String, com.creatora.app.domain.repository.DailyUsage>>(emptyMap())
+    override fun observe(uid: String, day: String): Flow<com.creatora.app.domain.repository.DailyUsage> = byDay.map { it[day] ?: com.creatora.app.domain.repository.DailyUsage() }
+    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int, publishes: Int) {
+        val now = byDay.value[day] ?: com.creatora.app.domain.repository.DailyUsage()
+        byDay.value = byDay.value + (day to now.copy(videos = now.videos + videos, aiImages = now.aiImages + aiImages, publishes = now.publishes + publishes))
+    }
+}
+
 class FakeErrorReporter : com.creatora.app.domain.repository.ErrorReporter {
     val recorded = mutableListOf<Throwable>()
     override fun record(error: Throwable) { recorded += error }
@@ -435,4 +453,16 @@ class FakePlatformLogin(
 ) : com.creatora.app.domain.platform.PlatformLogin {
     var calls = 0
     override suspend fun signIn(): com.creatora.app.domain.platform.LoginOutcome { calls++; return outcome }
+}
+
+class FakeScheduledPosts : com.creatora.app.domain.repository.PostRepository {
+    val posts = MutableStateFlow<Map<String, com.creatora.app.domain.publish.ScheduledPost>>(emptyMap())
+    var failSave = false
+    override fun observe(uid: String): Flow<List<com.creatora.app.domain.publish.ScheduledPost>> = posts.map { it.values.toList() }
+    override suspend fun get(uid: String, id: String) = posts.value[id]
+    override suspend fun save(uid: String, post: com.creatora.app.domain.publish.ScheduledPost) {
+        if (failSave) throw java.io.IOException("offline")
+        posts.value = posts.value + (post.id to post)
+    }
+    override suspend fun delete(uid: String, id: String) { posts.value = posts.value - id }
 }

@@ -17,6 +17,8 @@ reviewer merges PRs.
 | Phase B | Home: account switcher, snapshot, focus, daily ideas, uploads, goals, streak, trending | Merged (#16) |
 | **Phase C** | Research: My channel, Competitors, Trends, Keywords, Idea bank | In progress: spec in `docs/spec/03-research.md` |
 | Phase QA | Device-test fixes, emulator smoke test, Instagram / Facebook Pages / TikTok sign-in, data and publishers | In progress: see `docs/platform-setup.md` |
+| Phase E | Publish and Schedule (spec 05) | In review |
+| Phase F | Grow and Studio-style features (spec 06). First slice: Analytics (Overview, Content, Audience), Earnings, Monetization journey. Still to build: comments inbox, content manager, channel defaults, audit, A/B tests, new notification categories | In progress |
 | Phase D+ | Next screens, from the manager's approved specs | Not started |
 | Release | Release quality (1.0.0): full Hindi pass, accessibility, R8, signing | Planned |
 
@@ -55,6 +57,17 @@ built from an approved spec in `docs/spec/`.
 - [x] Cloud cache with time to live and "updated" time; refresh buttons show their quota cost
 - [ ] Rising searches (needs a Cloud Function that aggregates `users/*/searches`)
 - [ ] Thumbnail analysis (needs image input in the AI layer), audience and first-30-seconds retention for "why it did well"
+
+### Phase D checklist
+- [x] `PlanLimits`: one table for every plan limit (Free: Shorts/Reels only, 1 a day, 30 s, 5 AI pictures a day)
+- [x] Format tiles locked behind Pro with Upgrade; Avatar video "coming later"
+- [x] Start: from an idea, own topic or a link ("make my own version", never copies); Step by step or Auto mode
+- [x] Brief angle/length/tone/audience with "Let AI set it"; Script line-by-line AI actions and Shorten with AI
+- [x] Step states (AI draft, edited, approved, out of date); Auto mode with confirmed cost and progress
+- [x] AI pictures (daily cap, credits, licence "AI generated"); Video Score with reasons and Fix it
+- [x] Render gated by plan (format, 30 s, one a day, counted once per project)
+- [ ] Premium AI voices and recording own voice (need a server and a recorder)
+- [ ] Stock footage search, AI video clips, per-scene visuals and durations, Shorts from a long video, carousel export, brand kit auto-apply
 
 ## Deferred: rework M9–M12
 
