@@ -295,18 +295,21 @@ class FirestoreCreatorIdeaRepository @Inject constructor(private val config: Clo
     }
 }
 
-private fun DocumentSnapshot.toIdea(): CreatorIdea? = CreatorIdea(
-    id = id,
-    title = getString("title") ?: return null,
-    reason = getString("reason").orEmpty(),
-    score = getLong("score")?.toInt(),
-    status = IdeaStatus.entries.firstOrNull { it.name == getString("status") } ?: IdeaStatus.NEW,
-    source = getString("source").orEmpty(),
-    accountKey = getString("accountKey"),
-    day = getString("day").orEmpty(),
-    createdAt = getLong("createdAt") ?: 0,
-    projectId = getLong("projectId"),
-)
+private fun DocumentSnapshot.toIdea(): CreatorIdea? {
+    val title = getString("title") ?: return null
+    return CreatorIdea(
+        id = id,
+        title = title,
+        reason = getString("reason").orEmpty(),
+        score = getLong("score")?.toInt(),
+        status = IdeaStatus.entries.firstOrNull { it.name == getString("status") } ?: IdeaStatus.NEW,
+        source = getString("source").orEmpty(),
+        accountKey = getString("accountKey"),
+        day = getString("day").orEmpty(),
+        createdAt = getLong("createdAt") ?: 0,
+        projectId = getLong("projectId"),
+    )
+}
 
 class FirestoreUpcomingPostRepository @Inject constructor(private val config: CloudConfig) : UpcomingPostRepository {
     override fun observe(uid: String): Flow<List<UpcomingPost>> =

@@ -74,7 +74,7 @@ fun AdapterError.message(): String = stringResource(
 
 /** "↑ 1.2K (+12%) vs the previous 28 days", coloured by direction; or that there is no previous period. */
 @Composable
-fun ChangeText(change: Change, formatDelta: (Double) -> String, modifier: Modifier = Modifier) {
+fun ChangeText(change: Change, formatDelta: @Composable (Double) -> String, modifier: Modifier = Modifier) {
     val colors = CreatoraTheme.colors
     val delta = change.delta
     if (delta == null) {
