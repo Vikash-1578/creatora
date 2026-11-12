@@ -60,12 +60,14 @@ class FakeTransport(var response: HttpResponse = HttpResponse(200, ""), var offl
     }
 
     val putUrls = mutableListOf<String>()
+    val putBodies = mutableListOf<String>()
     val putHeaders = mutableListOf<Map<String, String>>()
     var putResponse = HttpResponse(200, "")
 
     override suspend fun put(url: String, headers: Map<String, String>, body: ByteArray): HttpResponse {
         if (offline) throw IOException("offline")
         putUrls += url
+        putBodies += String(body)
         putHeaders += headers
         return putResponse
     }

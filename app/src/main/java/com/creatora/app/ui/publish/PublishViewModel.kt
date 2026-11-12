@@ -168,7 +168,7 @@ class PublishViewModel @Inject constructor(
         combine(aiState, phase, plan, usage, footage) { a, p, pl, u, f -> Five(a, p, pl, u, f.first, f.second) },
     ) { project, accountItems, (edit, chosen), (scheduledAt, makePub, bestPair), rest ->
         val limits = PlanLimits.of(rest.plan)
-        val title = edit.title ?: project?.publishTitle?.ifBlank { project.title }.orEmpty()
+        val title = edit.title ?: project?.let { it.publishTitle.ifBlank { it.title } }.orEmpty()
         val description = edit.description ?: project?.publishDescription.orEmpty()
         val hashtags = edit.hashtags ?: project?.publishHashtags.orEmpty().joinToString(" ")
         val tags = edit.tags ?: project?.publishTags.orEmpty().joinToString(", ")
