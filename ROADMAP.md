@@ -46,7 +46,7 @@ built from an approved spec in `docs/spec/`.
 - [x] Goals (add, edit, delete, real progress, celebration once, weekly plan) and upload streak
 - [x] Trending in your niche (cached daily, quota-aware), quick actions, upcoming (empty until Publish phase)
 - [ ] Keyword search and Thumbnail quick actions open real screens (later phases)
-- [ ] Region choice in Settings (Home uses the saved region, default from the device)
+- [x] Region choice in Settings (Home uses the saved region, default from the device)
 
 ### Phase C checklist
 - [x] My channel: outlier score by age band (estimate), winners, what's not working, AI reasons, "Make more like this"

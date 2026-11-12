@@ -143,6 +143,12 @@
     <string name="settings_privacy">प्राइवेसी और सुरक्षा</string>
     <string name="settings_help_about">मदद और जानकारी</string>
     <string name="settings_language_description">ऐप की भाषा चुनें। यही AI के जवाबों की भाषा भी तय करती है।</string>
+    <string name="settings_region">ट्रेंडिंग क्षेत्र</string>
+    <string name="settings_region_description">Home और Research के ट्रेंडिंग नतीजों के लिए क्षेत्र चुनें। शुरुआत आपके डिवाइस के क्षेत्र से होती है।</string>
+    <string name="region_india">भारत</string>
+    <string name="region_united_states">संयुक्त राज्य</string>
+    <string name="region_united_kingdom">यूनाइटेड किंगडम</string>
+    <string name="region_australia">ऑस्ट्रेलिया</string>
     <string name="privacy_stored_title">क्या सेव होता है</string>
     <string name="privacy_stored_body">आपके प्रोजेक्ट, फ़ाइलें और सेटिंग्स इसी फ़ोन में रहती हैं। प्रोफ़ाइल, जुड़े खाते, AI उपयोग और AI हिस्ट्री क्लाउड में आपके खाते में रहती हैं।</string>
     <string name="privacy_ai_title">AI क्या देखता है</string>

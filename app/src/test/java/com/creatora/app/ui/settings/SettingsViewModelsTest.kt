@@ -22,6 +22,7 @@ import com.creatora.app.testutil.FakeAiService
 import com.creatora.app.testutil.FakeAuthService
 import com.creatora.app.testutil.FakeBillingRepository
 import com.creatora.app.testutil.FakeConnectedAccountRepository
+import com.creatora.app.testutil.FakeHomePrefs
 import com.creatora.app.testutil.FakeNotificationPrefs
 import com.creatora.app.testutil.FakePlatformAdapter
 import com.creatora.app.testutil.FakeSettingsRepository
@@ -50,6 +51,19 @@ class SettingsViewModelsTest {
     private val youtube = FakePlatformAdapter()
     private val billing = FakeBillingRepository()
     private val registry = PlatformRegistry(listOf(youtube))
+
+    @Test
+    fun regionSelection_defaultsAndPersists() = runTest {
+        val prefs = FakeHomePrefs()
+        val vm = RegionViewModel(prefs)
+        keepActive(vm.region)
+
+        assertEquals(deviceRegion(), vm.region.value)
+
+        vm.select("in")
+
+        assertEquals("IN", vm.region.value)
+    }
 
     // ---- account
     @Test

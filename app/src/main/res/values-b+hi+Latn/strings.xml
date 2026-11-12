@@ -143,6 +143,12 @@
     <string name="settings_privacy">Privacy aur security</string>
     <string name="settings_help_about">Help aur about</string>
     <string name="settings_language_description">App ki language chuno. Yahi AI ke jawabon ki language bhi tay karti hai.</string>
+    <string name="settings_region">Trending region</string>
+    <string name="settings_region_description">Home aur Research ke trending results ke liye region chuno. Shuruaat device region se hoti hai.</string>
+    <string name="region_india">India</string>
+    <string name="region_united_states">United States</string>
+    <string name="region_united_kingdom">United Kingdom</string>
+    <string name="region_australia">Australia</string>
     <string name="privacy_stored_title">Kya store hota hai</string>
     <string name="privacy_stored_body">Tumhare projects, files aur settings isi phone mein rehti hain. Profile, connected accounts, AI usage aur AI history cloud mein tumhare account mein rehti hain.</string>
     <string name="privacy_ai_title">AI kya dekhta hai</string>

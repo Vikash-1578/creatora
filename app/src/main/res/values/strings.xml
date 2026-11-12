@@ -553,6 +553,12 @@
     <string name="settings_privacy">Privacy and security</string>
     <string name="settings_help_about">Help and about</string>
     <string name="settings_language_description">Choose the language of the app. It also sets the language of the AI’s answers.</string>
+    <string name="settings_region">Trending region</string>
+    <string name="settings_region_description">Choose the region used for Home and Research trending results. It starts with your device region.</string>
+    <string name="region_india">India</string>
+    <string name="region_united_states">United States</string>
+    <string name="region_united_kingdom">United Kingdom</string>
+    <string name="region_australia">Australia</string>
     <string name="privacy_stored_title">What is stored</string>
     <string name="privacy_stored_body">Your projects, files and settings stay on this phone. Your profile, connected accounts, AI usage and AI history are stored in your account in the cloud.</string>
     <string name="privacy_ai_title">What the AI sees</string>
