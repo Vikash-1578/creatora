@@ -38,7 +38,7 @@ sealed interface ImageOutcome {
  * AI images for a project. The plan's daily allowance and the monthly credits are checked first; a picture is saved as an
  * asset of the project with a licence entry "AI generated", and only a successful picture is counted.
  */
-class AiImages @Inject constructor(
+class AiImages(
     private val generator: ImageGenerator,
     private val assets: AssetRepository,
     private val licences: LicenceRepository,
