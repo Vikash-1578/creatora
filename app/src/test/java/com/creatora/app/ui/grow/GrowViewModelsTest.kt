@@ -35,11 +35,15 @@ class GrowViewModelsTest {
     })
 
     @Test
-    fun withoutAnAccount_orWithAllAccounts_nothingIsFetched() = runTest {
+    fun withoutAnAccount_nothingIsFetched() = runTest {
         val none = analytics()
         advanceUntilIdle()
         assertEquals(Load.NoAccount, none.state.value.overview)
+        assertTrue(kit.youtube.reportCalls.isEmpty())
+    }
 
+    @Test
+    fun withAllAccountsChosen_nothingIsFetched() = runTest {
         kit.connect("UC1")
         kit.connect("UC2")
         kit.context.select(AccountSelection.All)
