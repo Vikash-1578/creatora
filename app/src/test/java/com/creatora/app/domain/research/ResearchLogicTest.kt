@@ -27,7 +27,8 @@ class ResearchLogicTest {
         assertEquals(Pick.PickOne, pickAccount(listOf(account("a"), account("b"))))
         assertEquals(Pick.Unsupported, pickAccount(listOf(account("a", ConnectPlatform.INSTAGRAM))))
         assertEquals(Pick.Unsupported, pickAccount(listOf(account("a", ConnectPlatform.MOJ))))
-        assertEquals(Pick.Account(account("a")), pickAccount(listOf(account("a"))))
+        val one = account("a")
+        assertEquals(Pick.Account(one), pickAccount(listOf(one)))
     }
 
     @Test
