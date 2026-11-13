@@ -139,7 +139,7 @@ class PublishViewModelTest {
         val vm = viewModel()
         keepActive(vm.uiState)
         val shares = mutableListOf<ShareRequest>()
-        backgroundScope.launch { vm.shares.collect { shares += it } }
+        backgroundScope.launch(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler)) { vm.shares.collect { shares += it } }
         advanceUntilIdle()
         vm.answerAi(false)
         vm.answerKids(false)
