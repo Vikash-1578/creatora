@@ -427,9 +427,9 @@ class FakeSearchLog : com.creatora.app.domain.repository.SearchLogRepository {
 class FakeDailyUsage : com.creatora.app.domain.repository.DailyUsageRepository {
     val byDay = MutableStateFlow<Map<String, com.creatora.app.domain.repository.DailyUsage>>(emptyMap())
     override fun observe(uid: String, day: String): Flow<com.creatora.app.domain.repository.DailyUsage> = byDay.map { it[day] ?: com.creatora.app.domain.repository.DailyUsage() }
-    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int) {
+    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int, publishes: Int) {
         val now = byDay.value[day] ?: com.creatora.app.domain.repository.DailyUsage()
-        byDay.value = byDay.value + (day to now.copy(videos = now.videos + videos, aiImages = now.aiImages + aiImages))
+        byDay.value = byDay.value + (day to now.copy(videos = now.videos + videos, aiImages = now.aiImages + aiImages, publishes = now.publishes + publishes))
     }
 }
 
@@ -445,4 +445,16 @@ class FakePlatformLogin(
 ) : com.creatora.app.domain.platform.PlatformLogin {
     var calls = 0
     override suspend fun signIn(): com.creatora.app.domain.platform.LoginOutcome { calls++; return outcome }
+}
+
+class FakeScheduledPosts : com.creatora.app.domain.repository.PostRepository {
+    val posts = MutableStateFlow<Map<String, com.creatora.app.domain.publish.ScheduledPost>>(emptyMap())
+    var failSave = false
+    override fun observe(uid: String): Flow<List<com.creatora.app.domain.publish.ScheduledPost>> = posts.map { it.values.toList() }
+    override suspend fun get(uid: String, id: String) = posts.value[id]
+    override suspend fun save(uid: String, post: com.creatora.app.domain.publish.ScheduledPost) {
+        if (failSave) throw java.io.IOException("offline")
+        posts.value = posts.value + (post.id to post)
+    }
+    override suspend fun delete(uid: String, id: String) { posts.value = posts.value - id }
 }

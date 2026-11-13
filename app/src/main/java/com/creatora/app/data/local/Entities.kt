@@ -55,6 +55,17 @@ data class ProjectEntity(
     @ColumnInfo(defaultValue = "0") val targetSeconds: Int,
     val stepStates: String?,
     @ColumnInfo(defaultValue = "0") val counted: Boolean,
+    // Phase E. Everything nullable so Room can add the columns to existing rows.
+    val publishTitle: String?,
+    val publishDescription: String?,
+    /** Hashtags and tags, newline-separated. */
+    val publishHashtags: String?,
+    val publishTags: String?,
+    val thumbnailUri: String?,
+    val aiContent: Boolean?,
+    val madeForKids: Boolean?,
+    /** Captions by platform as JSON. */
+    val captions: String?,
 )
 
 @Entity(
@@ -154,6 +165,8 @@ fun ProjectEntity.toModel() = Project(
     StartSource.entries.firstOrNull { it.name == startedFrom },
     sourceLink.orEmpty(), concept.orEmpty(), angle.orEmpty(), tone.orEmpty(), audience.orEmpty(), targetSeconds,
     decodeStates(stepStates), counted,
+    publishTitle.orEmpty(), publishDescription.orEmpty(), publishHashtags.orEmpty().lines().filter { it.isNotBlank() },
+    publishTags.orEmpty().lines().filter { it.isNotBlank() }, thumbnailUri, aiContent, madeForKids, decodeCaptions(captions),
 )
 
 fun Project.toEntity() = ProjectEntity(
@@ -161,7 +174,17 @@ fun Project.toEntity() = ProjectEntity(
     brief, hook, structure, callToAction, pronunciations, castIds.joinToString(","),
     narratorVoiceId, licensedFootageOnly, step, isReady, renderUri,
     mode.name, startedFrom?.name, sourceLink, concept, angle, tone, audience, targetSeconds, encodeStates(stepStates), counted,
+    publishTitle, publishDescription, publishHashtags.joinToString("\n"), publishTags.joinToString("\n"), thumbnailUri, aiContent, madeForKids,
+    encodeCaptions(captions),
 )
+
+private fun encodeCaptions(captions: Map<String, String>): String? =
+    if (captions.isEmpty()) null else org.json.JSONObject(captions as Map<*, *>).toString()
+
+private fun decodeCaptions(json: String?): Map<String, String> = runCatching {
+    val o = org.json.JSONObject(json ?: return emptyMap())
+    o.keys().asSequence().associateWith { o.getString(it) }
+}.getOrDefault(emptyMap())
 
 fun IdeaEntity.toModel() = Idea(id, title, notes, projectId, createdAt)
 fun Idea.toEntity() = IdeaEntity(id, title, notes, projectId, createdAt)

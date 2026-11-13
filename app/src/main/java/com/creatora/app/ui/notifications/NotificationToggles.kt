@@ -36,6 +36,7 @@ private fun NotificationCategory.hintRes(): Int = when (this) {
     NotificationCategory.VIEW_MILESTONES -> R.string.notify_view_milestones_hint
     NotificationCategory.EARNINGS -> R.string.notify_earnings_hint
     NotificationCategory.PLAN_USAGE -> R.string.notify_plan_usage_hint
+    NotificationCategory.POSTS -> R.string.notify_posts_hint
 }
 
 /** One switch per category, plus the milestone size. Shared by onboarding and Settings. */

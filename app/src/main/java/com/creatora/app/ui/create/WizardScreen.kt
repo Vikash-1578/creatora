@@ -87,6 +87,7 @@ fun WizardScreen(
     onOpenAiProviders: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenPublish: (projectId: Long) -> Unit = {},
     viewModel: WizardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -136,7 +137,7 @@ fun WizardScreen(
             onClose()
         },
         onClose = onClose,
-        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail, autoStart = state.autoRender) },
+        generatePanel = { RenderPanel(onOpenLibrary = onOpenLibrary, onOpenThumbnail = onOpenThumbnail, onOpenPublish = onOpenPublish, autoStart = state.autoRender) },
         modifier = modifier,
     )
 }

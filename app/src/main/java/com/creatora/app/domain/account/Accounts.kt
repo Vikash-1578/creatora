@@ -232,6 +232,12 @@ object YouTubeScopes {
     const val ANALYTICS = "https://www.googleapis.com/auth/yt-analytics.readonly"
     const val MONETARY = "https://www.googleapis.com/auth/yt-analytics-monetary.readonly"
 
+    /** Asked for when the user first posts to YouTube. */
+    const val UPLOAD = "https://www.googleapis.com/auth/youtube.upload"
+
+    /** Needed only to change the time of a post that is already uploaded (`videos.update`). */
+    const val MANAGE = "https://www.googleapis.com/auth/youtube"
+
     /** Asked for at sign-in. `youtube.upload` is asked later, when publishing needs it. */
     val SIGN_IN = listOf(READ, ANALYTICS, MONETARY)
 }

@@ -18,6 +18,9 @@ import com.creatora.app.domain.repository.CreatorIdeaRepository
 import com.creatora.app.domain.repository.DailyUsage
 import com.creatora.app.domain.repository.DailyUsageRepository
 import com.creatora.app.domain.repository.GoalRepository
+import com.creatora.app.domain.publish.PostStatus
+import com.creatora.app.domain.publish.ScheduledPost
+import com.creatora.app.domain.repository.PostRepository
 import com.creatora.app.domain.repository.UpcomingPost
 import com.creatora.app.domain.repository.UpcomingPostRepository
 import com.creatora.app.domain.home.CreatorIdea
@@ -153,16 +156,17 @@ class FirestoreDailyUsageRepository @Inject constructor(private val config: Clou
     override fun observe(uid: String, day: String): Flow<DailyUsage> =
         if (!config.isConfigured) flowOf(DailyUsage()) else callbackFlow {
             val registration = doc(uid, day).addSnapshotListener { snapshot, _ ->
-                trySend(DailyUsage((snapshot?.getLong("videos") ?: 0L).toInt(), (snapshot?.getLong("aiImages") ?: 0L).toInt()))
+                trySend(DailyUsage((snapshot?.getLong("videos") ?: 0L).toInt(), (snapshot?.getLong("aiImages") ?: 0L).toInt(), (snapshot?.getLong("publishes") ?: 0L).toInt()))
             }
             awaitClose { registration.remove() }
         }
 
-    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int) {
+    override suspend fun add(uid: String, day: String, videos: Int, aiImages: Int, publishes: Int) {
         if (!config.isConfigured) return
         val fields = buildMap<String, Any> {
             if (videos != 0) put("videos", FieldValue.increment(videos.toLong()))
             if (aiImages != 0) put("aiImages", FieldValue.increment(aiImages.toLong()))
+            if (publishes != 0) put("publishes", FieldValue.increment(publishes.toLong()))
         }
         if (fields.isNotEmpty()) doc(uid, day).set(fields, SetOptions.merge()).await()
     }
@@ -344,8 +348,63 @@ class FirestoreUpcomingPostRepository @Inject constructor(private val config: Cl
                 platform = ConnectPlatform.entries.firstOrNull { it.name == doc.getString("platform") } ?: return@listFlow null,
                 title = doc.getString("title").orEmpty(),
                 scheduledAt = doc.getLong("scheduledAt") ?: return@listFlow null,
-            )
+            ).takeIf { doc.getString("status") !in FINISHED }
         }
+
+    // A post that has gone out, failed or been shared is no longer "upcoming".
+    private companion object {
+        val FINISHED = setOf("live", "failed", "shared", "awaiting_public")
+    }
+}
+
+class FirestorePostRepository @Inject constructor(private val config: CloudConfig) : PostRepository {
+    private fun collection(uid: String) = userDoc(uid).collection("scheduledPosts")
+
+    override fun observe(uid: String): Flow<List<ScheduledPost>> =
+        if (!config.isConfigured) flowOf(emptyList()) else collection(uid).listFlow { it.toPost() }
+
+    override suspend fun get(uid: String, id: String): ScheduledPost? {
+        if (!config.isConfigured) return null
+        return runCatching { collection(uid).document(id).get().await().toPost() }.getOrNull()
+    }
+
+    override suspend fun save(uid: String, post: ScheduledPost) {
+        if (!config.isConfigured) return
+        collection(uid).document(post.id).set(
+            mapOf(
+                "postId" to post.postId, "projectId" to post.projectId, "accountKey" to post.accountKey, "platform" to post.platform.name,
+                "title" to post.title, "scheduledAt" to post.scheduledAt, "publishedAt" to post.publishedAt, "status" to post.status.name.lowercase(),
+                "error" to post.error, "remoteId" to post.remoteId, "remoteUrl" to post.remoteUrl, "privacy" to post.privacy,
+                "views24h" to post.views24h, "viewsAsOf" to post.viewsAsOf, "createdAt" to post.createdAt,
+            ),
+        ).await()
+    }
+
+    override suspend fun delete(uid: String, id: String) {
+        if (config.isConfigured) collection(uid).document(id).delete().await()
+    }
+
+    private fun DocumentSnapshot.toPost(): ScheduledPost? {
+        if (!exists()) return null
+        return ScheduledPost(
+            id = id,
+            postId = getString("postId") ?: id,
+            projectId = getLong("projectId"),
+            accountKey = getString("accountKey"),
+            platform = ConnectPlatform.entries.firstOrNull { it.name == getString("platform") } ?: return null,
+            title = getString("title").orEmpty(),
+            scheduledAt = getLong("scheduledAt"),
+            publishedAt = getLong("publishedAt"),
+            status = PostStatus.entries.firstOrNull { it.name.lowercase() == getString("status") } ?: PostStatus.QUEUED,
+            error = getString("error"),
+            remoteId = getString("remoteId"),
+            remoteUrl = getString("remoteUrl"),
+            privacy = getString("privacy"),
+            views24h = getLong("views24h"),
+            viewsAsOf = getLong("viewsAsOf"),
+            createdAt = getLong("createdAt") ?: 0L,
+        )
+    }
 }
 
 class FirestoreCacheRepository @Inject constructor(private val config: CloudConfig) : CacheRepository {

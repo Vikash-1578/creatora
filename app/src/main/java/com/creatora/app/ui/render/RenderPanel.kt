@@ -44,6 +44,7 @@ fun RenderPanel(
     onOpenLibrary: () -> Unit,
     onOpenThumbnail: (projectId: Long) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenPublish: (projectId: Long) -> Unit = {},
     autoStart: Boolean = false,
     viewModel: RenderViewModel = hiltViewModel(),
 ) {
@@ -63,6 +64,7 @@ fun RenderPanel(
         onSaveTo = viewModel::saveTo,
         onOpenLibrary = onOpenLibrary,
         onOpenThumbnail = { state.project?.let { onOpenThumbnail(it.id) } },
+        onPublish = { state.project?.let { onOpenPublish(it.id) } },
         modifier = modifier,
     )
 }
@@ -80,6 +82,7 @@ fun RenderContent(
     onOpenLibrary: () -> Unit,
     onOpenThumbnail: () -> Unit,
     modifier: Modifier = Modifier,
+    onPublish: () -> Unit = {},
 ) {
     val spacing = CreatoraTheme.spacing
     val colors = CreatoraTheme.colors
@@ -177,6 +180,7 @@ fun RenderContent(
                 onSaveToGallery = { onSaveToGallery(File(uri).name) },
                 onSaveTo = onSaveTo,
             )
+            PrimaryButton(stringResource(R.string.publish_go), onPublish, Modifier.fillMaxWidth())
         }
 
         SecondaryButton(stringResource(R.string.thumbnail_make), onOpenThumbnail)

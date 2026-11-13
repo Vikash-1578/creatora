@@ -7,6 +7,7 @@ enum class NotificationCategory(val channelId: String) {
     VIEW_MILESTONES("view_milestones"),
     EARNINGS("earnings"),
     PLAN_USAGE("plan_usage"),
+    POSTS("posts"),
 }
 
 data class NotificationPrefs(
