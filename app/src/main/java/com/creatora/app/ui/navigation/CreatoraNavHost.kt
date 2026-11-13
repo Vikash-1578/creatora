@@ -139,6 +139,7 @@ fun CreatoraNavHost(
                 CreateScreen(
                     onProjectStarted = { id -> navController.navigate(Routes.wizard(id)) },
                     onOpenAiProviders = dropUnlessResumed { navController.navigate(Routes.AI_PROVIDERS) },
+                    onUpgrade = dropUnlessResumed { navController.navigate(Routes.SETTINGS_BILLING) },
                 )
             }
         }

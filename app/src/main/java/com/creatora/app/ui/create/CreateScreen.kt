@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.ViewCarousel
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +37,9 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.creatora.app.R
+import com.creatora.app.domain.account.Plan
+import com.creatora.app.domain.create.FormatAccess
+import com.creatora.app.domain.create.formatAccess
 import com.creatora.app.domain.model.VideoFormat
 import com.creatora.app.domain.model.WizardStep
 import com.creatora.app.ui.components.PrimaryButton
@@ -75,22 +79,48 @@ internal fun VideoFormat.icon(): ImageVector = when (this) {
 fun CreateScreen(
     onProjectStarted: (projectId: Long) -> Unit,
     onOpenAiProviders: () -> Unit,
+    onUpgrade: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CreateViewModel = hiltViewModel(),
 ) {
-    // Nothing is selected until the user taps a tile.
+    // Nothing is selected until the user taps an open tile.
     var selected by rememberSaveable { mutableStateOf<VideoFormat?>(null) }
     var showIdeas by rememberSaveable { mutableStateOf(false) }
+    var showStart by rememberSaveable { mutableStateOf(false) }
+    var locked by rememberSaveable { mutableStateOf<VideoFormat?>(null) }
     val ideas by viewModel.ideas.collectAsStateWithLifecycle()
-    val chosen = selected ?: VideoFormat.LONG_VIDEO
+    val plan by viewModel.plan.collectAsStateWithLifecycle()
+    val savedIdeas by viewModel.savedIdeas.collectAsStateWithLifecycle()
+    val startResult by viewModel.startResult.collectAsStateWithLifecycle()
+    val chosen = selected ?: VideoFormat.entries.first { formatAccess(plan, it) == FormatAccess.OPEN }
     val title = stringResource(R.string.create_default_title, stringResource(chosen.titleRes()))
+
+    LaunchedEffect(startResult) {
+        (startResult as? StartResult.Started)?.let {
+            showStart = false
+            viewModel.clearStartResult()
+            onProjectStarted(it.projectId)
+        }
+    }
+
     CreateContent(
         selected = selected,
-        onSelect = { selected = it },
-        onStart = { selected?.let { viewModel.start(it, title, onProjectStarted) } },
+        plan = plan,
+        onSelect = { format -> if (formatAccess(plan, format) == FormatAccess.OPEN) selected = format else locked = format },
+        onStart = { showStart = true },
         onIdeas = { showIdeas = true },
         modifier = modifier,
     )
+    locked?.let { LockedFormatDialog(it, formatAccess(plan, it), onUpgrade = { locked = null; onUpgrade() }, onDismiss = { locked = null }) }
+    if (showStart && selected != null) {
+        StartSheet(
+            format = selected!!,
+            savedIdeas = savedIdeas,
+            result = startResult,
+            onStart = { source, text, idea, mode -> viewModel.startFrom(selected!!, source, text, idea, mode) },
+            onDismiss = { showStart = false; viewModel.clearStartResult() },
+        )
+    }
     if (showIdeas) {
         IdeasDialog(
             state = ideas,
@@ -112,6 +142,7 @@ fun CreateScreen(
 @Composable
 fun CreateContent(
     selected: VideoFormat?,
+    plan: Plan,
     onSelect: (VideoFormat) -> Unit,
     onStart: () -> Unit,
     onIdeas: () -> Unit,
@@ -134,7 +165,7 @@ fun CreateContent(
                 VideoFormat.entries.chunked(2).forEach { pair ->
                     Row(horizontalArrangement = Arrangement.spacedBy(spacing.md)) {
                         pair.forEach { format ->
-                            FormatTile(format, format == selected, { onSelect(format) }, Modifier.weight(1f))
+                            FormatTile(format, format == selected, formatAccess(plan, format), { onSelect(format) }, Modifier.weight(1f))
                         }
                     }
                 }
@@ -156,7 +187,7 @@ fun CreateContent(
 }
 
 @Composable
-private fun FormatTile(format: VideoFormat, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun FormatTile(format: VideoFormat, selected: Boolean, access: FormatAccess, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = CreatoraTheme.colors
     val shape = CreatoraTheme.shapes.radius16
     Column(
@@ -183,6 +214,12 @@ private fun FormatTile(format: VideoFormat, selected: Boolean, onClick: () -> Un
         }
         Text(stringResource(format.titleRes()), style = CreatoraTheme.typography.cardTitle, color = colors.text)
         Text(stringResource(format.subtitleRes()), style = CreatoraTheme.typography.caption, color = colors.textMuted)
+        if (access != FormatAccess.OPEN) {
+            Text(
+                stringResource(if (access == FormatAccess.PRO) R.string.create_lock_pro else R.string.create_coming_later),
+                style = CreatoraTheme.typography.caption, color = colors.accentText,
+            )
+        }
     }
 }
 
@@ -216,11 +253,11 @@ private fun StepsCard() {
 @Preview(name = "Light", showBackground = true)
 @Composable
 private fun CreateLightPreview() {
-    CreatoraTheme(darkTheme = false) { CreateContent(null, {}, {}, {}) }
+    CreatoraTheme(darkTheme = false) { CreateContent(null, Plan.FREE, {}, {}, {}) }
 }
 
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CreateDarkPreview() {
-    CreatoraTheme(darkTheme = true) { CreateContent(VideoFormat.SHORTS_REELS, {}, {}, {}) }
+    CreatoraTheme(darkTheme = true) { CreateContent(VideoFormat.SHORTS_REELS, Plan.PRO, {}, {}, {}) }
 }

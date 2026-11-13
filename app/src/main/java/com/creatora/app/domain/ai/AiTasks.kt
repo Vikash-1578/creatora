@@ -153,6 +153,56 @@ class AiTasks @Inject constructor(private val ai: AiService) {
             ),
         ).map { parseIdeas(it, 6) }
 
+    /** Sets the angle, length, tone and audience of a video from its topic. The creator's goal and profile are added by the metered service. */
+    suspend fun briefSuggestion(title: String, brief: String, format: String, maxSeconds: Int): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You set the plan for one video. Reply in exactly this format and nothing else:\n" +
+                    "ANGLE: <the angle in one sentence>\nLENGTH: <the length in seconds, a number, at most $maxSeconds>\n" +
+                    "TONE: <two or three words>\nAUDIENCE: <who it is for, one short phrase>\n" +
+                    "Use only what is given; do not invent facts or numbers.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Format: $format\nTitle: $title\nBrief: $brief")),
+            ),
+        )
+
+    /** Rewrites one sentence of a script. [how] is an instruction such as "shorter", "longer" or "in a friendlier tone". */
+    suspend fun rewriteLine(line: String, how: String, script: String): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "You rewrite one sentence of a spoken video script. Reply with the new sentence only: no quotes, no " +
+                    "explanation. Keep the meaning and the language of the sentence. Instruction: $how.",
+                messages = listOf(ChatMessage(ChatRole.USER, "Script for context:\n${script.take(SAMPLE_LIMIT)}\n\nSentence to rewrite:\n$line")),
+            ),
+        )
+
+    /** The same script, shortened to about [seconds] of speech. Same HOOK, STRUCTURE and CTA format as [scriptDraft]. */
+    suspend fun shortenScript(script: String, seconds: Int): AiOutcome<ScriptDraft> =
+        ai.complete(
+            AiRequest(
+                system = "You shorten a spoken video script to about $seconds seconds of speech (about ${seconds * 2} words). Keep " +
+                    "its best points and its language. Reply in exactly this format and nothing else:\nHOOK: ...\nSTRUCTURE: ...\nCTA: ...",
+                messages = listOf(ChatMessage(ChatRole.USER, script.take(SAMPLE_LIMIT))),
+            ),
+        ).map { parseScript(it) }
+
+    /**
+     * The idea behind another video, in new words, for a creator to make their own version. Only the given title,
+     * description and tags are used, and nothing may be copied from them.
+     */
+    suspend fun extractConcept(title: String, description: String, tags: List<String>, topic: String, strict: Boolean): AiOutcome<String> =
+        ai.complete(
+            AiRequest(
+                system = "A creator wants to make their OWN video inspired by another video. From the facts given, write the idea " +
+                    "behind it. Never copy: do not reuse the title, any sentence or the structure; write new words. " +
+                    (if (strict) "Your last answer was too close to the original title, so use completely different words. " else "") +
+                    "Reply in exactly this format and nothing else:\nCONCEPT: <the idea in one new sentence>\n" +
+                    "ANGLE: <a different angle for the creator's own take>\nHOOK: <an opening line in new words>",
+                messages = listOf(
+                    ChatMessage(ChatRole.USER, "Other video title: $title\nDescription: ${description.take(SAMPLE_LIMIT)}\nTags: ${tags.take(15).joinToString()}\nThe creator's own topic: ${topic.ifBlank { "not given" }}"),
+                ),
+            ),
+        )
+
     /** A kind, honest note that a goal looks out of reach for its deadline, with the realistic target given in the facts. */
     suspend fun goalAdvice(facts: String): AiOutcome<String> =
         ai.complete(
